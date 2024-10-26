@@ -9,31 +9,31 @@ import {
   Dimensions,
   StatusBar,
 } from "react-native";
-
+import { Onboarding2ScreenProps } from "../../types";
 const { width } = Dimensions.get("window");
 
-interface OnboardingScreen2Props {
-  onFinish: () => void;
-  onBack: () => void;
-}
+const OnboardingScreen2: React.FC<Onboarding2ScreenProps> = ({ navigation }) => {
+  const onFinish = () => {
+    navigation.navigate("Onboarding3");
+  };
 
-const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({
-  onFinish,
-  onBack,
-}) => {
+  const onBack = () => {
+    navigation.goBack();
+  };
+
   return (
     <>
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
       <SafeAreaView style={styles.container}>
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
           <Image
-            source={require("@/assets/icons/arrow.png")}
+            source={require("../../assets/icons/arrow.png")}
             style={styles.backIcon}
           />
         </TouchableOpacity>
         <View style={styles.content}>
           <Image
-            source={require("@/assets/icons/shareyourexp.png")}
+            source={require("../../assets/icons/shareyourexp.png")}
             style={styles.image}
             resizeMode="contain"
           />

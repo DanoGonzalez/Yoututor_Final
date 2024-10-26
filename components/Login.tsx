@@ -1,8 +1,15 @@
 import React, { useState } from "react";
-import {View,TextInput,Text,StyleSheet,Image,TouchableOpacity,} from "react-native";
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import { loginUsuario } from "../controllers/usuariosController";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface LoginProps {
   onLogin?: () => void;
@@ -24,8 +31,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         id: usuario.id,
         nombreCompleto: `${usuario.nombres} ${usuario.apellidos}`,
       };
-      await AsyncStorage.setItem('usuario', JSON.stringify(usuarioData));
-      onLogin && onLogin();
+      await AsyncStorage.setItem("usuario", JSON.stringify(usuarioData));
+      onLogin && onLogin(); // Llama a onLogin después de un inicio de sesión exitoso
     } catch (err: any) {
       setError(err.message);
     }
@@ -37,7 +44,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   return (
     <View style={styles.container}>
-      <Image source={require("@/assets/icons/book.png")} style={styles.icon} />
+      <Image source={require("../assets/icons/book.png")} style={styles.icon} />
       <Text style={styles.title}>¡Bienvenido!</Text>
       <Text style={styles.subtitle}>Inicia sesión ahora</Text>
 
@@ -62,8 +69,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <Image
             source={
               showPassword
-                ? require("@/assets/icons/eye.svg")
-                : require("@/assets/icons/eye-off.png")
+                ? require("../assets/icons/eye.svg")
+                : require("../assets/icons/eye-off.png")
             }
             style={styles.iconPassword}
           />
@@ -77,19 +84,19 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       <View style={styles.socialButtonsContainer}>
         <TouchableOpacity style={styles.socialButton}>
           <Image
-            source={require("@/assets/icons/google_icon.svg")}
+            source={require("../assets/icons/google_icon.svg")}
             style={styles.socialIcon}
           />
         </TouchableOpacity>
         <TouchableOpacity style={styles.socialButton}>
           <Image
-            source={require("@/assets/icons/linkedin.png")}
+            source={require("../assets/icons/linkedin.png")}
             style={styles.socialIcon}
           />
         </TouchableOpacity>
         <TouchableOpacity style={styles.socialButton}>
           <Image
-            source={require("@/assets/icons/facebook.png")}
+            source={require("../assets/icons/facebook.png")}
             style={styles.socialIcon}
           />
         </TouchableOpacity>
