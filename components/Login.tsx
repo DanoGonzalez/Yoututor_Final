@@ -8,19 +8,19 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { loginUsuario } from "../controllers/usuariosController";
-import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface LoginProps {
+  navigation?: any;
   onLogin?: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const navigation = useNavigation();
+
 
   const handleLogin = async () => {
     try {
@@ -41,6 +41,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  const handleregister = () => {
+    navigation.navigate("Onboarding3");
+  }
 
   return (
     <View style={styles.container}>
@@ -106,7 +110,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.registerButton}>
+      <TouchableOpacity style={styles.registerButton} onPress={handleregister}>
         <Text style={styles.registerButtonText}>Registrar Cuenta</Text>
       </TouchableOpacity>
 

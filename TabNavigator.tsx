@@ -9,8 +9,11 @@ import TutoresScreen from "./components/tabs/tutores";
 import { TabParamList } from "./types"; // Import the TabParamList type
 
 const Tab = createBottomTabNavigator<TabParamList>();
+interface TabLayoutProps {
+  onLogout: () => void;
+}
 
-export default function TabLayout() {
+export default function TabLayout({ onLogout }: TabLayoutProps) {
   return (
     <Tab.Navigator
       initialRouteName="Home" // Set the initial route to Home
@@ -46,7 +49,7 @@ export default function TabLayout() {
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={(props: any) => <ProfileScreen {...props} onLogout={onLogout} />}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Image

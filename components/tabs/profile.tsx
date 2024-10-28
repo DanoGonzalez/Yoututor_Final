@@ -9,18 +9,24 @@ import {
   StatusBar,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 
-const ProfileScreen = () => {
-  const router = useRouter();
+interface ProfileScreenProps {
+  onLogout: () => void;
+}
+
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
+  const navigation = useNavigation();
 
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem("usuario");
-      // Redirigir al usuario a la pantalla de login
-      router.replace("/login" as never);
+      const usuario = await AsyncStorage.getItem("usuario");
+      console.log("Valor de usuario después de eliminar:", usuario); // Debería ser null
+      onLogout();
+      navigation.navigate("Login" as never);
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+      console.error("Error al eliminar el usuario de AsyncStorage:", error);
     }
   };
 

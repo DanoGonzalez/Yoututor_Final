@@ -23,6 +23,10 @@ export default function App() {
     }, 3000);
   }, []);
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+  };
+
   if (isLoading) {
     return <YouTutorSplashScreen onReady={() => setIsLoading(false)} />;
   }
@@ -32,17 +36,19 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isLoggedIn ? (
           <>
-            <Stack.Screen name="Onboarding1" component={OnboardingScreen} />
-            <Stack.Screen name="Onboarding2" component={OnboardingScreen2} />
-            <Stack.Screen name="Onboarding3" component={OnboardingScreen3} />
             <Stack.Screen name="Login">
               {(props) => <Login {...props} onLogin={() => setIsLoggedIn(true)} />}
             </Stack.Screen>
+            <Stack.Screen name="Onboarding1" component={OnboardingScreen} />
+            <Stack.Screen name="Onboarding2" component={OnboardingScreen2} />
+            <Stack.Screen name="Onboarding3" component={OnboardingScreen3} />
             <Stack.Screen name="TutorRegistration" component={TutorRegistration} />
             <Stack.Screen name="StudentRegistration" component={StudentRegistration} />
           </>
         ) : (
-          <Stack.Screen name="TabLayout" component={TabLayout} />
+          <Stack.Screen name="TabLayout">
+            {(props) => <TabLayout {...props} onLogout={handleLogout} />}
+          </Stack.Screen>
         )}
       </Stack.Navigator>
     </NavigationContainer>
