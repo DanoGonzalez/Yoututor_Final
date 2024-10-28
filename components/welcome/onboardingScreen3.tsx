@@ -9,21 +9,25 @@ import {
   Dimensions,
   StatusBar,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { Onboarding3ScreenProps } from "../../types";
 const { width } = Dimensions.get("window");
 
-interface OnboardingScreen3Props {
-  onFinish: () => void;
-  onBack: () => void;
-}
+const OnboardingScreen3: React.FC<Onboarding3ScreenProps> = ({ navigation }) => {
+  const onTeach = () => {
+    navigation.navigate("TutorRegistration");
+  };
 
-const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({
-  onFinish,
-  onBack,
-}) => {
-  const navigation = useNavigation();
+  const onLearn = () => {
+    navigation.navigate("StudentRegistration");
+  };
 
+  const onFinish = () => {
+    navigation.navigate("Login");
+  };
 
+  const onBack = () => {
+    navigation.goBack();
+  };
 
   return (
     <>
@@ -31,13 +35,13 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({
       <SafeAreaView style={styles.container}>
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
           <Image
-            source={require("@/assets/icons/arrow.png")}
+            source={require("../../assets/icons/arrow.png")}
             style={styles.backIcon}
           />
         </TouchableOpacity>
         <View style={styles.content}>
           <Image
-            source={require("@/assets/icons/redtutoria.png")}
+            source={require("../../assets/icons/redtutoria.png")}
             style={styles.image}
             resizeMode="contain"
           />
@@ -48,16 +52,16 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({
           </Text>
         </View>
         <View style={styles.buttonContainer}>
-        <View style={styles.roleButtons}>
-          <TouchableOpacity style={styles.roleButton}>
-            <Text style={styles.roleButtonText}>Enseñar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.roleButton, styles.roleButtonOutline]}>
-            <Text style={styles.roleButtonTextOutline}>Aprender</Text>
-          </TouchableOpacity>
-        </View>
-
+          <View style={styles.roleButtons}>
+            <TouchableOpacity style={styles.roleButton} onPress={onTeach}>
+              <Text style={styles.roleButtonText}>Enseñar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.roleButton, styles.roleButtonOutline]}
+              onPress={onLearn}>
+              <Text style={styles.roleButtonTextOutline}>Aprender</Text>
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity style={styles.button} onPress={onFinish}>
             <Text style={styles.buttonText}>Siguiente</Text>
           </TouchableOpacity>
@@ -150,6 +154,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: "center",
+    marginTop: 20,
   },
   buttonText: {
     color: "#FFFFFF",

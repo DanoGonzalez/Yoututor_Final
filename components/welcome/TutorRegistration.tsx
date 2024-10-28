@@ -1,30 +1,46 @@
 import React, { useState } from "react";
-import {View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Image, StatusBar} from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  TextInput,
+  Image,
+  StatusBar,
+} from "react-native";
+import { TutorRegistrationProps } from "../../types";
 
-
-interface TutorRegistrationProps {
-  onBack?: () => void;
-  onNext?: () => void;
-}
-
-const TutorRegistration: React.FC<TutorRegistrationProps> = ({
-  onBack,
-  onNext,
-}) => {
-  const navigation = useNavigation();
+const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const handleNext = () => {
+    // Aquí puedes agregar la lógica para el siguiente paso
+    // Por ejemplo: navigation.navigate('NextScreen');
+    console.log("Next pressed");
+  };
 
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
+  const handleAlternativeRegistration = () => {
+    navigation.navigate("Login");
+  };
 
   return (
     <>
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
       <SafeAreaView style={styles.container}>
-
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Image
+            source={require("../../assets/icons/arrow.png")}
+            style={styles.backIcon}
+          />
+        </TouchableOpacity>
         <View style={styles.content}>
           <View style={styles.iconContainer}>
             <Image
@@ -33,13 +49,11 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({
               resizeMode="contain"
             />
           </View>
-
           <Text style={styles.title}>Nueva cuenta</Text>
           <Text style={styles.subtitle}>
             Llena el siguiente formulario con tus datos personales. Crea una
             contraseña y registra una cuenta de correo electrónico.
           </Text>
-
           <View style={styles.form}>
             <TextInput
               style={styles.input}
@@ -48,7 +62,6 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({
               onChangeText={setName}
               autoCapitalize="words"
             />
-
             <TextInput
               style={styles.input}
               placeholder="Correo"
@@ -57,7 +70,6 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({
               keyboardType="email-address"
               autoCapitalize="none"
             />
-
             <TextInput
               style={styles.input}
               placeholder="Contraseña"
@@ -65,7 +77,6 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({
               onChangeText={setPassword}
               secureTextEntry
             />
-
             <TextInput
               style={styles.input}
               placeholder="Confirmar Contraseña"
@@ -74,12 +85,13 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({
               secureTextEntry
             />
           </View>
-
-          <TouchableOpacity style={styles.nextButton} onPress={onNext}>
+          <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
             <Text style={styles.nextButtonText}>Siguiente</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.alternativeButton}>
+          <TouchableOpacity 
+            style={styles.alternativeButton} 
+            onPress={handleAlternativeRegistration}
+          >
             <Text style={styles.alternativeButtonText}>
               Usar otro método de registro
             </Text>

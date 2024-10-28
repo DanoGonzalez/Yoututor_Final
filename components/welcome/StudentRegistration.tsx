@@ -1,25 +1,26 @@
 import React, { useState } from "react";
-import {View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, StatusBar, Image, Alert,} from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  TextInput,
+  StatusBar,
+  Image,
+  Alert,
+} from "react-native";
+import { StudentRegistrationProps } from "../../types";
 import { createStudents } from "../../controllers/usuariosController";
 
-
-interface StudentRegistrationProps {
-  onBack: () => void;
-  onNext: () => void;
-}
-
-const StudentRegistration: React.FC<StudentRegistrationProps> = ({ onBack, onNext,}) => {
-  const navigation = useNavigation();
-
- 
+const StudentRegistration: React.FC<StudentRegistrationProps> = ({
+  navigation,
+}) => {
   const [nombres, setNombres] = useState("");
   const [apellidos, setApellidos] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
- 
-  
 
   const handleNext = async () => {
     if (password !== confirmPassword) {
@@ -32,7 +33,6 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({ onBack, onNex
       console.log("Entra al if de los campos");
       return;
     }
-
     try {
       const usuarioData = {
         nombres,
@@ -40,36 +40,53 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({ onBack, onNex
         correo: email,
         password,
       };
-      
+
       await createStudents(usuarioData);
       Alert.alert("Registro exitoso", "Tu cuenta ha sido creada exitosamente", [
-        { text: "OK", onPress: onNext },
+        {
+          text: "OK",
+          onPress: () => navigation.navigate("Login"),
+        },
       ]);
-
     } catch (error: any) {
-      Alert.alert("Error", "Hubo un problema al registrar el usuario: " + error.message);
+      Alert.alert(
+        "Error",
+        "Hubo un problema al registrar el usuario: " + error.message
+      );
     }
+  };
+
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
+  const handleAlternativeRegistration = () => {
+    navigation.navigate("Login");
   };
 
   return (
     <>
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
       <SafeAreaView style={styles.container}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Image
+            source={require("../../assets/icons/arrow.png")}
+            style={styles.backIcon}
+          />
+        </TouchableOpacity>
         <View style={styles.content}>
           <View style={styles.iconContainer}>
             <Image
-              source={require("@/assets/icons/signup_estudiantes.png")}
+              source={require("../../assets/icons/signup_estudiantes.png")}
               style={styles.icon}
               resizeMode="contain"
             />
           </View>
-
           <Text style={styles.title}>Nueva cuenta</Text>
           <Text style={styles.subtitle}>
             Llena el siguiente formulario con tus datos personales. Crea una
             contraseña y registra una cuenta de correo electrónico.
           </Text>
-
           <View style={styles.form}>
             <TextInput
               style={styles.input}
@@ -106,13 +123,12 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({ onBack, onNex
               secureTextEntry
             />
           </View>
-
           <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
             <Text style={styles.nextButtonText}>Siguiente</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.alternativeButton}
+          <TouchableOpacity 
+            style={styles.alternativeButton} 
+            onPress={handleAlternativeRegistration}
           >
             <Text style={styles.alternativeButtonText}>
               Usar otro método de registro
@@ -185,6 +201,16 @@ const styles = StyleSheet.create({
     color: "#0078FF",
     fontSize: 16,
     textAlign: "center",
+  },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 1,
+  },
+  backIcon: {
+    width: 55,
+    height: 55,
   },
 });
 

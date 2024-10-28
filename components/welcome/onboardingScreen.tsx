@@ -9,21 +9,21 @@ import {
   Dimensions,
   StatusBar,
 } from "react-native";
-
+import { OnboardingScreenProps } from "../../types";
 const { width } = Dimensions.get("window");
 
-interface OnboardingScreenProps {
-  onFinish: () => void;
-}
+const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }) => {
+  const handleFinish = () => {
+    navigation.navigate("Onboarding2");
+  };
 
-const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinish }) => {
   return (
     <>
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
           <Image
-            source={require("@/assets/icons/teachLearn.svg")}
+            source={require("../../assets/icons/teachLearn.svg")}
             style={styles.image}
             resizeMode="contain"
           />
@@ -35,7 +35,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onFinish }) => {
           </Text>
         </View>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={onFinish}>
+          <TouchableOpacity style={styles.button} onPress={handleFinish}>
             <Text style={styles.buttonText}>Siguiente</Text>
           </TouchableOpacity>
         </View>

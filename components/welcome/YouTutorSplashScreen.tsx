@@ -31,7 +31,7 @@ const YouTutorSplashScreen: React.FC<{ onReady: () => void }> = ({ onReady }) =>
 
   return (
     <View style={styles.container}>
-      <Image source={require("@/assets/icons/book.png")} style={styles.icon} />
+      <Image source={require("../../assets/icons/book.png")} style={styles.icon} />
       <Text style={styles.title}>YouTutor</Text>
     </View>
   );
