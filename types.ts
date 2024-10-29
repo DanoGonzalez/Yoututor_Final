@@ -13,6 +13,7 @@ export type RootStackParamList = {
   TabLayout: undefined;
   Tutores: undefined;
   Home: undefined;
+  Chat: { chatId: string };
 };
 
 export type TabParamList = {
