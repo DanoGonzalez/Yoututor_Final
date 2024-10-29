@@ -8,7 +8,7 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import { ThemedView } from "../../components/ThemedView";
+import { ThemedView } from "../ThemedView";
 
 export default function MessagesScreen() {
   return (

@@ -23,7 +23,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
           <Image
-            source={require("../../assets/icons/teachLearn.svg")}
+            source={require("../../assets/icons/teachLearn.png")}
             style={styles.image}
             resizeMode="contain"
           />

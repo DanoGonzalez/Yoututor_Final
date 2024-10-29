@@ -7,24 +7,22 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  TextInput,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-
-interface ProfileScreenProps {
-  onLogout: () => void;
-}
+import { ProfileScreenNavigationProp, ProfileScreenProps } from "../../types";
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
 
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem("usuario");
       const usuario = await AsyncStorage.getItem("usuario");
-      console.log("Valor de usuario después de eliminar:", usuario); // Debería ser null
+      console.log("Valor de usuario después de eliminar:", usuario);
       onLogout();
-      navigation.navigate("Login" as never);
+      navigation.navigate("Login");
     } catch (error) {
       console.error("Error al eliminar el usuario de AsyncStorage:", error);
     }
@@ -45,23 +43,44 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
         <View style={styles.content}>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Nombre</Text>
-            <Text style={styles.infoValue}>John Doe</Text>
+            <TextInput
+              style={styles.infoInput}
+              defaultValue="John Doe"
+              placeholderTextColor="#000000"
+            />
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Correo electrónico de contacto</Text>
-            <Text style={styles.infoValue}>johndoe@example.com</Text>
+            <TextInput
+              style={styles.infoInput}
+              defaultValue="johndoe@example.com"
+              placeholderTextColor="#000000"
+              keyboardType="email-address"
+            />
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Intereses</Text>
-            <Text style={styles.infoValue}>Matemáticas, Física, Programación</Text>
+            <TextInput
+              style={styles.infoInput}
+              defaultValue="Matemáticas, Física, Programación"
+              placeholderTextColor="#000000"
+            />
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Método de aprendizaje</Text>
-            <Text style={styles.infoValue}>Visual, Práctico</Text>
+            <TextInput
+              style={styles.infoInput}
+              defaultValue="Visual, Práctico"
+              placeholderTextColor="#000000"
+            />
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Plataformas a preferir</Text>
-            <Text style={styles.infoValue}>Zoom, Google Meet</Text>
+            <TextInput
+              style={styles.infoInput}
+              defaultValue="Zoom, Google Meet"
+              placeholderTextColor="#000000"
+            />
           </View>
           <TouchableOpacity style={styles.changeInfoButton}>
             <Text style={styles.changeInfoButtonText}>Cambiar información</Text>
@@ -81,15 +100,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   header: {
-    backgroundColor: "#0078FF",
-    height: 120,
+    height: 100,
     justifyContent: "flex-end",
     alignItems: "center",
-    paddingBottom: 60, // Ajusta este valor según sea necesario
+    paddingBottom: 60,
   },
   profilePictureContainer: {
     position: "absolute",
-    bottom: -50, // Ajusta este valor para posicionar la imagen
+    bottom: -50,
     alignSelf: "center",
   },
   profilePicture: {
@@ -101,7 +119,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    marginTop: 60, // Espacio para la imagen de perfil
+    marginTop: 60,
   },
   infoItem: {
     marginBottom: 20,
@@ -111,12 +129,14 @@ const styles = StyleSheet.create({
     color: "#666666",
     marginBottom: 5,
   },
-  infoValue: {
+  infoInput: {
     fontSize: 16,
     color: "#000000",
     backgroundColor: "#F0F0F0",
     padding: 10,
     borderRadius: 5,
+    width: "100%",
+    height: 40,
   },
   changeInfoButton: {
     backgroundColor: "#0078FF",

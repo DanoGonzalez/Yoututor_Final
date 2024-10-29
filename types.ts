@@ -1,6 +1,7 @@
+// types.ts
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { CompositeNavigationProp } from '@react-navigation/native';
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { CompositeNavigationProp } from "@react-navigation/native";
 
 export type RootStackParamList = {
   Onboarding1: undefined;
@@ -21,33 +22,47 @@ export type TabParamList = {
   Tutores: undefined;
 };
 
-export type RootStackScreenProps<T extends keyof RootStackParamList> = 
+export type RootStackScreenProps<T extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, T>;
 
 export type TabScreenProps<T extends keyof TabParamList> = {
   navigation: CompositeNavigationProp<
     BottomTabNavigationProp<TabParamList, T>,
-    NativeStackScreenProps<RootStackParamList>['navigation']
+    NativeStackScreenProps<RootStackParamList>["navigation"]
   >;
 };
+
+export type ProfileScreenNavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<TabParamList, "Profile">,
+  NativeStackScreenProps<RootStackParamList>["navigation"]
+>;
+
+export interface ProfileScreenProps {
+  onLogout: () => void;
+}
 
 export type OnboardingScreenProps = NativeStackScreenProps<
   RootStackParamList,
   "Onboarding1"
 >;
+
 export type Onboarding2ScreenProps = NativeStackScreenProps<
   RootStackParamList,
   "Onboarding2"
 >;
+
 export type Onboarding3ScreenProps = NativeStackScreenProps<
   RootStackParamList,
   "Onboarding3"
 >;
+
 export type LoginScreenProps = NativeStackScreenProps<RootStackParamList, "Login">;
+
 export type TutorRegistrationProps = NativeStackScreenProps<
   RootStackParamList,
   "TutorRegistration"
 >;
+
 export type StudentRegistrationProps = NativeStackScreenProps<
   RootStackParamList,
   "StudentRegistration"
@@ -58,4 +73,4 @@ export type TabLayoutProps = NativeStackScreenProps<
   "TabLayout"
 >;
 
-export type TutoresScreenProps = TabScreenProps<'Tutores'>;
+export type TutoresScreenProps = TabScreenProps<"Tutores">;

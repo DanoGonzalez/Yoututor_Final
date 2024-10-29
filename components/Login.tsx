@@ -6,6 +6,11 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { loginUsuario } from "../controllers/usuariosController";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,10 +25,11 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
     try {
+      setIsLoading(true);
       setError(null);
       const usuario = await loginUsuario(correo, password);
       console.log("Usuario logueado:", usuario);
@@ -32,9 +38,11 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
         nombreCompleto: `${usuario.nombres} ${usuario.apellidos}`,
       };
       await AsyncStorage.setItem("usuario", JSON.stringify(usuarioData));
-      onLogin && onLogin(); // Llama a onLogin después de un inicio de sesión exitoso
+      onLogin && onLogin();
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -44,89 +52,120 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
 
   const handleregister = () => {
     navigation.navigate("Onboarding3");
-  }
+  };
 
   return (
-    <View style={styles.container}>
-      <Image source={require("../assets/icons/book.png")} style={styles.icon} />
-      <Text style={styles.title}>¡Bienvenido!</Text>
-      <Text style={styles.subtitle}>Inicia sesión ahora</Text>
+    <>
+      <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        enabled={Platform.OS === "ios"}
+        style={styles.container}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
+          <View style={styles.content}>
+            <Image
+              source={require("../assets/icons/book.png")}
+              style={styles.icon}
+            />
+            <Text style={styles.title}>¡Bienvenido!</Text>
+            <Text style={styles.subtitle}>Inicia sesión ahora</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        value={correo}
-        onChangeText={setCorreo}
-        keyboardType="email-address"
-      />
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={styles.inputPassword}
-          placeholder="Contraseña"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-        />
-        <TouchableOpacity
-          onPress={togglePasswordVisibility}
-          style={styles.eyeIcon}>
-          <Image
-            source={
-              showPassword
-                ? require("../assets/icons/eye.svg")
-                : require("../assets/icons/eye-off.png")
-            }
-            style={styles.iconPassword}
-          />
-        </TouchableOpacity>
-      </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Correo electrónico"
+              value={correo}
+              onChangeText={setCorreo}
+              keyboardType="email-address"
+            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.inputPassword}
+                placeholder="Contraseña"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                onPress={togglePasswordVisibility}
+                style={styles.eyeIcon}>
+                <Image
+                  source={
+                    showPassword
+                      ? require("../assets/icons/eye.png")
+                      : require("../assets/icons/eye-off.png")
+                  }
+                  style={styles.iconPassword}
+                />
+              </TouchableOpacity>
+            </View>
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+            {error && <Text style={styles.errorText}>{error}</Text>}
 
-      <View style={styles.separator} />
+            <View style={styles.separator} />
 
-      <View style={styles.socialButtonsContainer}>
-        <TouchableOpacity style={styles.socialButton}>
-          <Image
-            source={require("../assets/icons/google_icon.svg")}
-            style={styles.socialIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton}>
-          <Image
-            source={require("../assets/icons/linkedin.png")}
-            style={styles.socialIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton}>
-          <Image
-            source={require("../assets/icons/facebook.png")}
-            style={styles.socialIcon}
-          />
-        </TouchableOpacity>
-      </View>
+            <View style={styles.socialButtonsContainer}>
+              <TouchableOpacity style={styles.socialButton}>
+                <Image
+                  source={require("../assets/icons/google_icon.png")}
+                  style={styles.socialIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton}>
+                <Image
+                  source={require("../assets/icons/linkedin.png")}
+                  style={styles.socialIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton}>
+                <Image
+                  source={require("../assets/icons/facebook.png")}
+                  style={styles.socialIcon}
+                />
+              </TouchableOpacity>
+            </View>
 
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
-      </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]} 
+              onPress={handleLogin}
+              disabled={isLoading}>
+              {isLoading ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+              )}
+            </TouchableOpacity>
 
-      <TouchableOpacity style={styles.registerButton} onPress={handleregister}>
-        <Text style={styles.registerButtonText}>Registrar Cuenta</Text>
-      </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.registerButton}
+              onPress={handleregister}>
+              <Text style={styles.registerButtonText}>Registrar Cuenta</Text>
+            </TouchableOpacity>
 
-      <TouchableOpacity>
-        <Text style={styles.forgotPasswordText}>Olvidé mi contraseña</Text>
-      </TouchableOpacity>
-    </View>
+            <TouchableOpacity>
+              <Text style={styles.forgotPasswordText}>Olvidé mi contraseña</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContent: {
+    flexGrow: 1,
+  },
+  content: {
+    minHeight: "100%",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
+  },
+  container: {
+    flex: 1,
     backgroundColor: "#FFFFFF",
   },
   icon: {
@@ -237,6 +276,9 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "#DCDCDC",
     marginVertical: 20,
+  },
+  loginButtonDisabled: {
+    opacity: 0.7,
   },
 });
 
