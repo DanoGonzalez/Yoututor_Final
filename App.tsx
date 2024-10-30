@@ -10,6 +10,7 @@ import TutorRegistration from "./components/welcome/TutorRegistration";
 import StudentRegistration from "./components/welcome/StudentRegistration";
 import TabLayout from "./TabNavigator";
 import { RootStackParamList } from "./types";
+import ChatScreen from "./components/ChatScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -43,12 +44,24 @@ export default function App() {
             <Stack.Screen name="Onboarding2" component={OnboardingScreen2} />
             <Stack.Screen name="Onboarding3" component={OnboardingScreen3} />
             <Stack.Screen name="TutorRegistration" component={TutorRegistration} />
-            <Stack.Screen name="StudentRegistration" component={StudentRegistration} />
+            <Stack.Screen
+              name="StudentRegistration"
+              component={StudentRegistration}
+            />
           </>
         ) : (
-          <Stack.Screen name="TabLayout">
-            {(props) => <TabLayout {...props} onLogout={handleLogout} />}
-          </Stack.Screen>
+          <>
+            <Stack.Screen name="TabLayout">
+              {(props) => <TabLayout {...props} onLogout={handleLogout} />}
+            </Stack.Screen>
+            <Stack.Screen
+              name="Chat"
+              component={ChatScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

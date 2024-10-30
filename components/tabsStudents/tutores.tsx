@@ -4,13 +4,13 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  ScrollView,
   TouchableOpacity,
   StatusBar,
+  ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { TutoresScreenProps } from "../../types"; // Adjust the import path as needed
+import { TutoresScreenProps } from "../../types";
 
 const TutoresScreen: React.FC = () => {
   const navigation = useNavigation<TutoresScreenProps["navigation"]>();
@@ -63,16 +63,13 @@ const TutoresScreen: React.FC = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Busca tu próximo asesor</Text>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoriesContainer}>
+      <View style={styles.categoriesContainer}>
         {categories.map((category, index) => (
           <TouchableOpacity key={index} style={styles.categoryButton}>
-            <Text style={styles.categoryText}>{category}</Text>
+            <Text style={styles.categoryTextFilter}>{category}</Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
       <ScrollView style={styles.tutorsContainer}>
         {tutors.map((tutor) => (
           <View
@@ -118,21 +115,39 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   categoriesContainer: {
-    paddingHorizontal: 16,
+    padding: 16,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 8,
   },
   categoryButton: {
     backgroundColor: "#F0F8FF",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    marginRight: 8,
+    marginBottom: 8,
+    height: 35,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   categoryText: {
+    color: "#FFF",
+    fontWeight: "500",
+  },
+  categoryTextFilter: {
     color: "#0078FF",
     fontWeight: "500",
   },
   tutorsContainer: {
     padding: 16,
+    color: "#fff",
   },
   tutorCard: {
     borderRadius: 8,

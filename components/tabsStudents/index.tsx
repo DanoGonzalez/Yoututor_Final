@@ -10,11 +10,11 @@ import {
   Dimensions,
   StatusBar,
 } from "react-native";
-import { ThemedText } from "../../components/ThemedText";
-import { ThemedView } from "../../components/ThemedView";
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../types'; // Adjust the import path as needed
+import { ThemedText } from "../ThemedText";
+import { ThemedView } from "../ThemedView";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../types"; // Adjust the import path as needed
 
 const { width } = Dimensions.get("window");
 
@@ -55,7 +55,7 @@ const HomeScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   const handleTutoresPress = () => {
-    navigation.navigate('Tutores');
+    navigation.navigate("Tutores");
   };
 
   const renderItem = ({ item }: { item: TutorItem }) => (
@@ -64,7 +64,7 @@ const HomeScreen = () => {
         <Text style={styles.subject}>{item.subject}</Text>
         <TouchableOpacity>
           <Image
-            source={require("../../assets/icons/twoPoints.svg")}
+            source={require("../../assets/icons/twoPoints.png")}
             style={styles.moreIcon}
           />
         </TouchableOpacity>
@@ -80,7 +80,7 @@ const HomeScreen = () => {
         </View>
         <TouchableOpacity style={styles.addButton}>
           <Image
-            source={require("../../assets/icons/plusIcons.svg")}
+            source={require("../../assets/icons/plusIcons.png")}
             style={styles.addIcon}
           />
         </TouchableOpacity>
@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginHorizontal: 20,
     marginTop: 20,
+    marginBottom: 10,
     borderRadius: 10,
     alignItems: "center",
     shadowColor: "#000",

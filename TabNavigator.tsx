@@ -1,26 +1,37 @@
-// Example in App.tsx or navigation.ts
-
+// TabNavigator.tsx
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomeScreen from "./components/tabs/index";
-import ProfileScreen from "./components/tabs/profile";
-import MessagesScreen from "./components/tabs/messages";
+import HomeScreen from "./components/tabsStudents/index";
+import ProfileScreen from "./components/tabsStudents/profile";
+import MessagesScreen from "./components/tabsStudents/messages";
 import { Image } from "react-native";
-import TutoresScreen from "./components/tabs/tutores";
-import { TabParamList } from "./types"; // Import the TabParamList type
+import TutoresScreen from "./components/tabsStudents/tutores";
+import { TabParamList } from "./types";
 
 const Tab = createBottomTabNavigator<TabParamList>();
+
 interface TabLayoutProps {
   onLogout: () => void;
 }
 
+const ProfileScreenWrapper: React.FC<{ onLogout: () => void }> = ({
+  onLogout,
+}) => {
+  return <ProfileScreen onLogout={onLogout} />;
+};
+
 export default function TabLayout({ onLogout }: TabLayoutProps) {
   return (
     <Tab.Navigator
-      initialRouteName="Home" // Set the initial route to Home
+      initialRouteName="Home"
       screenOptions={{
-        tabBarStyle: { backgroundColor: "#0078FF" }, // Color de fondo de la barra
-        tabBarActiveTintColor: "#000000", // Color del texto e icono cuando está activo
-        tabBarInactiveTintColor: "#FFFFFF", // Color del texto e icono cuando está inactivo
+        tabBarStyle: {
+          backgroundColor: "#0078FF",
+          height: 65,
+          paddingBottom: 5,
+          paddingTop: 5,
+        },
+        tabBarActiveTintColor: "#000000",
+        tabBarInactiveTintColor: "#FFFFFF",
         headerShown: false,
       }}>
       <Tab.Screen
@@ -29,8 +40,8 @@ export default function TabLayout({ onLogout }: TabLayoutProps) {
         options={{
           tabBarIcon: ({ color, size }) => (
             <Image
-              source={require("./assets/icons/messageTab.svg")}
-              style={{ tintColor: color, width: size, height: size }}
+              source={require("./assets/icons/messageTab.png")}
+              style={{ tintColor: color, width: 30, height: 30 }}
             />
           ),
         }}
@@ -41,30 +52,29 @@ export default function TabLayout({ onLogout }: TabLayoutProps) {
         options={{
           tabBarIcon: ({ color, size }) => (
             <Image
-              source={require("./assets/icons/homeTab.svg")}
-              style={{ tintColor: color, width: size, height: size }}
+              source={require("./assets/icons/homeTab.png")}
+              style={{ tintColor: color, width: 40, height: 40 }}
             />
           ),
         }}
       />
       <Tab.Screen
         name="Profile"
-        component={(props: any) => <ProfileScreen {...props} onLogout={onLogout} />}
+        children={() => <ProfileScreenWrapper onLogout={onLogout} />}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Image
-              source={require("./assets/icons/userTab.svg")}
-              style={{ tintColor: color, width: size, height: size }}
+              source={require("./assets/icons/userTab.png")}
+              style={{ tintColor: color, width: 35, height: 35 }}
             />
           ),
         }}
       />
-
       <Tab.Screen
         name="Tutores"
         component={TutoresScreen}
         options={{
-          tabBarButton: () => null, // This hides the tab button
+          tabBarButton: () => null,
         }}
       />
     </Tab.Navigator>
