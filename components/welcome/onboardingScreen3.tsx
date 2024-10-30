@@ -63,7 +63,7 @@ const OnboardingScreen3: React.FC<Onboarding3ScreenProps> = ({ navigation }) => 
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.button} onPress={onFinish}>
-            <Text style={styles.buttonText}>Siguiente</Text>
+            <Text style={styles.buttonText}>Iniciar Sesíon</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
