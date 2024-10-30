@@ -85,4 +85,29 @@ export const loginUsuario = async (correo: string, password: string) => {
     } catch (error: any) {
       throw new Error('Error al crear el usuario: ' + error.message);
     }
+  };
+  
+  
+  export const createTutor = async (usuario: Partial<Usuario>) => {
+    try {
+      const newUser: Usuario = {
+        ...usuario,
+        role: 3,
+        status: 0,
+        statusExam: 0,
+        tecnologias: [],
+        materiasDominadas: [],
+        descripcion: '',
+        createdAt: Timestamp.now(),
+        nombres: usuario.nombres || '',
+        apellidos: usuario.apellidos || '',
+        correo: usuario.correo || '',
+        password: usuario.password || '',
+      };
+  
+      const docRef = await addDoc(usuariosCollection, newUser);
+      return { id: docRef.id, ...newUser };
+    } catch (error: any) {
+      throw new Error('Error al crear el usuario: ' + error.message);
+    }
   };  
