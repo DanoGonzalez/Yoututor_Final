@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,9 +12,12 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { ProfileScreenNavigationProp, ProfileScreenProps } from "../../types";
+import { getUsuario } from "../../controllers/usuariosController"; // Asegúrate de importar correctamente
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
+  const [usuario, setUsuario] = useState<any>(null); // Cambiar `any` por tu tipo de usuario si tienes uno
+  const [loading, setLoading] = useState(true);
 
   const handleLogout = async () => {
     try {
@@ -27,6 +30,40 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
       console.error("Error al eliminar el usuario de AsyncStorage:", error);
     }
   };
+
+  // Función para cargar los datos del usuario
+  const loadUserData = async () => {
+      console.log("Cargando datos del usuario...");
+      try {
+          console.log("Obteniendo datos del usuario...");
+          const usuarioData = await AsyncStorage.getItem("usuario");
+          console.log("Datos del usuario:", usuarioData); // Verifica que el usuario no sea null
+          if (usuarioData) {
+              const usuario = JSON.parse(usuarioData); // Parsea el JSON para obtener el objeto
+              console.log("Usuario obtenido:", usuario);
+              
+              // Aquí puedes usar usuario.id
+              const data = await getUsuario(usuario.id); // Llama a la función para obtener datos del usuario
+              console.log("Datos del usuario:", data);
+              setUsuario(data);
+          } else {
+              console.log("No se encontró el usuario en AsyncStorage.");
+          }
+      } catch (error) {
+          console.error("Error al cargar los datos del usuario:", error);
+      } finally {
+          setLoading(false);
+      }
+  };
+
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  if (loading) {
+    return <Text>Cargando...</Text>; // Muestra un indicador de carga si es necesario
+  }
 
   return (
     <>
@@ -45,41 +82,46 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
             <Text style={styles.infoLabel}>Nombre</Text>
             <TextInput
               style={styles.infoInput}
-              defaultValue="John Doe"
+              defaultValue={usuario ? `${usuario.nombres} ${usuario.apellidos}` : ""}
               placeholderTextColor="#000000"
+              editable={false} // Hacer el campo no editable
             />
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Correo electrónico de contacto</Text>
             <TextInput
               style={styles.infoInput}
-              defaultValue="johndoe@example.com"
+              defaultValue={usuario ? usuario.correo : ""}
               placeholderTextColor="#000000"
               keyboardType="email-address"
+              editable={false} // Hacer el campo no editable
             />
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Intereses</Text>
             <TextInput
               style={styles.infoInput}
-              defaultValue="Matemáticas, Física, Programación"
+              defaultValue={usuario ? usuario.tecnologias.join(", ") : ""}
               placeholderTextColor="#000000"
+              editable={false} // Hacer el campo no editable
             />
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Método de aprendizaje</Text>
             <TextInput
               style={styles.infoInput}
-              defaultValue="Visual, Práctico"
+              defaultValue={usuario ? usuario.descripcion : ""}
               placeholderTextColor="#000000"
+              editable={false} // Hacer el campo no editable
             />
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Plataformas a preferir</Text>
             <TextInput
               style={styles.infoInput}
-              defaultValue="Zoom, Google Meet"
+              defaultValue="" // Aquí puedes agregar lógica si tienes este dato
               placeholderTextColor="#000000"
+              editable={false} // Hacer el campo no editable
             />
           </View>
           <TouchableOpacity style={styles.changeInfoButton}>

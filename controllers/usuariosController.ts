@@ -1,6 +1,6 @@
 // src/controllers/UsuarioController.ts
 import { db } from '../utils/Firebase';
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, updateDoc, deleteDoc, doc, query, where, Timestamp } from 'firebase/firestore';
 import { Usuario } from '../models/usuarios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const usuariosCollection = collection(db, 'usuarios');
@@ -111,3 +111,17 @@ export const loginUsuario = async (correo: string, password: string) => {
       throw new Error('Error al crear el usuario: ' + error.message);
     }
   };  
+
+  export const getUsuario = async (id: string) => {
+    try {
+      const usuarioDoc = doc(db, 'usuarios', id);
+      const usuarioSnapshot = await getDoc(usuarioDoc);
+      if (usuarioSnapshot.exists()) {
+        return { id: usuarioSnapshot.id, ...usuarioSnapshot.data() } as Usuario;
+      } else {
+        throw new Error('Usuario no encontrado');
+      }
+    } catch (error: any) {
+      throw new Error('Error al obtener el usuario: ' + error.message);
+    }
+  }
