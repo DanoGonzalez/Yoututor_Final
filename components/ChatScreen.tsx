@@ -11,22 +11,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-
-// Definimos los datos de los chats (esto podría venir de una API o base de datos)
-const chatData = {
-  "1": {
-    id: "1",
-    name: "José Ernesto",
-    status: "En línea",
-    avatar: "https://example.com/avatar1.jpg",
-  },
-  "2": {
-    id: "2",
-    name: "Andy Castillo",
-    status: "En línea",
-    avatar: "https://example.com/avatar2.jpg",
-  },
-};
+import { chatData, Message } from "../utils/chatData";
 
 export default function ChatScreen({
   route,
@@ -36,6 +21,26 @@ export default function ChatScreen({
   const navigation = useNavigation();
   const { chatId } = route.params;
   const currentChat = chatData[chatId as keyof typeof chatData];
+  const [inputMessage, setInputMessage] = React.useState("");
+  const [messages, setMessages] = React.useState<Message[]>(currentChat.messages);
+
+  const handleSendMessage = () => {
+    if (inputMessage.trim() === "") return;
+
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      text: inputMessage,
+      sender: "user",
+      timestamp: new Date().toLocaleTimeString(),
+    };
+
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
+    
+    chatData[chatId as keyof typeof chatData].messages = updatedMessages;
+    
+    setInputMessage("");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -54,7 +59,19 @@ export default function ChatScreen({
       </View>
 
       {/* Chat Messages Area */}
-      <View style={styles.messagesContainer}>{/* Aquí irán los mensajes */}</View>
+      <View style={styles.messagesContainer}>
+        {messages.map((message) => (
+          <View
+            key={message.id}
+            style={[
+              styles.messageWrapper,
+              message.sender === "user" ? styles.userMessage : styles.otherMessage,
+            ]}>
+            <Text style={styles.messageText}>{message.text}</Text>
+            <Text style={styles.messageTime}>{message.timestamp}</Text>
+          </View>
+        ))}
+      </View>
 
       {/* Input Area */}
       <KeyboardAvoidingView
@@ -64,8 +81,10 @@ export default function ChatScreen({
           style={styles.input}
           placeholder="Escribe un mensaje..."
           multiline
+          value={inputMessage}
+          onChangeText={setInputMessage}
         />
-        <TouchableOpacity style={styles.sendButton}>
+        <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
           <Image
             source={require("../assets/icons/send.png")}
             style={styles.sendIcon}
@@ -141,5 +160,29 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     tintColor: "#FFFFFF",
+  },
+  messageWrapper: {
+    maxWidth: "80%",
+    marginVertical: 4,
+    padding: 8,
+    borderRadius: 12,
+  },
+  userMessage: {
+    alignSelf: "flex-end",
+    backgroundColor: "#0078FF",
+  },
+  otherMessage: {
+    alignSelf: "flex-start",
+    backgroundColor: "#E8E8E8",
+  },
+  messageText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+  },
+  messageTime: {
+    fontSize: 12,
+    color: "#FFFFFF",
+    opacity: 0.7,
+    marginTop: 4,
   },
 });

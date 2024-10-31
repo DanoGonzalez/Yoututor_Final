@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -12,26 +12,30 @@ import { ThemedView } from "../ThemedView";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import ChatListItem from "../ChatListItem";
 import { RootStackParamList } from "../../types";
+import { chatData, Chat } from "../../utils/chatData";
 
 export default function MessagesScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [chatList, setChatList] = useState<any[]>([]);
 
-  const chats = [
-    {
-      id: "1",
-      name: "José Ernesto",
-      lastMessage: "¿Cuándo podemos agendar la tutoría?",
-      time: "10:30",
-      avatar: "https://example.com/avatar1.jpg",
-    },
-    {
-      id: "2",
-      name: "Andy Castillo",
-      lastMessage: "Gracias por la clase de hoy",
-      time: "09:15",
-      avatar: "https://example.com/avatar2.jpg",
-    },
-  ];
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      const updatedChats = Object.values(chatData).map(chat => ({
+        id: chat.id,
+        name: chat.name,
+        lastMessage: chat.messages.length > 0 
+          ? chat.messages[chat.messages.length - 1].text 
+          : "No hay mensajes",
+        time: chat.messages.length > 0 
+          ? chat.messages[chat.messages.length - 1].timestamp 
+          : "",
+        avatar: chat.avatar,
+      }));
+      setChatList(updatedChats);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const handleChatPress = (chatId: string) => {
     navigation.navigate("Chat", { chatId: chatId });
@@ -45,7 +49,7 @@ export default function MessagesScreen() {
           <Text style={styles.title}>Mensajes</Text>
         </View>
         <ScrollView style={styles.chatList}>
-          {chats.map((chat) => (
+          {chatList.map((chat) => (
             <ChatListItem
               key={chat.id}
               name={chat.name}

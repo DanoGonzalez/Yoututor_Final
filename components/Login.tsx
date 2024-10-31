@@ -113,22 +113,10 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
                   style={styles.socialIcon}
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Image
-                  source={require("../assets/icons/linkedin.png")}
-                  style={styles.socialIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Image
-                  source={require("../assets/icons/facebook.png")}
-                  style={styles.socialIcon}
-                />
-              </TouchableOpacity>
             </View>
 
-            <TouchableOpacity 
-              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]} 
+            <TouchableOpacity
+              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
               onPress={handleLogin}
               disabled={isLoading}>
               {isLoading ? (
@@ -221,8 +209,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   socialButtonsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
     width: "60%",
     marginBottom: 20,
   },

@@ -30,7 +30,7 @@ export default function TabLayout({ onLogout }: TabLayoutProps) {
           paddingBottom: 5,
           paddingTop: 5,
         },
-        tabBarActiveTintColor: "#000000",
+        tabBarActiveTintColor: "#FFA500",
         tabBarInactiveTintColor: "#FFFFFF",
         headerShown: false,
       }}>
