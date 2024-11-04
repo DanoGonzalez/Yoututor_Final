@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import YouTutorSplashScreen from "./components/welcome/YouTutorSplashScreen";
 import OnboardingScreen from "./components/welcome/onboardingScreen";
 import OnboardingScreen2 from "./components/welcome/onboardingScreen2";
@@ -19,13 +20,29 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
+    const checkSession = async () => {
+      try {
+        const user = await AsyncStorage.getItem("usuario");
+        if (user) {
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error("Error fetching user from storage", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkSession();
   }, []);
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem("usuario");
+      setIsLoggedIn(false);
+    } catch (error) {
+      console.error("Error removing user from storage", error);
+    }
   };
 
   if (isLoading) {
