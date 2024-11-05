@@ -24,9 +24,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
     try {
       await AsyncStorage.removeItem("usuario");
       const usuario = await AsyncStorage.getItem("usuario");
-      console.log("Valor de usuario después de eliminar:", usuario);
       onLogout();
-      navigation.navigate("Login");
     } catch (error) {
       console.error("Error al eliminar el usuario de AsyncStorage:", error);
     }

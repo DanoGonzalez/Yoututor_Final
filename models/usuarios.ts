@@ -9,7 +9,7 @@ export interface Usuario {
   password: string;
   role: number;
   status: number;
-  statusExam: number;
+  statusExam: number | null;
   tecnologias: string[];
   materiasDominadas: string[];
   descripcion: string;
