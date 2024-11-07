@@ -14,7 +14,8 @@ import { useNavigation } from "@react-navigation/native";
 import { ProfileScreenNavigationProp, ProfileScreenProps } from "../../types";
 import { getUsuario } from "../../controllers/usuariosController"; // Asegúrate de importar correctamente
 import { LinearGradient } from "expo-linear-gradient";
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker";
+import { saveUserImage, getUserImage } from "../../controllers/usuariosController";
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
@@ -29,6 +30,18 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
       onLogout();
     } catch (error) {
       console.error("Error al eliminar el usuario de AsyncStorage:", error);
+    }
+  };
+
+  // Función para cargar la imagen del perfil
+  const loadProfileImage = async (userId: string) => {
+    try {
+      const savedImage = await getUserImage(userId);
+      if (savedImage) {
+        setProfileImage(savedImage);
+      }
+    } catch (error) {
+      console.error("Error al cargar la imagen del perfil:", error);
     }
   };
 
@@ -47,6 +60,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
         const data = await getUsuario(usuario.id); // Llama a la función para obtener datos del usuario
         console.log("Datos del usuario:", data);
         setUsuario(data);
+        // Cargar la imagen del usuario
+        await loadProfileImage(usuario.id);
       } else {
         console.log("No se encontró el usuario en AsyncStorage.");
       }
@@ -62,16 +77,22 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   }, []);
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
 
-    if (!result.canceled) {
-      setProfileImage(result.assets[0].uri);
-      // Aquí puedes agregar la lógica para guardar la imagen en tu backend
+      if (!result.canceled && usuario?.id) {
+        const savedImage = await saveUserImage(usuario.id, result.assets[0].uri);
+        if (savedImage) {
+          setProfileImage(savedImage);
+        }
+      }
+    } catch (error) {
+      console.error("Error al seleccionar la imagen:", error);
     }
   };
 
@@ -86,13 +107,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   return (
     <>
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
-      <ScrollView 
+      <ScrollView
         style={styles.container}
-        contentContainerStyle={styles.scrollViewContent}
-      >
+        contentContainerStyle={styles.scrollViewContent}>
         <LinearGradient colors={["#0078FF", "#0066DD"]} style={styles.header}>
           <View style={styles.profilePictureContainer}>
-            <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
+            <TouchableOpacity
+              onPress={pickImage}
+              style={styles.profileImageContainer}>
               <Image
                 source={
                   profileImage
@@ -100,11 +122,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
                     : require("../../assets/icons/profile-picture.png")
                 }
                 style={styles.profilePicture}
+                onError={() => {
+                  setProfileImage(null); // Resetear a null para usar la imagen por defecto
+                  console.log(
+                    "Error al cargar la imagen, usando imagen por defecto"
+                  );
+                }}
               />
-              <TouchableOpacity 
-                style={styles.editButton}
-                onPress={pickImage}
-              >
+              <TouchableOpacity style={styles.editButton} onPress={pickImage}>
                 <Image
                   source={require("../../assets/icons/editProfile.png")}
                   style={styles.editIcon}
@@ -280,17 +305,17 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   profileImageContainer: {
-    position: 'relative',
+    position: "relative",
   },
   editButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 0,
     bottom: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 15,
     padding: 8,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
