@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,13 +11,35 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { TutoresScreenProps } from "../../types";
+import { getTutores } from "../../controllers/usuariosController";
+import { Usuario } from '../../models/usuarios';
 
 const TutoresScreen: React.FC = () => {
   const navigation = useNavigation<TutoresScreenProps["navigation"]>();
+  const [tutores, setTutores] = useState<Usuario[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const handleBackPress = () => {
     navigation.navigate("Home");
   };
+
+  useEffect(() => {
+    const fetchTutores = async () => {
+      try {
+        setLoading(true);
+        const data = await getTutores();
+        setTutores(data);
+      } catch (error) {
+        setError('Error al obtener los tutores');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTutores();
+  }, []);
 
   const categories = [
     "Programación",
@@ -25,33 +47,6 @@ const TutoresScreen: React.FC = () => {
     "Diseño UI/UX",
     "Frontend",
     "Fullstack",
-  ];
-
-  const tutors = [
-    {
-      id: "1",
-      subject: "Materia principal",
-      category: "Categoría",
-      tutor: "Tutor 1",
-      platform: "Plataforma",
-      color: "#0078FF",
-    },
-    {
-      id: "2",
-      subject: "Materia principal",
-      category: "Categoría",
-      tutor: "Tutor 1",
-      platform: "Plataforma",
-      color: "#C4C4C4",
-    },
-    {
-      id: "3",
-      subject: "Materia principal",
-      category: "Categoría",
-      tutor: "Tutor 1",
-      platform: "Plataforma",
-      color: "#0078FF",
-    },
   ];
 
   return (
@@ -71,30 +66,39 @@ const TutoresScreen: React.FC = () => {
         ))}
       </View>
       <ScrollView style={styles.tutorsContainer}>
-        {tutors.map((tutor) => (
-          <View
-            key={tutor.id}
-            style={[styles.tutorCard, { backgroundColor: tutor.color }]}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.subjectText}>{tutor.subject}</Text>
-              <TouchableOpacity>
-                <Ionicons name="ellipsis-horizontal" size={24} color="#FFF" />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.categoryText}>{tutor.category}</Text>
-            <View style={styles.cardFooter}>
-              <View style={styles.tutorInfo}>
-                <Ionicons name="location-outline" size={16} color="#FFF" />
-                <Text style={styles.platformText}>{tutor.platform}</Text>
-              </View>
-              <View style={styles.tutorInfo}>
-                <Ionicons name="person-circle-outline" size={16} color="#FFF" />
-                <Text style={styles.tutorText}>{tutor.tutor}</Text>
-              </View>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
+  {tutores.map((tutor, index) => (
+    <View
+      key={tutor.id}
+      style={[
+        styles.tutorCard,
+        { backgroundColor: index % 2 === 0 ? "#0078FF" : "#C4C4C4" },
+      ]}
+    >
+      <View style={styles.cardHeader}>
+        <Text style={styles.subjectText}>
+          {tutor.materiasDominadas.length > 0 ? tutor.materiasDominadas[0] : "Materia principal"}
+        </Text>
+        <TouchableOpacity>
+          <Ionicons name="ellipsis-horizontal" size={24} color="#FFF" />
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.categoryText}>{tutor.tecnologias.join(", ")}</Text>
+      <View style={styles.cardFooter}>
+        <View style={styles.tutorInfo}>
+          <Ionicons name="location-outline" size={16} color="#FFF" />
+          <Text style={styles.platformText}>
+            {tutor.tecnologias.length > 0 ? tutor.tecnologias[0] : "Plataforma"}
+          </Text>
+        </View>
+        <View style={styles.tutorInfo}>
+          <Ionicons name="person-circle-outline" size={16} color="#FFF" />
+          <Text style={styles.tutorText}>{`${tutor.nombres} ${tutor.apellidos}`}</Text>
+        </View>
+      </View>
+    </View>
+  ))}
+</ScrollView>
+
     </SafeAreaView>
   );
 };
