@@ -14,11 +14,13 @@ import { useNavigation } from "@react-navigation/native";
 import { ProfileScreenNavigationProp, ProfileScreenProps } from "../../types";
 import { getUsuario } from "../../controllers/usuariosController"; // Asegúrate de importar correctamente
 import { LinearGradient } from "expo-linear-gradient";
+import * as ImagePicker from 'expo-image-picker';
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const [usuario, setUsuario] = useState<any>(null); // Cambiar `any` por tu tipo de usuario si tienes uno
   const [loading, setLoading] = useState(true);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const handleLogout = async () => {
     try {
@@ -59,6 +61,20 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
     loadUserData();
   }, []);
 
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+      // Aquí puedes agregar la lógica para guardar la imagen en tu backend
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -70,13 +86,31 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   return (
     <>
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
-      <ScrollView style={styles.container}>
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.scrollViewContent}
+      >
         <LinearGradient colors={["#0078FF", "#0066DD"]} style={styles.header}>
           <View style={styles.profilePictureContainer}>
-            <Image
-              source={require("../../assets/icons/profile-picture.png")}
-              style={styles.profilePicture}
-            />
+            <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
+              <Image
+                source={
+                  profileImage
+                    ? { uri: profileImage }
+                    : require("../../assets/icons/profile-picture.png")
+                }
+                style={styles.profilePicture}
+              />
+              <TouchableOpacity 
+                style={styles.editButton}
+                onPress={pickImage}
+              >
+                <Image
+                  source={require("../../assets/icons/editProfile.png")}
+                  style={styles.editIcon}
+                />
+              </TouchableOpacity>
+            </TouchableOpacity>
             <Text style={styles.userName}>
               {usuario ? `${usuario.nombres} ${usuario.apellidos}` : "Usuario"}
             </Text>
@@ -244,6 +278,29 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
+  },
+  profileImageContainer: {
+    position: 'relative',
+  },
+  editButton: {
+    position: 'absolute',
+    right: 0,
+    bottom: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
+    padding: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  editIcon: {
+    width: 20,
+    height: 20,
+  },
+  scrollViewContent: {
+    paddingBottom: 80, // Añade espacio suficiente para la barra de navegación
   },
 });
 
