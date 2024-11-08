@@ -12,6 +12,8 @@ import StudentRegistration from "./components/welcome/StudentRegistration";
 import TabLayout from "./TabNavigator";
 import { RootStackParamList } from "./types";
 import ChatScreen from "./components/ChatScreen";
+import TutorDetailsScreen from "./components/tabsStudents/TutorDetailsSreen";
+import TutoresScreen from "./components/tabsStudents/tutores";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -80,6 +82,8 @@ export default function App() {
             />
           </>
         )}
+        <Stack.Screen name="Tutores" component={TutoresScreen} />
+        <Stack.Screen name="TutorDetailsScreen" component={TutorDetailsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
