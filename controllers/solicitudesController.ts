@@ -18,9 +18,9 @@ export const crearSolicitud = async (tutorId: string, estudianteId: string, mate
 
     const docRef = await addDoc(solicitudesCollection, nuevaSolicitud);
 
-    // Crear notificación para el tutor
+    // Crear notificación para el tutor con estudianteId como solicitanteId
     const mensaje = `El estudiante ${estudianteId} te ha enviado una solicitud.`;
-    await crearNotificacion(tutorId, mensaje, 1);
+    await crearNotificacion(tutorId, mensaje, 1, estudianteId); // Pasamos estudianteId como solicitanteId
 
     return { id: docRef.id, ...nuevaSolicitud };
   } catch (error: any) {

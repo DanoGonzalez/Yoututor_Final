@@ -5,10 +5,11 @@ import { Notificacion } from '../models/notificaciones';
 
 const notificacionesCollection = collection(db, 'notificaciones');
 
-export const crearNotificacion = async (receptorId: string, mensaje: string, tipo: number) => {
+export const crearNotificacion = async (receptorId: string, mensaje: string, tipo: number, solicitanteId: string) => {
   try {
     const nuevaNotificacion: Notificacion = {
       receptorId,
+      solicitanteId,
       mensaje,
       leido: false,
       fechaEnvio: Timestamp.now(),
