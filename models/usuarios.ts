@@ -14,7 +14,9 @@ export interface Usuario {
   materiasDominadas: string[];
   descripcion: string;
   createdAt: Timestamp;
+  profilePicture?: string;
 }
+
 
 
 export interface TutorWithMaterias {
@@ -31,3 +33,4 @@ export interface TutorWithMaterias {
   createdAt: Timestamp;
   materiasDominadas: { id: string; materia: string }[]; 
 }
+

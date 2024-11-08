@@ -5,6 +5,7 @@ import { Usuario } from '../models/usuarios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const usuariosCollection = collection(db, 'usuarios');
 import { getMateria } from './materiasController';
+import { imageToBase64 } from '../utils/imageUtils';
 
 
 /*Obtenemos todos los usaurios */
@@ -184,3 +185,26 @@ export const getUsuario = async (id: string) => {
     throw new Error('Error al obtener el usuario: ' + error.message);
   }
 }
+
+// Función para guardar la imagen del usuario
+export const saveUserImage = async (userId: string, imageUri: string) => {
+  try {
+    const base64Image = await imageToBase64(imageUri);
+    await AsyncStorage.setItem(`userImage_${userId}`, base64Image);
+    return base64Image;
+  } catch (error: any) {
+    console.error('Error al guardar la imagen:', error);
+    return null; // Retorna null si hay un error
+  }
+};
+
+// Función para obtener la imagen del usuario
+export const getUserImage = async (userId: string) => {
+  try {
+    const base64Image = await AsyncStorage.getItem(`userImage_${userId}`);
+    return base64Image;
+  } catch (error: any) {
+    console.error('Error al obtener la imagen:', error);
+    return null;
+  }
+};
