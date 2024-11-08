@@ -15,3 +15,19 @@ export interface Usuario {
   descripcion: string;
   createdAt: Timestamp;
 }
+
+
+export interface TutorWithMaterias {
+  id?: string;
+  nombres: string;
+  apellidos: string;
+  correo: string;
+  password: string;
+  role: number;
+  status: number;
+  statusExam: number | null;
+  tecnologias: string[];
+  descripcion: string;
+  createdAt: Timestamp;
+  materiasDominadas: { id: string; materia: string }[]; 
+}

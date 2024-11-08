@@ -5,6 +5,7 @@ import HomeScreen from './components/tabsStudents/index';
 import ProfileScreen from './components/tabsStudents/profile';
 import MessagesScreen from './components/tabsStudents/messages';
 import TutoresScreen from './components/tabsStudents/tutores';
+import TutorDetailsScreen from './components/tabsStudents/TutorDetailsSreen';
 import { TabParamList } from './types';
 
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -61,6 +62,7 @@ export default function TabLayout({ onLogout }: TabLayoutProps) {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Profile" children={() => <ProfileScreenWrapper onLogout={onLogout} />} />
       <Tab.Screen name="Tutores" component={TutoresScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="TutorDetailsScreen" component={TutorDetailsScreen} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
   );
 }
