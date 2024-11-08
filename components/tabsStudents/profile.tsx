@@ -8,6 +8,7 @@ import {
   ScrollView,
   StatusBar,
   TextInput,
+  Modal,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -15,13 +16,18 @@ import { ProfileScreenNavigationProp, ProfileScreenProps } from "../../types";
 import { getUsuario } from "../../controllers/usuariosController"; // Asegúrate de importar correctamente
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
-import { saveUserImage, getUserImage } from "../../controllers/usuariosController";
+import {
+  saveUserImage,
+  getUserImage,
+  updateUsuario,
+} from "../../controllers/usuariosController";
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const [usuario, setUsuario] = useState<any>(null); // Cambiar `any` por tu tipo de usuario si tienes uno
   const [loading, setLoading] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -33,34 +39,47 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
     }
   };
 
-  // Función para cargar la imagen del perfil
+  // Definir las imágenes predefinidas
+  const defaultProfilePictures = [
+    require("../../assets/ProfilePicturesDefault/Normal.png"),
+    require("../../assets/ProfilePicturesDefault/Guy.png"),
+    require("../../assets/ProfilePicturesDefault/Guy1.png"),
+    require("../../assets/ProfilePicturesDefault/Guy2.png"),
+    require("../../assets/ProfilePicturesDefault/Guy3.png"),
+    require("../../assets/ProfilePicturesDefault/Guy4.png"),
+    require("../../assets/ProfilePicturesDefault/Girl.png"),
+    require("../../assets/ProfilePicturesDefault/Girl1.png"),
+    require("../../assets/ProfilePicturesDefault/Girl2.png"),
+    require("../../assets/ProfilePicturesDefault/Girl3.png"),
+    require("../../assets/ProfilePicturesDefault/Girl4.png"),
+    require("../../assets/ProfilePicturesDefault/Girl5.png"),
+  ];
+
   const loadProfileImage = async (userId: string) => {
     try {
-      const savedImage = await getUserImage(userId);
-      if (savedImage) {
-        setProfileImage(savedImage);
+      const userData = await getUsuario(userId);
+      if (userData?.profilePicture) {
+        setProfileImage(userData.profilePicture);
       }
     } catch (error) {
       console.error("Error al cargar la imagen del perfil:", error);
     }
   };
 
-  // Función para cargar los datos del usuario
   const loadUserData = async () => {
     console.log("Cargando datos del usuario...");
     try {
       console.log("Obteniendo datos del usuario...");
       const usuarioData = await AsyncStorage.getItem("usuario");
-      console.log("Datos del usuario:", usuarioData); // Verifica que el usuario no sea null
+      console.log("Datos del usuario:", usuarioData);
       if (usuarioData) {
-        const usuario = JSON.parse(usuarioData); // Parsea el JSON para obtener el objeto
+        const usuario = JSON.parse(usuarioData);
         console.log("Usuario obtenido:", usuario);
 
-        // Aquí puedes usar usuario.id
-        const data = await getUsuario(usuario.id); // Llama a la función para obtener datos del usuario
+        const data = await getUsuario(usuario.id);
         console.log("Datos del usuario:", data);
         setUsuario(data);
-        // Cargar la imagen del usuario
+
         await loadProfileImage(usuario.id);
       } else {
         console.log("No se encontró el usuario en AsyncStorage.");
@@ -76,25 +95,55 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
     loadUserData();
   }, []);
 
-  const pickImage = async () => {
+  const selectProfilePicture = async (imagePath: string) => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
-
-      if (!result.canceled && usuario?.id) {
-        const savedImage = await saveUserImage(usuario.id, result.assets[0].uri);
-        if (savedImage) {
-          setProfileImage(savedImage);
-        }
+      if (usuario?.id) {
+        await updateUsuario(usuario.id, { profilePicture: imagePath });
+        setProfileImage(imagePath);
+        setShowGallery(false);
       }
     } catch (error) {
-      console.error("Error al seleccionar la imagen:", error);
+      console.error("Error al guardar la imagen de perfil:", error);
     }
   };
+
+  const ProfileGallery = () => (
+    <Modal
+      visible={showGallery}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={() => setShowGallery(false)}>
+      <View style={styles.galleryModal}>
+        <View style={styles.galleryContent}>
+          <Text style={styles.galleryTitle}>Selecciona una imagen de perfil</Text>
+          <ScrollView 
+            style={styles.galleryScrollView}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.galleryGrid}>
+              {defaultProfilePictures.map((image, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.galleryItem}
+                  onPress={() => selectProfilePicture(`profilePicture${index + 1}`)}>
+                  <Image 
+                    source={image} 
+                    style={styles.galleryImage}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+          <TouchableOpacity
+            style={styles.closeGalleryButton}
+            onPress={() => setShowGallery(false)}>
+            <Text style={styles.closeGalleryButtonText}>Cerrar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
 
   if (loading) {
     return (
@@ -113,23 +162,21 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
         <LinearGradient colors={["#0078FF", "#0066DD"]} style={styles.header}>
           <View style={styles.profilePictureContainer}>
             <TouchableOpacity
-              onPress={pickImage}
+              onPress={() => setShowGallery(true)}
               style={styles.profileImageContainer}>
               <Image
                 source={
                   profileImage
-                    ? { uri: profileImage }
+                    ? defaultProfilePictures[
+                        parseInt(profileImage.replace("profilePicture", "")) - 1
+                      ]
                     : require("../../assets/icons/profile-picture.png")
                 }
                 style={styles.profilePicture}
-                onError={() => {
-                  setProfileImage(null); // Resetear a null para usar la imagen por defecto
-                  console.log(
-                    "Error al cargar la imagen, usando imagen por defecto"
-                  );
-                }}
               />
-              <TouchableOpacity style={styles.editButton} onPress={pickImage}>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => setShowGallery(true)}>
                 <Image
                   source={require("../../assets/icons/editProfile.png")}
                   style={styles.editIcon}
@@ -196,6 +243,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <ProfileGallery />
     </>
   );
 };
@@ -326,6 +374,62 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     paddingBottom: 80, // Añade espacio suficiente para la barra de navegación
+  },
+  galleryModal: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  galleryContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
+    width: '100%',
+    maxHeight: '80%', // Limita la altura máxima
+    paddingVertical: 20,
+  },
+  galleryTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 20,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  galleryScrollView: {
+    maxHeight: '75%', // Asegura que haya espacio para el botón de cerrar
+  },
+  galleryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-evenly',
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+  },
+  galleryItem: {
+    width: '30%', // Aproximadamente 3 imágenes por fila
+    aspectRatio: 1,
+    margin: '1.5%',
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#f0f0f0',
+  },
+  galleryImage: {
+    width: '100%',
+    height: '100%',
+  },
+  closeGalleryButton: {
+    backgroundColor: '#0078FF',
+    marginHorizontal: 20,
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 15,
+  },
+  closeGalleryButtonText: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });
 

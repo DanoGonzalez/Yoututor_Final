@@ -14,4 +14,5 @@ export interface Usuario {
   materiasDominadas: string[];
   descripcion: string;
   createdAt: Timestamp;
+  profilePicture?: string;
 }
