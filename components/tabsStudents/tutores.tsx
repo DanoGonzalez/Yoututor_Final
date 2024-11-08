@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -65,40 +66,47 @@ const TutoresScreen: React.FC = () => {
           </TouchableOpacity>
         ))}
       </View>
-      <ScrollView style={styles.tutorsContainer}>
-  {tutores.map((tutor, index) => (
-    <View
-      key={tutor.id}
-      style={[
-        styles.tutorCard,
-        { backgroundColor: index % 2 === 0 ? "#0078FF" : "#C4C4C4" },
-      ]}
-    >
-      <View style={styles.cardHeader}>
-        <Text style={styles.subjectText}>
-          {tutor.materiasDominadas.length > 0 ? tutor.materiasDominadas[0] : "Materia principal"}
-        </Text>
-        <TouchableOpacity>
-          <Ionicons name="ellipsis-horizontal" size={24} color="#FFF" />
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.categoryText}>{tutor.tecnologias.join(", ")}</Text>
-      <View style={styles.cardFooter}>
-        <View style={styles.tutorInfo}>
-          <Ionicons name="location-outline" size={16} color="#FFF" />
-          <Text style={styles.platformText}>
-            {tutor.tecnologias.length > 0 ? tutor.tecnologias[0] : "Plataforma"}
-          </Text>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0078FF" />
+          <Text style={styles.loadingText}>Cargando...</Text>
         </View>
-        <View style={styles.tutorInfo}>
-          <Ionicons name="person-circle-outline" size={16} color="#FFF" />
-          <Text style={styles.tutorText}>{`${tutor.nombres} ${tutor.apellidos}`}</Text>
-        </View>
-      </View>
-    </View>
-  ))}
-</ScrollView>
-
+      ) : (
+        <ScrollView style={styles.tutorsContainer}>
+          {tutores.map((tutor, index) => (
+            <TouchableOpacity
+              key={tutor.id}
+              style={[
+                styles.tutorCard,
+                { backgroundColor: index % 2 === 0 ? "#0078FF" : "#C4C4C4" },
+              ]}
+              onPress={() => tutor.id !== undefined && navigation.navigate('TutorDetailsScreen', { tutorId: tutor.id })}
+            >
+              <View style={styles.cardHeader}>
+                <Text style={styles.subjectText}>
+                  {tutor.materiasDominadas.length > 0 ? tutor.materiasDominadas[0] : "Materia principal"}
+                </Text>
+                <TouchableOpacity>
+                  <Ionicons name="ellipsis-horizontal" size={24} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.categoryText}>{tutor.tecnologias.join(", ")}</Text>
+              <View style={styles.cardFooter}>
+                <View style={styles.tutorInfo}>
+                  <Ionicons name="location-outline" size={16} color="#FFF" />
+                  <Text style={styles.platformText}>
+                    {tutor.tecnologias.length > 0 ? tutor.tecnologias[0] : "Plataforma"}
+                  </Text>
+                </View>
+                <View style={styles.tutorInfo}>
+                  <Ionicons name="person-circle-outline" size={16} color="#FFF" />
+                  <Text style={styles.tutorText}>{`${tutor.nombres} ${tutor.apellidos}`}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -149,9 +157,18 @@ const styles = StyleSheet.create({
     color: "#0078FF",
     fontWeight: "500",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#0078FF",
+    marginTop: 10,
+  },
   tutorsContainer: {
     padding: 16,
-    color: "#fff",
   },
   tutorCard: {
     borderRadius: 8,

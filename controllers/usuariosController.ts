@@ -23,6 +23,26 @@ export const getUsuarios = async () => {
   }
 };
 
+export const getTutor = async (id: string) => {
+  try {
+    const usuarioDoc = doc(db, 'usuarios', id);
+    const usuarioSnapshot = await getDoc(usuarioDoc);
+    if (usuarioSnapshot.exists()) {
+      const usuario = { id: usuarioSnapshot.id, ...usuarioSnapshot.data() } as Usuario;
+      const materiasDominadas = await Promise.all(
+        usuario.materiasDominadas.map(async (materiaId) => {
+          const materia = await getMateria(materiaId);
+          return { id: materiaId, materia: materia.materia }; 
+        })
+      );
+      return { ...usuario, materiasDominadas };
+    } else {
+      throw new Error('Usuario no encontrado');
+    }
+  } catch (error: any) {
+    throw new Error('Error al obtener el usuario: ' + error.message);
+  }
+};
 /*Obtenemos todos los tutores con un rol 3, status 1 y statusExam 1 */
 
 export const getTutores = async () => {
