@@ -14,6 +14,7 @@ import { RootStackParamList } from "./types";
 import ChatScreen from "./components/ChatScreen";
 import TutorDetailsScreen from "./components/tabsStudents/TutorDetailsSreen";
 import TutoresScreen from "./components/tabsStudents/tutores";
+import NotificacionesScreen from "./components/welcome/notificacionesScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -84,6 +85,7 @@ export default function App() {
         )}
         <Stack.Screen name="Tutores" component={TutoresScreen} />
         <Stack.Screen name="TutorDetailsScreen" component={TutorDetailsScreen} />
+        <Stack.Screen name="NotificacionesScreen" component={NotificacionesScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

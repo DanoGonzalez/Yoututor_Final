@@ -8,4 +8,5 @@ export interface Notificacion {
   leido: boolean;
   fechaEnvio: Timestamp;
   tipo: number;
+  estudianteNombre?: string;
 }

@@ -1,10 +1,12 @@
 // src/controllers/SolicitudController.ts
 import { db } from '../utils/Firebase';
-import { collection, addDoc, Timestamp, query, where, getDocs  } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, query, where, getDocs, getDoc, doc  } from 'firebase/firestore';
 import { Solicitud } from '../models/solicitudes';
+import { Usuario } from '../models/usuarios';
 import { crearNotificacion } from './notificacionesController';
 
 const solicitudesCollection = collection(db, 'solicitudes');
+const usuariosCollection = collection(db, 'usuarios');
 
 export const crearSolicitud = async (tutorId: string, estudianteId: string, materiaId: number) => {
   try {
@@ -16,11 +18,20 @@ export const crearSolicitud = async (tutorId: string, estudianteId: string, mate
       fechaSolicitud: Timestamp.now(),
     };
 
+    // Crear el documento de la solicitud en Firestore
     const docRef = await addDoc(solicitudesCollection, nuevaSolicitud);
 
-    // Crear notificación para el tutor con estudianteId como solicitanteId
-    const mensaje = `El estudiante ${estudianteId} te ha enviado una solicitud.`;
-    await crearNotificacion(tutorId, mensaje, 1, estudianteId); // Pasamos estudianteId como solicitanteId
+    // Obtener los detalles del estudiante para incluir su nombre en el mensaje
+    const estudianteDoc = await getDoc(doc(usuariosCollection, estudianteId));
+    const estudianteData = estudianteDoc.exists() ? (estudianteDoc.data() as Usuario) : null;
+
+    const estudianteNombre = estudianteData
+      ? `${estudianteData.nombres} ${estudianteData.apellidos}`
+      : "Nombre no disponible";
+
+    // Crear notificación para el tutor con el nombre del estudiante en el mensaje
+    const mensaje = `El estudiante ${estudianteNombre} te ha enviado una solicitud para una tutoría.`;
+    await crearNotificacion(tutorId, mensaje, 1, estudianteId);
 
     return { id: docRef.id, ...nuevaSolicitud };
   } catch (error: any) {

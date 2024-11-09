@@ -3,18 +3,17 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   FlatList,
   SafeAreaView,
   Dimensions,
   StatusBar,
+  Image, // Asegúrate de importar Image
 } from "react-native";
-import { ThemedText } from "../ThemedText";
-import { ThemedView } from "../ThemedView";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../types"; // Adjust the import path as needed
+import { RootStackParamList } from "../../types"; // Ajusta el path si es necesario
 
 const { width } = Dimensions.get("window");
 
@@ -26,7 +25,6 @@ interface TutorItem {
   color: string;
 }
 
-// Datos simulados de ejemplo
 const data: TutorItem[] = [
   {
     id: "1",
@@ -58,31 +56,26 @@ const HomeScreen = () => {
     navigation.navigate("Tutores");
   };
 
+  const handleNotificationsPress = () => {
+    navigation.navigate("NotificacionesScreen");
+  }
+
   const renderItem = ({ item }: { item: TutorItem }) => (
     <View style={[styles.card, { backgroundColor: item.color }]}>
       <View style={styles.cardHeader}>
         <Text style={styles.subject}>{item.subject}</Text>
         <TouchableOpacity>
-          <Image
-            source={require("../../assets/icons/twoPoints.png")}
-            style={styles.moreIcon}
-          />
+          <Ionicons name="ellipsis-vertical" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
       <Text style={styles.category}>{item.category}</Text>
       <View style={styles.cardFooter}>
         <View style={styles.tutorInfo}>
-          <Image
-            source={require("../../assets/icons/genericProfile.png")}
-            style={styles.profileIcon}
-          />
+          <Ionicons name="person-circle-outline" size={24} color="#FFFFFF" style={styles.profileIcon} />
           <Text style={styles.tutor}>{item.tutor}</Text>
         </View>
         <TouchableOpacity style={styles.addButton}>
-          <Image
-            source={require("../../assets/icons/plusIcons.png")}
-            style={styles.addIcon}
-          />
+          <Ionicons name="add" size={18} color="#0078FF" />
         </TouchableOpacity>
       </View>
     </View>
@@ -92,12 +85,22 @@ const HomeScreen = () => {
     <>
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
       <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Image
+            source={require("../../assets/icons/book.png")}
+            style={styles.logo}
+          />
+          <TouchableOpacity>
+            <Ionicons name="notifications-outline" size={30} color="#0078FF" onPress={handleNotificationsPress} />
+          </TouchableOpacity>
+        </View>
+
         <TouchableOpacity
           style={styles.tutoresButton}
           onPress={handleTutoresPress}>
           <Text style={styles.tutoresButtonText}>Tutores</Text>
         </TouchableOpacity>
-        <ThemedView style={styles.content}>
+        <View style={styles.content}>
           <Text style={styles.subtitle}>Próximas Asesorías</Text>
           <FlatList
             data={data}
@@ -105,7 +108,7 @@ const HomeScreen = () => {
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
           />
-        </ThemedView>
+        </View>
       </SafeAreaView>
     </>
   );
@@ -170,11 +173,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#FFFFFF",
   },
-  moreIcon: {
-    width: 24,
-    height: 24,
-    tintColor: "#FFFFFF",
-  },
   category: {
     fontSize: 14,
     color: "#FFFFFF",
@@ -190,9 +188,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profileIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
     marginRight: 8,
   },
   tutor: {
@@ -204,10 +199,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 6,
   },
-  addIcon: {
-    width: 18,
-    height: 18,
-    tintColor: "#0078FF",
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#DDDDDD",
+  },
+  logo: {
+    width: 120,  // Ajusta el tamaño del logo
+    height: 40,  // Ajusta el tamaño del logo
+    resizeMode: "contain", // Asegura que el logo no se deforme
   },
 });
 
