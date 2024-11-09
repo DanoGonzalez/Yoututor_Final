@@ -161,6 +161,8 @@ export const createTutor = async (usuario: Partial<Usuario>) => {
       apellidos: usuario.apellidos || '',
       correo: usuario.correo || '',
       password: usuario.password || '',
+      githubProfile: usuario.githubProfile || '',
+      linkedinProfile: usuario.linkedinProfile || '',
     };
 
     const docRef = await addDoc(usuariosCollection, newUser);
