@@ -15,6 +15,8 @@ export interface Usuario {
   descripcion: string;
   createdAt: Timestamp;
   profilePicture?: string;
+  githubProfile?: string;
+  linkedinProfile?: string;
 }
 
 

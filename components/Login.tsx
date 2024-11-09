@@ -106,15 +106,8 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
 
             <View style={styles.separator} />
 
-            <View style={styles.socialButtonsContainer}>
-              <TouchableOpacity style={styles.socialButton}>
-                <Image
-                  source={require("../assets/icons/google_icon.png")}
-                  style={styles.socialIcon}
-                />
-              </TouchableOpacity>
-            </View>
-
+            
+            
             <TouchableOpacity
               style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
               onPress={handleLogin}
