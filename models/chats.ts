@@ -1,14 +1,11 @@
-export interface Chat {
-    participantes: Array<{
-      id: string;
-      tipo: "estudiante" | "tutor";
-    }>;
-    tutoriaId: string;
-    mensajes: Array<{
-      remitenteId: string;
-      mensaje: string;
-      fechaEnvio: Date;
-    }>;
-    fechaCreacion: Date;
+import { Timestamp } from "firebase/firestore";
+
+export interface Chats {
+    id: string;
+    estudianteId: string;
+    tutorId: string;
+    ultimoMensaje: string;
+    timestamp: Timestamp;
+    mensajesCount: number;
   }
   

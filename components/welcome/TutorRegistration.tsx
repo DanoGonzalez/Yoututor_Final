@@ -1,23 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  TextInput,
-  Image,
-  StatusBar,
-  ScrollView,
-  Button,
-  FlatList,
-  Alert,
-  Modal,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Platform,
-} from "react-native";
+import {View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Image, StatusBar, ScrollView, Button, FlatList, Alert, Modal, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform, } from "react-native";
 import { TutorRegistrationProps } from "../../types";
 import { getmaterias } from "../../controllers/materiasController";
 import { Materia } from "../../models/materias";
@@ -142,7 +124,6 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}>
-          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <ScrollView
               contentContainerStyle={styles.scrollContent}
               keyboardShouldPersistTaps="handled">
@@ -296,7 +277,6 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
                 </TouchableOpacity>
               </View>
             </ScrollView>
-          </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </View>

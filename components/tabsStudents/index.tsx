@@ -1,19 +1,12 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  SafeAreaView,
-  Dimensions,
-  StatusBar,
-  Image, // Asegúrate de importar Image
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, SafeAreaView, Dimensions, StatusBar, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../types"; // Ajusta el path si es necesario
+import { RootStackParamList } from "../../types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getTutorias } from "../../controllers/tutoriasController";
+import { useFocusEffect } from '@react-navigation/native'; // Importa el hook
 
 const { width } = Dimensions.get("window");
 
@@ -25,32 +18,39 @@ interface TutorItem {
   color: string;
 }
 
-const data: TutorItem[] = [
-  {
-    id: "1",
-    subject: "Materia principal",
-    category: "Categoría",
-    tutor: "Tutor 1",
-    color: "#0078FF",
-  },
-  {
-    id: "2",
-    subject: "Materia principal",
-    category: "Categoría",
-    tutor: "Tutor 2",
-    color: "#C4C4C4",
-  },
-  {
-    id: "3",
-    subject: "Materia principal",
-    category: "Categoría",
-    tutor: "Tutor 3",
-    color: "#0078FF",
-  },
-];
-
 const HomeScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const [tutorias, setTutorias] = useState<TutorItem[]>([]);
+
+  const fetchTutorias = async () => {
+    try {
+      const usuarioData = await AsyncStorage.getItem("usuario");
+      const usuario = usuarioData ? JSON.parse(usuarioData) : null;
+      const estudianteId = usuario.id;
+
+      if (estudianteId) {
+        const tutoriasData = await getTutorias(estudianteId); 
+        const tutoriasFormateadas = tutoriasData.map((tutoria) => ({
+          id: tutoria.id,
+          subject: tutoria.materiaNombre, 
+          category: tutoria.estudianteNombre,
+          tutor: tutoria.tutorNombre, 
+          color: "#0078FF", 
+        }));
+
+        setTutorias(tutoriasFormateadas);
+      }
+    } catch (error) {
+      console.error("Error al obtener las tutorías:", error);
+    }
+  };
+
+  // Esto se ejecutará cada vez que el componente reciba foco (cuando se vuelva visible)
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchTutorias(); // Actualiza tutorías al enfocarse en la pantalla
+    }, [])
+  );
 
   const handleTutoresPress = () => {
     navigation.navigate("Tutores");
@@ -61,7 +61,7 @@ const HomeScreen = () => {
   };
 
   const renderItem = ({ item }: { item: TutorItem }) => (
-    <View style={[styles.card, { backgroundColor: item.color }]}>
+    <View style={[styles.card, { backgroundColor: item.color }]} >
       <View style={styles.cardHeader}>
         <Text style={styles.subject}>{item.subject}</Text>
         <TouchableOpacity>
@@ -107,13 +107,14 @@ const HomeScreen = () => {
 
         <TouchableOpacity
           style={styles.tutoresButton}
-          onPress={handleTutoresPress}>
+          onPress={handleTutoresPress}
+        >
           <Text style={styles.tutoresButtonText}>Tutores</Text>
         </TouchableOpacity>
         <View style={styles.content}>
           <Text style={styles.subtitle}>Próximas Asesorías</Text>
           <FlatList
-            data={data}
+            data={tutorias}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.list}
@@ -218,9 +219,9 @@ const styles = StyleSheet.create({
     borderBottomColor: "#DDDDDD",
   },
   logo: {
-    width: 120, // Ajusta el tamaño del logo
-    height: 40, // Ajusta el tamaño del logo
-    resizeMode: "contain", // Asegura que el logo no se deforme
+    width: 120,
+    height: 40,
+    resizeMode: "contain",
   },
 });
 

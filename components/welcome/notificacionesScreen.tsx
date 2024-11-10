@@ -20,22 +20,22 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const fetchNotificaciones = async () => {
-      try {
-        const usuario = await AsyncStorage.getItem("usuario");
-        if (usuario) {
-          const { id } = JSON.parse(usuario);
-          const fetchedNotificaciones = await getNotificaciones(id);
-          setNotificaciones(fetchedNotificaciones);
-        }
-      } catch (error) {
-        console.error("Error al obtener notificaciones:", error);
-      } finally {
-        setLoading(false);
+  const fetchNotificaciones = async () => {
+    try {
+      const usuario = await AsyncStorage.getItem("usuario");
+      if (usuario) {
+        const { id } = JSON.parse(usuario);
+        const fetchedNotificaciones = await getNotificaciones(id);
+        setNotificaciones(fetchedNotificaciones);
       }
-    };
+    } catch (error) {
+      console.error("Error al obtener notificaciones:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchNotificaciones();
   }, []);
 
@@ -52,7 +52,7 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
           <Ionicons name="person-circle-outline" size={24} color="#FFFFFF" style={styles.profileIcon} />
           <Text style={styles.tutor}>{item.estudianteNombre}</Text>
         </View>
-        {item.tipo === 1 && (
+        {!item.leido && item.tipo === 1 && (
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity style={styles.actionButton} onPress={() => handleAccept(item)}>
               <Text style={styles.actionButtonText}>Confirmar</Text>
@@ -65,15 +65,22 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
       </View>
     </View>
   );
+  
 
   const handleAccept = async (item: Notificacion) => {
     try {
       const tutorId = item.receptorId; // ID del tutor
       const estudianteId = item.solicitanteId; // ID del estudiante
-      const materiaId = item.materiaId
-      console.log("Aceptar solicitud:", tutorId, estudianteId);
-      const response = await crearTutoria(tutorId, estudianteId, materiaId);
-      alert('Tutoria creada con éxito');
+      const materiaId = item.materiaId;
+      const NotifiacionId = item.id;
+      if (tutorId && estudianteId && materiaId && NotifiacionId) {
+        console.log("Aceptar solicitud:", tutorId, estudianteId);
+        const response = await crearTutoria(tutorId, estudianteId, materiaId, NotifiacionId);
+        alert('Tutoria creada con éxito');
+        await fetchNotificaciones(); 
+      } else {
+        console.error("Error: Missing required fields");
+      }
     } catch (error) {
       console.error("Error al aceptar la solicitud:", error);
     }

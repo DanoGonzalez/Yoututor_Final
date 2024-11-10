@@ -1,5 +1,5 @@
 // src/controllers/notificacionesController.ts
-import { addDoc, collection, Timestamp, getDocs, getDoc, doc, query, where } from 'firebase/firestore';
+import { addDoc, collection, Timestamp, getDocs, getDoc, doc, query, where, DocumentData, DocumentReference, updateDoc } from 'firebase/firestore';
 import { db } from '../utils/Firebase'; // Asegúrate de importar correctamente tu configuración de Firebase
 import { Notificacion } from '../models/notificaciones';
 import { Usuario } from "../models/usuarios";
@@ -59,3 +59,16 @@ export const getNotificaciones = async (receptorId: string) => {
     throw new Error("Error al obtener las notificaciones: " + error.message);
   }
 };
+
+// Función para actualizar campos específicos de una notificación
+export const updateNotificacion = async (notificacionId: string) => {
+  try {
+    const notificacionRef = doc(notificacionesCollection, notificacionId);
+    await updateDoc(notificacionRef, {
+      leido: true
+    });
+  } catch (error: any) {
+    throw new Error("Error al actualizar la notificación: " + error.message);
+  }
+}
+
