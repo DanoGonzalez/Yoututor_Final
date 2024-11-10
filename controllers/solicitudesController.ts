@@ -8,7 +8,7 @@ import { crearNotificacion } from './notificacionesController';
 const solicitudesCollection = collection(db, 'solicitudes');
 const usuariosCollection = collection(db, 'usuarios');
 
-export const crearSolicitud = async (tutorId: string, estudianteId: string, materiaId: number) => {
+export const crearSolicitud = async (tutorId: string, estudianteId: string, materiaId: string) => {
   try {
     const nuevaSolicitud: Solicitud = {
       tutorId,
@@ -31,7 +31,7 @@ export const crearSolicitud = async (tutorId: string, estudianteId: string, mate
 
     // Crear notificación para el tutor con el nombre del estudiante en el mensaje
     const mensaje = `El estudiante ${estudianteNombre} te ha enviado una solicitud para una tutoría.`;
-    await crearNotificacion(tutorId, mensaje, 1, estudianteId);
+    await crearNotificacion(tutorId, mensaje, 1, estudianteId, materiaId);
 
     return { id: docRef.id, ...nuevaSolicitud };
   } catch (error: any) {

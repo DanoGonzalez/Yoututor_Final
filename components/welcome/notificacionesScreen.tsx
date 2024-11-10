@@ -14,6 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getNotificaciones } from "../../controllers/notificacionesController";
 import { NotificacionesScreenProps } from "../../types"; // Importa el tipo de props
 import { Notificacion } from "../../models/notificaciones";
+import { crearTutoria } from "../../controllers/tutoriasController";
 
 const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation }) => {
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
@@ -40,10 +41,7 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
 
   const renderItem = ({ item, index }: { item: Notificacion; index: number }) => (
     <View
-      style={[
-        styles.notificationCard,
-        { backgroundColor: index % 2 === 0 ? "#0078FF" : "#DDDDDD" },
-      ]}
+      style={[styles.notificationCard, { backgroundColor: index % 2 === 0 ? "#0078FF" : "#DDDDDD" }]}
     >
       <View style={styles.notificationHeader}>
         <Text style={styles.notificationTitle}>{item.mensaje}</Text>
@@ -54,12 +52,39 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
           <Ionicons name="person-circle-outline" size={24} color="#FFFFFF" style={styles.profileIcon} />
           <Text style={styles.tutor}>{item.estudianteNombre}</Text>
         </View>
-        <TouchableOpacity style={styles.addButton}>
-          <Ionicons name="add" size={18} color="#0078FF" />
-        </TouchableOpacity>
+        {item.tipo === 1 && (
+          <View style={styles.actionButtonsContainer}>
+            <TouchableOpacity style={styles.actionButton} onPress={() => handleAccept(item)}>
+              <Text style={styles.actionButtonText}>Confirmar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={() => handleApprove(item)}>
+              <Text style={styles.actionButtonText}>Rechazar</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   );
+
+  const handleAccept = async (item: Notificacion) => {
+    try {
+      const tutorId = item.receptorId; // ID del tutor
+      const estudianteId = item.solicitanteId; // ID del estudiante
+      const materiaId = item.materiaId
+      console.log("Aceptar solicitud:", tutorId, estudianteId);
+      const response = await crearTutoria(tutorId, estudianteId, materiaId);
+      alert('Tutoria creada con éxito');
+    } catch (error) {
+      console.error("Error al aceptar la solicitud:", error);
+    }
+  };
+  
+
+  const handleApprove = (item: Notificacion) => {
+    console.log("Rechazar solicitud:", item);
+  };
+
+
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0078FF" style={styles.loadingIndicator} />;
@@ -150,13 +175,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#FFFFFF",
   },
-  addButton: {
-    padding: 5,
+  actionButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  actionButton: {
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  actionButtonText: {
+    color: "#0078FF",
+    fontWeight: "bold",
   },
   cardFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     marginTop: 10,
   },
