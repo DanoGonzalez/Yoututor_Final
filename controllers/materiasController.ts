@@ -31,3 +31,30 @@ export const getMateria = async (id: string): Promise<Materia> => {
       throw new Error('Error al obtener la materia: ' + error.message);
     }
   };
+
+  export const getMateriaTutoria = async (id: string): Promise<Materia> => {
+    try {
+      // Acceder al documento de la materia en Firestore
+      const materiaDoc = doc(db, 'materias', id);
+      const materiaSnapshot = await getDoc(materiaDoc);
+  
+      // Verificar si el documento existe
+      if (materiaSnapshot.exists()) {
+        const data = materiaSnapshot.data();
+  
+        // Verificar que la propiedad 'materia' exista en los datos
+        if (!data || !data.materia) {
+          throw new Error('Materia no válida: la propiedad "materia" no está definida.');
+        }
+  
+        // Retornar la materia con su ID y nombre
+        return { id: materiaSnapshot.id, ...data } as Materia;
+      } else {
+        throw new Error('Materia no encontrada');
+      }
+    } catch (error: any) {
+      console.error('Error al obtener la materia:', error.message);
+      throw new Error('Error al obtener la materia: ' + error.message);
+    }
+  };
+  

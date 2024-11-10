@@ -49,7 +49,7 @@ const TutoresDetailsScreen: React.FC<TutorDetailsScreenProps> = () => {
         return;
       }
 
-      await crearSolicitud(tutorId, estudianteId, Number(materiaId));
+      await crearSolicitud(tutorId, estudianteId, String(materiaId));
       alert('Solicitud enviada con éxito');
       setIsRequested(true);
     } catch (error) {

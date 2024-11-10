@@ -9,4 +9,5 @@ export interface Notificacion {
   fechaEnvio: Timestamp;
   tipo: number;
   estudianteNombre?: string;
+  materiaId: string;
 }

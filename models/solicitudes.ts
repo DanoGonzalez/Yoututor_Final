@@ -5,7 +5,7 @@ export interface Solicitud {
   id?: string;
   tutorId: string;
   estudianteId: string;
-  materiaId: number;
+  materiaId: string;
   status: number;
   fechaSolicitud: Timestamp;
 }
