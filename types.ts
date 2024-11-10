@@ -24,7 +24,12 @@ export type TabParamList = {
   Profile: undefined;
   Tutores: undefined;
   TutorDetailsScreen: { tutorId: string };
-  Notoifications: undefined;
+  Notifications: undefined;
+};
+
+export type TutorStackParamList = {
+  TutorHome: undefined;
+  ScheduleConsulting: undefined;
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =

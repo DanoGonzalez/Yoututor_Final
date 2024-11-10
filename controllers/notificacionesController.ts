@@ -7,7 +7,7 @@ import { Usuario } from "../models/usuarios";
 const usuariosCollection = collection(db, "usuarios");
 const notificacionesCollection = collection(db, 'notificaciones');
 
-export const crearNotificacion = async (receptorId: string, mensaje: string, tipo: number, solicitanteId: string) => {
+export const crearNotificacion = async (receptorId: string, mensaje: string, tipo: number, solicitanteId: string, materiaId: string) => {
   try {
     const nuevaNotificacion: Notificacion = {
       receptorId,
@@ -16,6 +16,7 @@ export const crearNotificacion = async (receptorId: string, mensaje: string, tip
       leido: false,
       fechaEnvio: Timestamp.now(),
       tipo,
+      materiaId
     };
 
     const docRef = await addDoc(notificacionesCollection, nuevaNotificacion);

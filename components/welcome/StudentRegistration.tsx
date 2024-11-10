@@ -65,7 +65,10 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
         },
       ]);
     } catch (error: any) {
-      Alert.alert("Error", "Hubo un problema al registrar el usuario. Intenta de nuevo.");
+      Alert.alert(
+        "Error",
+        "Hubo un problema al registrar el usuario. Intenta de nuevo."
+      );
     }
   };
 
@@ -78,106 +81,151 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
-      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Image
-          source={require("../../assets/icons/arrow.png")}
-          style={styles.backIcon}
-        />
-      </TouchableOpacity>
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"} // Different behavior for iOS and Android
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            <View style={styles.content}>
-              <View style={styles.iconContainer}>
-                <Image
-                  source={require("../../assets/icons/signup_estudiantes.png")}
-                  style={styles.icon}
-                />
-              </View>
-              <Text style={styles.title}>Registro de Estudiante</Text>
-              <Text style={styles.subtitle}>
-                Llena el siguiente formulario con tus datos personales. Crea una
-                contraseña y registra una cuenta de correo electrónico.
-              </Text>
-              <View style={styles.form}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nombres"
-                  value={nombres}
-                  onChangeText={setNombres}
-                  autoCapitalize="words"
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Apellidos"
-                  value={apellidos}
-                  onChangeText={setApellidos}
-                  autoCapitalize="words"
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Correo"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Contraseña"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Confirmar Contraseña"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry
-                />
-                <TouchableOpacity
-                  style={styles.nextButton}
-                  onPress={handleNext}
-                >
-                  <Text style={styles.nextButtonText}>Crear Cuenta</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.alternativeButton}
-                  onPress={handleAlternativeRegistration}
-                >
-                  <Text style={styles.alternativeButtonText}>
-                    Usar otro método de registro
-                  </Text>
+      <SafeAreaView style={styles.contentContainer}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+              <View style={styles.fixedHeader}>
+                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                  <Image
+                    source={require("../../assets/icons/arrow.png")}
+                    style={styles.backIcon}
+                  />
                 </TouchableOpacity>
               </View>
-            </View>
-          </ScrollView>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+
+              <View style={styles.content}>
+                <View style={styles.iconContainer}>
+                  <Image
+                    source={require("../../assets/icons/signup_estudiantes.png")}
+                    style={styles.icon}
+                  />
+                </View>
+                <Text style={styles.title}>Registro de Estudiante</Text>
+                <Text style={styles.subtitle}>
+                  Llena el siguiente formulario con tus datos personales. Crea una
+                  contraseña y registra una cuenta de correo electrónico.
+                </Text>
+                <View style={styles.form}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Nombres"
+                    value={nombres}
+                    onChangeText={setNombres}
+                    autoCapitalize="words"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Apellidos"
+                    value={apellidos}
+                    onChangeText={setApellidos}
+                    autoCapitalize="words"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Correo"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Contraseña"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Confirmar Contraseña"
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    secureTextEntry
+                  />
+                  <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+                    <Text style={styles.nextButtonText}>Crear Cuenta</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.alternativeButton}
+                    onPress={handleAlternativeRegistration}>
+                    <Text style={styles.alternativeButtonText}>
+                      Usar otro método de registro
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </ScrollView>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
-  backButton: { position: "absolute", top: 40, left: 20, zIndex: 1 },
-  backIcon: { width: 55, height: 55 },
+  container: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+  fixedHeader: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? 50 : 20,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    backgroundColor: "transparent",
+  },
+  backButton: {
+    marginLeft: 20,
+  },
+  backIcon: {
+    width: 55,
+    height: 55,
+  },
+  contentContainer: {
+    flex: 1,
+  },
   scrollContent: { flexGrow: 1 },
   content: { paddingTop: 80, alignItems: "center" },
   iconContainer: { alignItems: "center", marginBottom: 24 },
   icon: { width: 80, height: 80 },
-  title: { fontSize: 24, fontWeight: "bold", color: "#000000", textAlign: "center", marginBottom: 12 },
-  subtitle: { fontSize: 16, color: "#666666", textAlign: "center", marginBottom: 32, lineHeight: 24 },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#000000",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#666666",
+    textAlign: "center",
+    marginBottom: 32,
+    lineHeight: 24,
+  },
   form: { gap: 16, width: "100%", paddingHorizontal: 20 },
-  input: { backgroundColor: "#F5F5F5", borderRadius: 8, padding: 16, fontSize: 16, borderWidth: 1, borderColor: "#DDDDDD" },
-  nextButton: { backgroundColor: "#0078FF", borderRadius: 8, padding: 16, alignItems: "center", marginTop: 32, width: "100%" },
+  input: {
+    backgroundColor: "#F5F5F5",
+    borderRadius: 8,
+    padding: 16,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#DDDDDD",
+  },
+  nextButton: {
+    backgroundColor: "#0078FF",
+    borderRadius: 8,
+    padding: 16,
+    alignItems: "center",
+    marginTop: 32,
+    width: "100%",
+  },
   nextButtonText: { color: "#FFFFFF", fontSize: 18, fontWeight: "bold" },
   alternativeButton: { marginTop: 16, padding: 12 },
   alternativeButtonText: { color: "#0078FF", fontSize: 16, textAlign: "center" },

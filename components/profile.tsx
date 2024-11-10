@@ -12,15 +12,16 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { ProfileScreenNavigationProp, ProfileScreenProps } from "../../types";
-import { getUsuario } from "../../controllers/usuariosController"; // Asegúrate de importar correctamente
+import { ProfileScreenNavigationProp, ProfileScreenProps } from "../types";
+import { getUsuario } from "../controllers/usuariosController"; // Asegúrate de importar correctamente
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import {
   saveUserImage,
   getUserImage,
   updateUsuario,
-} from "../../controllers/usuariosController";
+} from "../controllers/usuariosController";
+import { defaultProfilePictures } from "../constants/profilePictures";
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
@@ -38,22 +39,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
       console.error("Error al eliminar el usuario de AsyncStorage:", error);
     }
   };
-
-  // Definir las imágenes predefinidas
-  const defaultProfilePictures = [
-    require("../../assets/ProfilePicturesDefault/Normal.png"),
-    require("../../assets/ProfilePicturesDefault/Guy.png"),
-    require("../../assets/ProfilePicturesDefault/Guy1.png"),
-    require("../../assets/ProfilePicturesDefault/Guy2.png"),
-    require("../../assets/ProfilePicturesDefault/Guy3.png"),
-    require("../../assets/ProfilePicturesDefault/Guy4.png"),
-    require("../../assets/ProfilePicturesDefault/Girl.png"),
-    require("../../assets/ProfilePicturesDefault/Girl1.png"),
-    require("../../assets/ProfilePicturesDefault/Girl2.png"),
-    require("../../assets/ProfilePicturesDefault/Girl3.png"),
-    require("../../assets/ProfilePicturesDefault/Girl4.png"),
-    require("../../assets/ProfilePicturesDefault/Girl5.png"),
-  ];
 
   const loadProfileImage = async (userId: string) => {
     try {
@@ -116,18 +101,19 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
       <View style={styles.galleryModal}>
         <View style={styles.galleryContent}>
           <Text style={styles.galleryTitle}>Selecciona una imagen de perfil</Text>
-          <ScrollView 
+          <ScrollView
             style={styles.galleryScrollView}
-            showsVerticalScrollIndicator={false}
-          >
+            showsVerticalScrollIndicator={false}>
             <View style={styles.galleryGrid}>
               {defaultProfilePictures.map((image, index) => (
                 <TouchableOpacity
                   key={index}
                   style={styles.galleryItem}
-                  onPress={() => selectProfilePicture(`profilePicture${index + 1}`)}>
-                  <Image 
-                    source={image} 
+                  onPress={() =>
+                    selectProfilePicture(`profilePicture${index + 1}`)
+                  }>
+                  <Image
+                    source={image}
                     style={styles.galleryImage}
                     resizeMode="cover"
                   />
@@ -170,7 +156,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
                     ? defaultProfilePictures[
                         parseInt(profileImage.replace("profilePicture", "")) - 1
                       ]
-                    : require("../../assets/icons/profile-picture.png")
+                    : require("../assets/icons/profile-picture.png")
                 }
                 style={styles.profilePicture}
               />
@@ -178,7 +164,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
                 style={styles.editButton}
                 onPress={() => setShowGallery(true)}>
                 <Image
-                  source={require("../../assets/icons/editProfile.png")}
+                  source={require("../assets/icons/editProfile.png")}
                   style={styles.editIcon}
                 />
               </TouchableOpacity>
@@ -377,58 +363,58 @@ const styles = StyleSheet.create({
   },
   galleryModal: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   galleryContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 15,
-    width: '100%',
-    maxHeight: '80%', // Limita la altura máxima
+    width: "100%",
+    maxHeight: "80%", // Limita la altura máxima
     paddingVertical: 20,
   },
   galleryTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
     paddingHorizontal: 20,
   },
   galleryScrollView: {
-    maxHeight: '75%', // Asegura que haya espacio para el botón de cerrar
+    maxHeight: "75%", // Asegura que haya espacio para el botón de cerrar
   },
   galleryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-evenly',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-evenly",
     paddingHorizontal: 10,
     paddingBottom: 10,
   },
   galleryItem: {
-    width: '30%', // Aproximadamente 3 imágenes por fila
+    width: "30%", // Aproximadamente 3 imágenes por fila
     aspectRatio: 1,
-    margin: '1.5%',
+    margin: "1.5%",
     borderRadius: 10,
-    overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
+    overflow: "hidden",
+    backgroundColor: "#f0f0f0",
   },
   galleryImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   closeGalleryButton: {
-    backgroundColor: '#0078FF',
+    backgroundColor: "#0078FF",
     marginHorizontal: 20,
     padding: 15,
     borderRadius: 8,
     marginTop: 15,
   },
   closeGalleryButtonText: {
-    color: '#FFFFFF',
-    textAlign: 'center',
-    fontWeight: '600',
+    color: "#FFFFFF",
+    textAlign: "center",
+    fontWeight: "600",
     fontSize: 16,
   },
 });

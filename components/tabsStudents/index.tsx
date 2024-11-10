@@ -58,7 +58,7 @@ const HomeScreen = () => {
 
   const handleNotificationsPress = () => {
     navigation.navigate("NotificacionesScreen");
-  }
+  };
 
   const renderItem = ({ item }: { item: TutorItem }) => (
     <View style={[styles.card, { backgroundColor: item.color }]}>
@@ -71,7 +71,12 @@ const HomeScreen = () => {
       <Text style={styles.category}>{item.category}</Text>
       <View style={styles.cardFooter}>
         <View style={styles.tutorInfo}>
-          <Ionicons name="person-circle-outline" size={24} color="#FFFFFF" style={styles.profileIcon} />
+          <Ionicons
+            name="person-circle-outline"
+            size={24}
+            color="#FFFFFF"
+            style={styles.profileIcon}
+          />
           <Text style={styles.tutor}>{item.tutor}</Text>
         </View>
         <TouchableOpacity style={styles.addButton}>
@@ -91,7 +96,12 @@ const HomeScreen = () => {
             style={styles.logo}
           />
           <TouchableOpacity>
-            <Ionicons name="notifications-outline" size={30} color="#0078FF" onPress={handleNotificationsPress} />
+            <Ionicons
+              name="notifications-outline"
+              size={30}
+              color="#0078FF"
+              onPress={handleNotificationsPress}
+            />
           </TouchableOpacity>
         </View>
 
@@ -156,7 +166,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   list: {
-    paddingBottom: 20,
+    paddingBottom: 85,
   },
   card: {
     borderRadius: 8,
@@ -208,8 +218,8 @@ const styles = StyleSheet.create({
     borderBottomColor: "#DDDDDD",
   },
   logo: {
-    width: 120,  // Ajusta el tamaño del logo
-    height: 40,  // Ajusta el tamaño del logo
+    width: 120, // Ajusta el tamaño del logo
+    height: 40, // Ajusta el tamaño del logo
     resizeMode: "contain", // Asegura que el logo no se deforme
   },
 });
