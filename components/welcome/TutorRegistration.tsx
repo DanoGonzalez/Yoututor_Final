@@ -52,6 +52,40 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
     fetchMaterias();
   }, []);
 
+  const formatGithubUrl = (input: string) => {
+    const input_clean = input.trim();
+
+    // Check if it's already a GitHub URL
+    if (
+      input_clean.startsWith("https://github.com/") ||
+      input_clean.startsWith("http://github.com/")
+    ) {
+      return input_clean;
+    }
+
+    // Remove @ if present and create URL
+    const username = input_clean.replace(/^@/, "");
+    return `https://github.com/${username}`;
+  };
+
+  const formatLinkedinUrl = (input: string) => {
+    const input_clean = input.trim();
+
+    // Check if it's already a LinkedIn URL
+    if (
+      input_clean.startsWith("https://linkedin.com/in/") ||
+      input_clean.startsWith("http://linkedin.com/in/") ||
+      input_clean.startsWith("https://www.linkedin.com/in/") ||
+      input_clean.startsWith("http://www.linkedin.com/in/")
+    ) {
+      return input_clean;
+    }
+
+    // Remove @ if present and create URL
+    const username = input_clean.replace(/^@/, "");
+    return `https://linkedin.com/in/${username}`;
+  };
+
   const handleNext = async () => {
     if (
       !name ||
@@ -81,8 +115,8 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
         correo: email,
         password,
         materiasDominadas: [selectedMateria],
-        githubProfile, // Send GitHub profile to the backend
-        linkedinProfile, // Send LinkedIn profile to the backend
+        githubProfile: formatGithubUrl(githubProfile), // Convert to URL
+        linkedinProfile: linkedinProfile ? formatLinkedinUrl(linkedinProfile) : "", // Convert to URL if provided
       });
       Alert.alert("Éxito", "¡Tutor creado exitosamente!");
       setTimeout(() => {
@@ -171,18 +205,34 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
                     onChangeText={setConfirmPassword}
                     secureTextEntry
                   />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Perfil de GitHub"
-                    value={githubProfile}
-                    onChangeText={setGithubProfile}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Perfil de LinkedIn"
-                    value={linkedinProfile}
-                    onChangeText={setLinkedinProfile}
-                  />
+                  <View style={styles.inputContainer}>
+                    <Image
+                      source={require("../../assets/icons/github-mark.png")}
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      style={styles.inputWithIcon}
+                      placeholder="Usuario o URL de GitHub"
+                      placeholderTextColor="#999999"
+                      value={githubProfile}
+                      onChangeText={setGithubProfile}
+                      autoCapitalize="none"
+                    />
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <Image
+                      source={require("../../assets/icons/linkedin.png")}
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      style={styles.inputWithIcon}
+                      placeholder="Usuario o URL de LinkedIn"
+                      placeholderTextColor="#999999"
+                      value={linkedinProfile}
+                      onChangeText={setLinkedinProfile}
+                      autoCapitalize="none"
+                    />
+                  </View>
                   <TouchableOpacity onPress={() => setModalMateriasVisible(true)}>
                     <TextInput
                       style={styles.input}
@@ -328,6 +378,26 @@ const styles = StyleSheet.create({
   },
   modalItem: { paddingVertical: 12 },
   modalItemText: { fontSize: 16 },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#DDDDDD",
+    paddingHorizontal: 12,
+    height: 56,
+  },
+  inputIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
+  },
+  inputWithIcon: {
+    flex: 1,
+    fontSize: 15,
+    paddingVertical: 8,
+  },
 });
 
 export default TutorRegistration;
