@@ -21,6 +21,7 @@ import {
   getUserImage,
   updateUsuario,
 } from "../../controllers/usuariosController";
+import { defaultProfilePictures } from "../../constants/profilePictures";
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
@@ -38,22 +39,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
       console.error("Error al eliminar el usuario de AsyncStorage:", error);
     }
   };
-
-  // Definir las imágenes predefinidas
-  const defaultProfilePictures = [
-    require("../../assets/ProfilePicturesDefault/Normal.png"),
-    require("../../assets/ProfilePicturesDefault/Guy.png"),
-    require("../../assets/ProfilePicturesDefault/Guy1.png"),
-    require("../../assets/ProfilePicturesDefault/Guy2.png"),
-    require("../../assets/ProfilePicturesDefault/Guy3.png"),
-    require("../../assets/ProfilePicturesDefault/Guy4.png"),
-    require("../../assets/ProfilePicturesDefault/Girl.png"),
-    require("../../assets/ProfilePicturesDefault/Girl1.png"),
-    require("../../assets/ProfilePicturesDefault/Girl2.png"),
-    require("../../assets/ProfilePicturesDefault/Girl3.png"),
-    require("../../assets/ProfilePicturesDefault/Girl4.png"),
-    require("../../assets/ProfilePicturesDefault/Girl5.png"),
-  ];
 
   const loadProfileImage = async (userId: string) => {
     try {

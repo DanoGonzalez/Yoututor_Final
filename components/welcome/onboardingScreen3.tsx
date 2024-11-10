@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: 40,
+    top: 30,
     left: 20,
     zIndex: 1,
   },
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 40,
   },
   image: {
     width: width * 0.8,
