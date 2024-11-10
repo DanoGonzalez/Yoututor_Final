@@ -8,27 +8,29 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import { ThemedView } from "../ThemedView";
+import { ThemedView } from "./ThemedView";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
-import ChatListItem from "../ChatListItem";
-import { RootStackParamList } from "../../types";
-import { chatData, Chat } from "../../utils/chatData";
+import ChatListItem from "./ChatListItem";
+import { RootStackParamList } from "../types";
+import { chatData, Chat } from "../utils/chatData";
 
 export default function MessagesScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [chatList, setChatList] = useState<any[]>([]);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      const updatedChats = Object.values(chatData).map(chat => ({
+    const unsubscribe = navigation.addListener("focus", () => {
+      const updatedChats = Object.values(chatData).map((chat) => ({
         id: chat.id,
         name: chat.name,
-        lastMessage: chat.messages.length > 0 
-          ? chat.messages[chat.messages.length - 1].text 
-          : "No hay mensajes",
-        time: chat.messages.length > 0 
-          ? chat.messages[chat.messages.length - 1].timestamp 
-          : "",
+        lastMessage:
+          chat.messages.length > 0
+            ? chat.messages[chat.messages.length - 1].text
+            : "No hay mensajes",
+        time:
+          chat.messages.length > 0
+            ? chat.messages[chat.messages.length - 1].timestamp
+            : "",
         avatar: chat.avatar,
       }));
       setChatList(updatedChats);
