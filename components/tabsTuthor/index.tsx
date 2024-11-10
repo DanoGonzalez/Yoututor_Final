@@ -10,8 +10,13 @@ import {
   Dimensions,
   StatusBar,
 } from "react-native";
-import { ThemedText } from "../ThemedText";
+
 import { ThemedView } from "../ThemedView";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { TabParamList, TutorStackParamList } from "../../types";
+import { CompositeNavigationProp } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
 const { width } = Dimensions.get("window");
 
@@ -48,7 +53,9 @@ const data: TutorItem[] = [
   },
 ];
 
-const HomeScreen = () => {
+const HomeScreenTutor = () => {
+  const navigation = useNavigation<StackNavigationProp<TutorStackParamList>>();
+
   const renderItem = ({ item }: { item: TutorItem }) => (
     <View style={[styles.card, { backgroundColor: item.color }]}>
       <View style={styles.cardHeader}>
@@ -83,7 +90,9 @@ const HomeScreen = () => {
     <>
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
       <SafeAreaView style={styles.container}>
-        <TouchableOpacity style={styles.tutoresButton} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.tutoresButton}
+          onPress={() => navigation.navigate("ScheduleConsulting")}>
           <Text style={styles.tutoresButtonText}>Agendar Asesoría</Text>
         </TouchableOpacity>
         <ThemedView style={styles.content}>
@@ -200,4 +209,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default HomeScreenTutor;

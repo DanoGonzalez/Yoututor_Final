@@ -11,8 +11,12 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { TutorStackParamList } from "../../types";
 
 const ScheduleConsulting = () => {
+  const navigation = useNavigation<StackNavigationProp<TutorStackParamList>>();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -53,7 +57,7 @@ const ScheduleConsulting = () => {
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
       <ScrollView style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Materia</Text>
