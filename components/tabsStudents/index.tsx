@@ -45,10 +45,9 @@ const HomeScreen = () => {
     }
   };
 
-  // Esto se ejecutará cada vez que el componente reciba foco (cuando se vuelva visible)
   useFocusEffect(
     React.useCallback(() => {
-      fetchTutorias(); // Actualiza tutorías al enfocarse en la pantalla
+      fetchTutorias(); 
     }, [])
   );
 
@@ -60,8 +59,8 @@ const HomeScreen = () => {
     navigation.navigate("NotificacionesScreen");
   };
 
-  const renderItem = ({ item }: { item: TutorItem }) => (
-    <View style={[styles.card, { backgroundColor: item.color }]} >
+  const renderItem = ({ item, index }: { item: TutorItem, index: number }) => (
+      <View style={[styles.card, { backgroundColor: index % 2 === 0 ? "#0078FF" : "#C4C4C4" }]} >
       <View style={styles.cardHeader}>
         <Text style={styles.subject}>{item.subject}</Text>
         <TouchableOpacity>
@@ -109,10 +108,10 @@ const HomeScreen = () => {
           style={styles.tutoresButton}
           onPress={handleTutoresPress}
         >
-          <Text style={styles.tutoresButtonText}>Tutores</Text>
+          <Text style={styles.tutoresButtonText}>Buscar Tutores</Text>
         </TouchableOpacity>
         <View style={styles.content}>
-          <Text style={styles.subtitle}>Próximas Asesorías</Text>
+          <Text style={styles.subtitle}>Mis Tutorias</Text>
           <FlatList
             data={tutorias}
             renderItem={renderItem}
