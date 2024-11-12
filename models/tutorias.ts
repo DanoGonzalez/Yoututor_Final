@@ -8,5 +8,8 @@ export interface Tutoria {
     materiaId: string;
     materiaNombre: string;
     fechaCreacion: Timestamp;
+    descripcion?: string;
+    horario?: string;    
+    enlaceAsesoria?: string;
   }
   

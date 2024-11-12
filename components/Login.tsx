@@ -35,6 +35,7 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
       console.log("Usuario logueado:", usuario);
       const usuarioData = {
         id: usuario.id,
+        role: usuario.role,
         nombreCompleto: `${usuario.nombres} ${usuario.apellidos}`,
         role: usuario.role,
       };

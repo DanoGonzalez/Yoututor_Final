@@ -25,6 +25,7 @@ export default function App() {
   const [userRole, setUserRole] = useState<number | null>(null);
 
   const handleLogin = (role: number) => {
+
     console.log("HandleLogin llamado con role:", role);
     setIsLoggedIn(true);
     setUserRole(role);
@@ -67,49 +68,44 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!isLoggedIn ? (
-          <>
-            <Stack.Screen name="Login">
-              {(props) => <Login {...props} onLogin={handleLogin} />}
-            </Stack.Screen>
-            <Stack.Screen name="Onboarding1" component={OnboardingScreen} />
-            <Stack.Screen name="Onboarding2" component={OnboardingScreen2} />
-            <Stack.Screen name="Onboarding3" component={OnboardingScreen3} />
-            <Stack.Screen name="TutorRegistration" component={TutorRegistration} />
-            <Stack.Screen
-              name="StudentRegistration"
-              component={StudentRegistration}
+<NavigationContainer>
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    {!isLoggedIn ? (
+      <>
+        <Stack.Screen name="Login">
+          {(props) => <Login {...props} onLogin={handleLogin} />}
+        </Stack.Screen>
+        <Stack.Screen name="Onboarding1" component={OnboardingScreen} />
+        <Stack.Screen name="Onboarding2" component={OnboardingScreen2} />
+        <Stack.Screen name="Onboarding3" component={OnboardingScreen3} />
+        <Stack.Screen name="TutorRegistration" component={TutorRegistration} />
+        <Stack.Screen name="StudentRegistration" component={StudentRegistration} />
+      </>
+    ) : (
+      <>
+        <Stack.Screen name="TabLayout">
+          {(props) => (
+            <TabLayout
+              {...props}
+              onLogout={handleLogout}
+              userRole={userRole}
             />
-          </>
-        ) : (
-          <>
-            <Stack.Screen name="TabLayout">
-              {(props) => (
-                <TabLayout
-                  {...props}
-                  onLogout={handleLogout}
-                  userRole={userRole}
-                />
-              )}
-            </Stack.Screen>
-            <Stack.Screen
-              name="Chat"
-              component={ChatScreen}
-              options={{
-                headerShown: false,
-              }}
-            />
-          </>
-        )}
-        <Stack.Screen name="Tutores" component={TutoresScreen} />
-        <Stack.Screen name="TutorDetailsScreen" component={TutorDetailsScreen} />
+          )}
+        </Stack.Screen>
+        {/* Deja solo una instancia de Chat */}
         <Stack.Screen
-          name="NotificacionesScreen"
-          component={NotificacionesScreen}
+          name="Chat"
+          component={ChatScreen}
+          options={{
+            headerShown: false,
+          }}
         />
-      </Stack.Navigator>
-    </NavigationContainer>
+      </>
+    )}
+    <Stack.Screen name="Tutores" component={TutoresScreen} />
+    <Stack.Screen name="TutorDetailsScreen" component={TutorDetailsScreen} />
+    <Stack.Screen name="NotificacionesScreen" component={NotificacionesScreen} />
+  </Stack.Navigator>
+</NavigationContainer>
   );
 }

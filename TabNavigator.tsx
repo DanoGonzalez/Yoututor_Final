@@ -15,6 +15,9 @@ import MessagesIcon from "./assets/NavIcons/Messages.png";
 import HomeIcon from "./assets/NavIcons/Home.png";
 import ProfileIcon from "./assets/NavIcons/Profile.png";
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator();
 
@@ -34,6 +37,17 @@ const TutorStack = () => {
 };
 
 export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
+  console.log("User role: ", userRole);
+  if (userRole === null || userRole === undefined) {
+    // AsyncStorage.removeItem('usuario')
+    // .then(() => {
+    //   console.log('Usuario eliminado de AsyncStorage');
+    // })
+    // .catch((error) => {
+    //   console.error('Error al eliminar el usuario de AsyncStorage:', error);
+    // });
+    return null;
+  }
   return (
     <Tab.Navigator
       initialRouteName="Home"

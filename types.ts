@@ -31,6 +31,7 @@ export type TabParamList = {
 export type TutorStackParamList = {
   TutorHome: undefined;
   ScheduleConsulting: undefined;
+  NotificacionesScreen: undefined;
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =
@@ -101,3 +102,4 @@ export interface TabLayoutProps
   onLogout: () => void;
   userRole: number | null;
 }
+

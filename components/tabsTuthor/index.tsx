@@ -12,6 +12,7 @@ import {
 } from "react-native";
 
 import { ThemedView } from "../ThemedView";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { TabParamList, TutorStackParamList } from "../../types";
@@ -56,6 +57,9 @@ const data: TutorItem[] = [
 const HomeScreenTutor = () => {
   const navigation = useNavigation<StackNavigationProp<TutorStackParamList>>();
 
+  const handleNotificationsPress = () => {
+    navigation.navigate("NotificacionesScreen");
+  };
   const renderItem = ({ item }: { item: TutorItem }) => (
     <View style={[styles.card, { backgroundColor: item.color }]}>
       <View style={styles.cardHeader}>
@@ -95,6 +99,14 @@ const HomeScreenTutor = () => {
           onPress={() => navigation.navigate("ScheduleConsulting")}>
           <Text style={styles.tutoresButtonText}>Agendar Asesoría</Text>
         </TouchableOpacity>
+        <TouchableOpacity>
+            <Ionicons
+              name="notifications-outline"
+              size={30}
+              color="#0078FF"
+              onPress={handleNotificationsPress}
+            />
+          </TouchableOpacity>
         <ThemedView style={styles.content}>
           <Text style={styles.subtitle}>Próximos Estudiantes</Text>
           <FlatList
