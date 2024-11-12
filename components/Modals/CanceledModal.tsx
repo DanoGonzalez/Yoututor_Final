@@ -1,8 +1,15 @@
-import React from 'react';
-import { Modal, View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { TabParamList } from '../types';
+import React from "react";
+import {
+  Modal,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { TabParamList } from "../../types";
 
 type SuccessModalProps = {
   visible: boolean;
@@ -14,7 +21,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose }) => {
 
   const handleClose = () => {
     onClose();
-    navigation.navigate('Home');
+    navigation.navigate("Home");
   };
 
   return (
@@ -22,20 +29,16 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose }) => {
       animationType="fade"
       transparent={true}
       visible={visible}
-      onRequestClose={handleClose}
-    >
+      onRequestClose={handleClose}>
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Image
-            source={require('../assets/ModalImages/Main.png')}
+            source={require("../assets/ModalImages/Cancel.png")}
             style={styles.image}
             resizeMode="contain"
           />
-          <Text style={styles.title}>Solicitud enviada con Éxito</Text>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleClose}
-          >
+          <Text style={styles.title}>Aseosria Cancelada</Text>
+          <TouchableOpacity style={styles.button} onPress={handleClose}>
             <Text style={styles.buttonText}>Cerrar</Text>
           </TouchableOpacity>
         </View>
@@ -47,16 +50,16 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose }) => {
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalView: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -64,7 +67,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: '80%',
+    width: "80%",
   },
   image: {
     width: 200,
@@ -73,22 +76,22 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   button: {
-    backgroundColor: '#0078FF',
+    backgroundColor: "#0078FF",
     borderRadius: 10,
     padding: 15,
-    width: '100%',
+    width: "100%",
   },
   buttonText: {
-    color: 'white',
-    textAlign: 'center',
+    color: "white",
+    textAlign: "center",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
-export default SuccessModal; 
+export default SuccessModal;
