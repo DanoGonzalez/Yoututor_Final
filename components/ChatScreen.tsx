@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -9,39 +9,80 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  ScrollView,
 } from "react-native";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
-import { chatData, Message } from "../utils/chatData";
+import { useNavigation, RouteProp } from "@react-navigation/native";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import { db } from "../utils/Firebase";
+import { getMensajes, newMensaje } from "../controllers/mensajesController";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList } from "../types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Mensaje } from "../models/mensajes";
 
-export default function ChatScreen({
-  route,
-}: {
-  route: { params: { chatId: string } };
-}) {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+type ChatScreenRouteProp = RouteProp<RootStackParamList, "Chat">;
+
+export default function ChatScreen({ route }: { route: ChatScreenRouteProp }) {
+  const navigation = useNavigation();
   const { chatId } = route.params;
-  const currentChat = chatData[chatId as keyof typeof chatData];
-  const [inputMessage, setInputMessage] = React.useState("");
-  const [messages, setMessages] = React.useState<Message[]>(currentChat.messages);
+  const [inputMessage, setInputMessage] = useState("");
+  const [messages, setMessages] = useState<Mensaje[]>([]);
+  const [userId, setUserId] = useState<string>("");
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  const handleSendMessage = () => {
-    if (inputMessage.trim() === "") return;
+  // Obtener el ID del usuario actual
+  useEffect(() => {
+    const getUserId = async () => {
+      const userData = await AsyncStorage.getItem("usuario");
+      if (userData) {
+        const user = JSON.parse(userData);
+        setUserId(user.id);
+      }
+    };
+    getUserId();
+  }, []);
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      text: inputMessage,
-      sender: "user",
-      timestamp: new Date().toLocaleTimeString(),
+  // Cargar mensajes iniciales y configurar listener en tiempo real
+  useEffect(() => {
+    const fetchMensajes = async () => {
+      try {
+        const mensajes = await getMensajes(chatId);
+        setMessages(mensajes);
+      } catch (error) {
+        console.error("Error al cargar los mensajes:", error);
+      }
     };
 
-    const updatedMessages = [...messages, newMessage];
-    setMessages(updatedMessages);
-    
-    chatData[chatId as keyof typeof chatData].messages = updatedMessages;
-    
-    setInputMessage("");
+    fetchMensajes();
+
+    // Configurar listener en tiempo real
+    const messagesRef = collection(db, "mensajes");
+    const q = query(
+      messagesRef,
+      where("chatId", "==", chatId),
+      orderBy("timestamp", "asc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newMessages = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Mensaje[];
+      setMessages(newMessages);
+    });
+
+    return () => unsubscribe();
+  }, [chatId]);
+
+  const handleSendMessage = async () => {
+    if (inputMessage.trim() === "") return;
+
+    try {
+      await newMensaje(chatId, userId, inputMessage);
+      setInputMessage(""); // Limpiar el campo de entrada después de enviar el mensaje
+    } catch (error) {
+      console.error("Error al enviar el mensaje:", error);
+    }
   };
 
   return (
@@ -51,28 +92,43 @@ export default function ChatScreen({
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>{currentChat.name}</Text>
+        <Text style={styles.headerText}>Chat</Text>
       </View>
 
       {/* Área de Mensajes */}
-      <View style={styles.messagesContainer}>
-        {messages.map((message) => (
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.messagesContainer}
+        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+      >
+        {messages.map((message, index) => (
           <View
-            key={message.id}
+            key={message.id || `message-${index}`} // Usa `index` si `message.id` no está definido
             style={[
               styles.messageWrapper,
-              message.sender === "user" ? styles.userMessage : styles.otherMessage,
-            ]}>
-            <Text style={styles.messageText}>{message.text}</Text>
-            <Text style={styles.messageTime}>{message.timestamp}</Text>
+              message.remitenteId === userId ? styles.userMessage : styles.otherMessage,
+            ]}
+          >
+            <Text
+              style={[
+                styles.messageText,
+                { color: message.remitenteId === userId ? "#FFFFFF" : "#000000" }, // Texto blanco para el usuario, negro para el otro
+              ]}
+            >{message.mensaje}
+            </Text>
+            <Text style={styles.messageTime}>
+              {message.timestamp.toDate().toLocaleTimeString()}
+            </Text>
+
           </View>
         ))}
-      </View>
+      </ScrollView>
 
       {/* Área de Entrada */}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.inputContainer}>
+        style={styles.inputContainer}
+      >
         <TextInput
           style={styles.input}
           placeholder="Escribe un mensaje..."
@@ -81,10 +137,7 @@ export default function ChatScreen({
           onChangeText={setInputMessage}
         />
         <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
-          <Image
-            source={require("../assets/icons/send.png")}
-            style={styles.sendIcon}
-          />
+          <Image source={require("../assets/icons/send.png")} style={styles.sendIcon} />
         </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -108,7 +161,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#000",
-    marginLeft: 10, // Espacio entre el icono y el texto
+    marginLeft: 10,
   },
   backButton: {
     padding: 8,
@@ -158,15 +211,15 @@ const styles = StyleSheet.create({
   },
   otherMessage: {
     alignSelf: "flex-start",
-    backgroundColor: "#E8E8E8",
+    backgroundColor: "#D3D3D3", // Cambia el color de fondo del mensaje recibido
   },
   messageText: {
-    color: "#FFFFFF",
+    color: "#000000", // Cambia el color del texto para mayor visibilidad
     fontSize: 16,
   },
   messageTime: {
     fontSize: 12,
-    color: "#FFFFFF",
+    color: "#000000", // Cambia el color del tiempo para mayor visibilidad
     opacity: 0.7,
     marginTop: 4,
     alignSelf: "flex-end",

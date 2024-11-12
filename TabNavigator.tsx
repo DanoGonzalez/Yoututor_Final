@@ -10,14 +10,11 @@ import TutorDetailsScreen from "./components/tabsStudents/TutorDetailsSreen";
 import HomeScreenTutor from "./components/tabsTuthor/index";
 import ScheduleConsulting from "./components/tabsTuthor/scheduleConsulting";
 import { TabParamList } from "./types";
+import { TabLayoutProps } from "./types";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator();
-
-interface TabLayoutProps {
-  onLogout: () => void;
-  userRole: number;
-}
 
 const ProfileScreenWrapper: React.FC<{ onLogout: () => void }> = ({
   onLogout,
@@ -35,6 +32,17 @@ const TutorStack = () => {
 };
 
 export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
+  console.log("User role: ", userRole);
+  if (userRole === null || userRole === undefined) {
+    // AsyncStorage.removeItem('usuario')
+    // .then(() => {
+    //   console.log('Usuario eliminado de AsyncStorage');
+    // })
+    // .catch((error) => {
+    //   console.error('Error al eliminar el usuario de AsyncStorage:', error);
+    // });
+    return null;
+  }
   return (
     <Tab.Navigator
       initialRouteName="Home"

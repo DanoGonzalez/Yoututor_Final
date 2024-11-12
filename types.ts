@@ -30,6 +30,7 @@ export type TabParamList = {
 export type TutorStackParamList = {
   TutorHome: undefined;
   ScheduleConsulting: undefined;
+  NotificacionesScreen: undefined;
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =
@@ -78,10 +79,10 @@ export type StudentRegistrationProps = NativeStackScreenProps<
   "StudentRegistration"
 >;
 
-export type TabLayoutProps = NativeStackScreenProps<
-  RootStackParamList,
-  "TabLayout"
->;
+// export type TabLayoutProps = NativeStackScreenProps<
+//   RootStackParamList,
+//   "TabLayout"
+// >;
 
 export type TutorDetailsScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -94,3 +95,10 @@ export type NotificacionesScreenProps = NativeStackScreenProps<
 >;
 
 export type TutoresScreenProps = TabScreenProps<"Tutores">;
+
+
+export interface TabLayoutProps
+  extends NativeStackScreenProps<RootStackParamList, "TabLayout"> {
+  onLogout: () => void;
+  userRole: number | null;
+}
