@@ -10,14 +10,10 @@ import TutorDetailsScreen from "./components/tabsStudents/TutorDetailsSreen";
 import HomeScreenTutor from "./components/tabsTuthor/index";
 import ScheduleConsulting from "./components/tabsTuthor/scheduleConsulting";
 import { TabParamList } from "./types";
+import { TabLayoutProps } from "./types";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator();
-
-interface TabLayoutProps {
-  onLogout: () => void;
-  userRole: number;
-}
 
 const ProfileScreenWrapper: React.FC<{ onLogout: () => void }> = ({
   onLogout,
@@ -35,6 +31,11 @@ const TutorStack = () => {
 };
 
 export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
+  console.log("User role: ", userRole);
+  if (userRole === null || userRole === undefined) {
+    // Puedes mostrar una pantalla de carga o un indicador aquí
+    return null;
+  }
   return (
     <Tab.Navigator
       initialRouteName="Home"
