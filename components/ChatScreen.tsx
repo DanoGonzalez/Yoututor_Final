@@ -10,15 +10,17 @@ import {
   Platform,
   SafeAreaView,
 } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { chatData, Message } from "../utils/chatData";
+import { Ionicons } from "@expo/vector-icons";
+import { RootStackParamList } from "../types";
 
 export default function ChatScreen({
   route,
 }: {
   route: { params: { chatId: string } };
 }) {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { chatId } = route.params;
   const currentChat = chatData[chatId as keyof typeof chatData];
   const [inputMessage, setInputMessage] = React.useState("");
@@ -44,21 +46,15 @@ export default function ChatScreen({
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Encabezado */}
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}>
-          <Image
-            source={require("../assets/icons/arrow.png")}
-            style={styles.backIcon}
-          />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <View style={styles.headerInfo}>
-          <Text style={styles.headerName}>{currentChat.name}</Text>
-        </View>
+        <Text style={styles.headerText}>{currentChat.name}</Text>
       </View>
 
-      {/* Chat Messages Area */}
+      {/* Área de Mensajes */}
       <View style={styles.messagesContainer}>
         {messages.map((message) => (
           <View
@@ -73,7 +69,7 @@ export default function ChatScreen({
         ))}
       </View>
 
-      {/* Input Area */}
+      {/* Área de Entrada */}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.inputContainer}>
@@ -103,30 +99,19 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    backgroundColor: "#0078FF",
-    height: 80,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E8E8E8",
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#000",
+    marginLeft: 10, // Espacio entre el icono y el texto
   },
   backButton: {
     padding: 8,
-  },
-  backIcon: {
-    width: 24,
-    height: 24,
-    tintColor: "#FFFFFF",
-  },
-  headerInfo: {
-    marginLeft: 12,
-  },
-  headerName: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  headerStatus: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    opacity: 0.8,
   },
   messagesContainer: {
     flex: 1,
@@ -164,7 +149,7 @@ const styles = StyleSheet.create({
   messageWrapper: {
     maxWidth: "80%",
     marginVertical: 4,
-    padding: 8,
+    padding: 10,
     borderRadius: 12,
   },
   userMessage: {
@@ -184,5 +169,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     opacity: 0.7,
     marginTop: 4,
+    alignSelf: "flex-end",
   },
 });
