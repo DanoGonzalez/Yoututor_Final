@@ -37,7 +37,6 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
         id: usuario.id,
         role: usuario.role,
         nombreCompleto: `${usuario.nombres} ${usuario.apellidos}`,
-        role: usuario.role,
       };
       await AsyncStorage.setItem("usuario", JSON.stringify(usuarioData));
       onLogin(usuario.role);
