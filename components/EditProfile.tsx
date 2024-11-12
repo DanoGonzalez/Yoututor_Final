@@ -10,7 +10,7 @@ import jsIcon from "../assets/Profile/js.png";
 import reactIcon from "../assets/Profile/react.png";
 import githubIcon from "../assets/Profile/github.png";
 
-export default function PerfilScreen() {
+export default function EditPerfilScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
