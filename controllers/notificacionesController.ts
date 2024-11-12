@@ -1,5 +1,5 @@
 // src/controllers/notificacionesController.ts
-import { addDoc, collection, Timestamp, getDocs, getDoc, doc, query, where, DocumentData, DocumentReference, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, Timestamp, getDocs, getDoc, doc, query, where, DocumentData, DocumentReference, updateDoc, orderBy } from 'firebase/firestore';
 import { db } from '../utils/Firebase'; // Asegúrate de importar correctamente tu configuración de Firebase
 import { Notificacion } from '../models/notificaciones';
 import { Usuario } from "../models/usuarios";
@@ -8,6 +8,7 @@ const usuariosCollection = collection(db, "usuarios");
 const notificacionesCollection = collection(db, 'notificaciones');
 
 export const crearNotificacion = async (receptorId: string, mensaje: string, tipo: number, solicitanteId: string, materiaId: string) => {
+  console.log("entro a crear notificacion");
   try {
     const nuevaNotificacion: Notificacion = {
       receptorId,
@@ -20,6 +21,7 @@ export const crearNotificacion = async (receptorId: string, mensaje: string, tip
     };
 
     const docRef = await addDoc(notificacionesCollection, nuevaNotificacion);
+    console.log('Notificación creada con ID: ', docRef.id);
     return { id: docRef.id, ...nuevaNotificacion };
   } catch (error: any) {
     throw new Error('Error al crear la notificación: ' + error.message);
@@ -31,7 +33,7 @@ export const getNotificaciones = async (receptorId: string) => {
   try {
     // 1. Obtener las notificaciones donde receptorId coincide
     const querySnapshot = await getDocs(
-      query(notificacionesCollection, where("receptorId", "==", receptorId))
+      query(notificacionesCollection, where("receptorId", "==", receptorId), orderBy("fechaEnvio", "desc"))
     );
 
     // 2. Mapea las notificaciones y obtén el usuario para cada estudianteId

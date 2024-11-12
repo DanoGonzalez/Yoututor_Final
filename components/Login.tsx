@@ -17,7 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface LoginProps {
   navigation?: any;
-  onLogin?: () => void;
+  onLogin: (role: number) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
@@ -35,10 +35,11 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
       console.log("Usuario logueado:", usuario);
       const usuarioData = {
         id: usuario.id,
+        role: usuario.role,
         nombreCompleto: `${usuario.nombres} ${usuario.apellidos}`,
       };
       await AsyncStorage.setItem("usuario", JSON.stringify(usuarioData));
-      onLogin && onLogin();
+      onLogin(usuario.role);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -106,8 +107,6 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
 
             <View style={styles.separator} />
 
-            
-            
             <TouchableOpacity
               style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
               onPress={handleLogin}
