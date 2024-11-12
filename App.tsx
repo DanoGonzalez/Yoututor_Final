@@ -15,6 +15,7 @@ import ChatScreen from "./components/ChatScreen";
 import TutorDetailsScreen from "./components/tabsStudents/TutorDetailsSreen";
 import TutoresScreen from "./components/tabsStudents/tutores";
 import NotificacionesScreen from "./components/welcome/notificacionesScreen";
+import { TabLayoutProps } from "./types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -24,6 +25,8 @@ export default function App() {
   const [userRole, setUserRole] = useState<number | null>(null);
 
   const handleLogin = (role: number) => {
+
+    console.log("HandleLogin llamado con role:", role);
     setIsLoggedIn(true);
     setUserRole(role);
   };
@@ -104,6 +107,5 @@ export default function App() {
     <Stack.Screen name="NotificacionesScreen" component={NotificacionesScreen} />
   </Stack.Navigator>
 </NavigationContainer>
-
   );
 }

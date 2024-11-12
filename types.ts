@@ -7,6 +7,7 @@ export type RootStackParamList = {
   Onboarding1: undefined;
   Onboarding2: undefined;
   Onboarding3: undefined;
+
   Login: undefined;
   TutorRegistration: undefined;
   StudentRegistration: undefined;
@@ -96,9 +97,9 @@ export type NotificacionesScreenProps = NativeStackScreenProps<
 
 export type TutoresScreenProps = TabScreenProps<"Tutores">;
 
-
 export interface TabLayoutProps
   extends NativeStackScreenProps<RootStackParamList, "TabLayout"> {
   onLogout: () => void;
   userRole: number | null;
 }
+
