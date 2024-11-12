@@ -14,9 +14,7 @@ import { TabLayoutProps } from "./types";
 import MessagesIcon from "./assets/NavIcons/Messages.png";
 import HomeIcon from "./assets/NavIcons/Home.png";
 import ProfileIcon from "./assets/NavIcons/Profile.png";
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator();
