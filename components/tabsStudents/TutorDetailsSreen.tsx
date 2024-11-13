@@ -1,78 +1,110 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import emailIcon from "../../assets/Profile/outlook.png";
 import materialIcon from "../../assets/Profile/book.png";
-import jsIcon from "../../assets/Profile/js.png";
-import reactIcon from "../../assets/Profile/react.png";
-import githubIcon from "../../assets/Profile/github.png";
 import userImage from "../../assets/TutorDetails/Doctor 1.png";
 
-export default function PerfilScreen() {
+export default function TutorDetailsScreen() {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        {/* Capas de LinearGradient para crear 4 líneas diagonales */}
-        <LinearGradient
-          colors={["rgba(255, 255, 255, 0.1)", "rgba(255, 255, 255, 0)"]}
-          start={{ x: 0.1, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.diagonalLine, { top: 0 }]}
-        />
-        <LinearGradient
-          colors={["rgba(255, 255, 255, 0.1)", "rgba(255, 255, 255, 0)"]}
-          start={{ x: 0.1, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.diagonalLine, { top: 180 }]}
-        />
-        <LinearGradient
-          colors={["rgba(255, 255, 255, 0.1)", "rgba(255, 255, 255, 0)"]}
-          start={{ x: 0.1, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.diagonalLine, { top: 360 }]}
-        />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <FlatList
+        data={[]}
+        keyExtractor={() => "key"}
+        renderItem={() => null}
+        ListHeaderComponent={
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <LinearGradient
+                colors={["rgba(255, 255, 255, 0.1)", "rgba(255, 255, 255, 0)"]}
+                start={{ x: 0.1, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.diagonalLine, { top: 0 }]}
+              />
+              <LinearGradient
+                colors={["rgba(255, 255, 255, 0.1)", "rgba(255, 255, 255, 0)"]}
+                start={{ x: 0.1, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.diagonalLine, { top: 180 }]}
+              />
+              <LinearGradient
+                colors={["rgba(255, 255, 255, 0.1)", "rgba(255, 255, 255, 0)"]}
+                start={{ x: 0.1, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.diagonalLine, { top: 360 }]}
+              />
 
-        <TouchableOpacity style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={30} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Solicitar Tutor</Text>
-      </View>
+              <TouchableOpacity style={styles.backButton}>
+                <MaterialIcons name="arrow-back" size={30} color="white" />
+              </TouchableOpacity>
+              <Text style={styles.title}>Solicitar Tutor</Text>
+            </View>
 
-      <View style={styles.profileContainer}>
-      <View style={styles.userImageContainer}>
-          <Image
-            source={userImage} // Usa la imagen local en lugar de la URL
-            style={styles.userImage}
-          />
-        </View>
-        <Text style={styles.name}>John Smith</Text>
-      </View>
+            <View style={styles.profileContainer}>
+              <View style={styles.userImageContainer}>
+                <Image source={userImage} style={styles.userImage} />
+              </View>
+              <Text style={styles.name}>John Smith</Text>
+            </View>
 
-      <View style={styles.contentContainer}>
-        <View style={styles.contactContainer}>
-          <View style={styles.contactItemLeft}>
-            <Image source={emailIcon} style={styles.icon} />
-            <Text style={styles.contactText}>Garcia@gmail.com</Text>
+            <View style={styles.contentContainer}>
+              <View style={styles.contactContainer}>
+                <View style={styles.contactItemLeft}>
+                  <Image source={emailIcon} style={styles.icon} />
+                  <Text style={styles.contactText}>Garcia@gmail.com</Text>
+                </View>
+                <View style={styles.contactItemRight}>
+                  <Image source={materialIcon} style={styles.icon} />
+                  <Text style={styles.contactText}>P00</Text>
+                </View>
+              </View>
+
+              <View style={styles.descriptionContainer}>
+                <Text style={styles.descriptionText}>
+                  Book an appointment with doctor. Chat with doctor via
+                  appointment letter and get consultation.Contrary to popular
+                  belief, Lorem Ipsum is not simply random text. It has roots in
+                  a piece of classical Latin literature from 45 BC, making it
+                  over 2000 years old. Richard McClintock, a Latin professor at
+                  Hampden-Sydney College in Virginia, looked up one of the more
+                  obscure Latin words, consectetur, from a Lorem Ipsum passage,
+                  and going through the cites of the word in classical
+                  literature, discovered the undoubtable source. Lorem Ipsum
+                  comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum
+                  et Malorum" (The Extremes of Good and Evil) by Cicero, written
+                  in 45 BC. This book is a treatise on the theory of ethics,
+                  very popular during the Renaissance. The first line of Lorem
+                  Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in
+                  section 1.10.32. The standard chunk of Lorem Ipsum used since
+                  the 1500s is reproduced below for those interested. Sections
+                  1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by
+                  Cicero are also reproduced in their exact original form,
+                  accompanied by English versions from the 1914 translation by
+                  H. Rackham.
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity style={styles.requestButton}>
+              <Text style={styles.requestButtonText}>Solicitar</Text>
+            </TouchableOpacity>
           </View>
-          <View style={styles.contactItemRight}>
-            <Image source={materialIcon} style={styles.icon} />
-            <Text style={styles.contactText}>P00</Text>
-          </View>
-        </View>
-
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.descriptionText}>
-            Book an appointment with doctor. Chat with doctor via appointment letter and get consultation.
-          </Text>
-        </View>
-      </View>
-
-      {/* Botón de Solicitar */}
-      <TouchableOpacity style={styles.requestButton}>
-        <Text style={styles.requestButtonText}>Solicitar</Text>
-      </TouchableOpacity>
-    </View>
+        }
+      />
+    </KeyboardAvoidingView>
   );
 }
 
@@ -141,7 +173,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 30,
-    paddingBottom: 80, // Espacio adicional para el botón inferior
+    paddingBottom: 80,
   },
   contactContainer: {
     flexDirection: "row",
