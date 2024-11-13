@@ -28,9 +28,10 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
       await crearNotificacion(estudianteId, mensaje, 2, tutorId , materiaId);
 
       await updateNotificacion(NotifiacionId);
-      const chatId = await newChat(estudianteId, tutorId);
+
       
       const tutoriaRef = await addDoc(tutoriaData, newTutoria);
+      const chatId = await newChat(estudianteId, tutorId,tutoriaRef.id );
 
       return tutoriaRef.id;
     } catch (error) {
