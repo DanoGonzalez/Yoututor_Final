@@ -12,10 +12,12 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUsuario } from "../../controllers/usuariosController";
 import AddSubjectModal from "./modal/AddSubjectModal";
+import SuccessModal from "./modal/SuccessModal";
 
 const AdminDashboard = () => {
   const [adminName, setAdminName] = useState<string>("");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [subjects, setSubjects] = useState([
     {
       name: "Poo",
@@ -61,6 +63,7 @@ const AdminDashboard = () => {
     };
 
     setSubjects([...subjects, newSubject]);
+    setShowSuccessModal(true);
   };
 
   return (
@@ -150,6 +153,11 @@ const AdminDashboard = () => {
           visible={isModalVisible}
           onClose={() => setIsModalVisible(false)}
           onAdd={handleAddSubject}
+        />
+
+        <SuccessModal
+          visible={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
         />
       </SafeAreaView>
     </>
