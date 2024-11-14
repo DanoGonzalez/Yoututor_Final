@@ -146,7 +146,7 @@ const HomeScreen = () => {
             </View>
           </View>
           <Image
-            source={require("../../assets/icons/pana.png")}
+            source={require("../../assets/icons/pana1.png")}
             style={styles.advisoryImage}
           />
         </View>
