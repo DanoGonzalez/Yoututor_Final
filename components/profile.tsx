@@ -65,11 +65,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
     console.log("Cargando datos del usuario...");
     try {
       const usuarioData = await AsyncStorage.getItem("usuario");
+      console.log("Usuario:", usuarioData);
       if (usuarioData) {
+        console.log("Usuario encontrado en AsyncStorage.");
         const usuario = JSON.parse(usuarioData);
         const data = await getUsuario(usuario.id);
-        const materias = await Promise.all(data.materiasDominadas.map(async (materiaId: string) => await getMateria(materiaId)));
-        data.materiasDominadas = materias.map((materia: any) => materia.materia);        
+        if(data.role != 1) {
+          const materias = await Promise.all(data.materiasDominadas.map(async (materiaId: string) => await getMateria(materiaId)));
+          data.materiasDominadas = materias.map((materia: any) => materia.materia);  
+        }
         setUsuario(data);
 
         await loadProfileImage(usuario.id);
