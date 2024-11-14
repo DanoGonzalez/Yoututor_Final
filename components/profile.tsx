@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import profileImage from "../assets/Profile/user.jpg";
@@ -17,16 +18,90 @@ import materialIcon from "../assets/Profile/book.png";
 import jsIcon from "../assets/Profile/js.png";
 import reactIcon from "../assets/Profile/react.png";
 import githubIcon from "../assets/Profile/github.png";
+import { saveUserImage, getUserImage, updateUsuario, getUsuario } from "../controllers/usuariosController";
+import { ProfileScreenNavigationProp, ProfileScreenProps } from "../types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import { getMateria } from "../controllers/materiasController";
 
-export default function PerfilScreen() {
-  const handleOpenUrl = (url: string) => {
-    Linking.openURL(url);
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
+  const [usuario, setUsuario] = useState<any>(null); 
+  const [loading, setLoading] = useState(true);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  const handleOpenUrl = (url: string | undefined, platform: "github" | "linkedin") => {
+    if (url) {
+      // Si la URL es completa
+      if (url.startsWith("http")) {
+        Linking.openURL(url);
+      } else {
+        // Si solo es el nombre de usuario
+        const baseUrl = platform === "github" ? "https://github.com/" : "https://linkedin.com/in/";
+        Linking.openURL(baseUrl + url);
+      }
+    } else {
+      alert("Perfil no disponible.");
+    }
   };
 
   const handleLogout = () => {
-    // Lógica para cerrar sesión
+    onLogout();
     console.log("Cerrando sesión");
   };
+
+  const loadProfileImage = async (userId: string) => {
+    try {
+      const userData = await getUsuario(userId);
+      if (userData?.profilePicture) {
+        setProfileImage(userData.profilePicture);
+      }
+    } catch (error) {
+      console.error("Error al cargar la imagen del perfil:", error);
+    }
+  };
+
+  const loadUserData = async () => {
+    console.log("Cargando datos del usuario...");
+    try {
+      const usuarioData = await AsyncStorage.getItem("usuario");
+      if (usuarioData) {
+        const usuario = JSON.parse(usuarioData);
+        const data = await getUsuario(usuario.id);
+        const materias = await Promise.all(data.materiasDominadas.map(async (materiaId: string) => await getMateria(materiaId)));
+        data.materiasDominadas = materias.map((materia: any) => materia.materia);        
+        setUsuario(data);
+
+        await loadProfileImage(usuario.id);
+      } else {
+        console.log("No se encontró el usuario en AsyncStorage.");
+      }
+    } catch (error) {
+      console.error("Error al cargar los datos del usuario:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0078FF" />
+      </View>
+    );
+  }
+
+  if (!usuario) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>No se encontró información del usuario.</Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -34,9 +109,10 @@ export default function PerfilScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <FlatList
-        data={[]} // Lista vacía para habilitar el scroll
+        data={[]}
         keyExtractor={() => "key"}
         renderItem={() => null}
+        contentContainerStyle={{ backgroundColor: "white", flexGrow: 1 }}
         ListHeaderComponent={
           <View style={styles.container}>
             <View style={styles.header}>
@@ -53,43 +129,32 @@ export default function PerfilScreen() {
                 </TouchableOpacity>
               </View>
               <View style={styles.profileImageContainer}>
-                <Image source={profileImage} style={styles.profileImage} />
+                <Image source={profileImage ? { uri: profileImage } : require('../assets/Profile/user.jpg')} style={styles.profileImage} />
               </View>
-              <Text style={styles.name}>John Smith</Text>
-              <Text style={styles.role}>Tutor</Text>
+              <Text style={styles.name}>{`${usuario.nombres} ${usuario.apellidos}`}</Text>
+              <Text style={styles.role}>
+                {usuario.role === 1 ? 'Admin' : usuario.role === 2 ? 'Estudiante' : usuario.role === 3 ? 'Tutor' : 'Desconocido'}
+              </Text>
             </View>
 
             <View style={styles.contentContainer}>
               <View style={styles.contactContainer}>
                 <View style={styles.contactItemLeft}>
                   <Image source={emailIcon} style={styles.icon} />
-                  <Text style={styles.contactText}>Garcia@gmail.com</Text>
+                  <Text style={styles.contactText}>{usuario.correo} </Text>
                 </View>
                 <View style={styles.contactItemRight}>
                   <Image source={materialIcon} style={styles.icon} />
-                  <Text style={styles.contactText}>P00</Text>
+                  <Text style={styles.contactText}>
+                    {usuario.materiasDominadas ? usuario.materiasDominadas.join(", ") : "Sin materias"}
+                  </Text>
                 </View>
               </View>
 
               <View style={styles.descriptionContainer}>
                 <Text style={styles.sectionTitle}>Descripción</Text>
                 <Text style={styles.descriptionText}>
-                  Hello! I'm Mr. Ravi Kumar, a dedicated and passionate educator
-                  with a focus on helping students excel in their academic
-                  journey. With several years of teaching experience, I believe
-                  in fostering a supportive and engaging learning environment to
-                  encourage students' growth and development. It is a long
-                  established fact that a reader will be distracted by the
-                  readable content of a page when looking at its layout. The
-                  point of using Lorem Ipsum is that it has a more-or-less
-                  normal distribution of letters, as opposed to using 'Content
-                  here, content here', making it look like readable English.
-                  Many desktop publishing packages and web page editors now use
-                  Lorem Ipsum as their default model text, and a search for
-                  'lorem ipsum' will uncover many web sites still in their
-                  infancy. Various versions have evolved over the years,
-                  sometimes by accident, sometimes on purpose (injected humour
-                  and the like).
+                  {usuario.descripcion ? usuario.descripcion : "Sin descripción"}
                 </Text>
               </View>
 
@@ -115,14 +180,12 @@ export default function PerfilScreen() {
               <Text style={styles.sectionTitle}>Redes</Text>
               <View style={styles.socialIconsContainer}>
                 <TouchableOpacity
-                  onPress={() => handleOpenUrl("https://github.com/username")}
+                  onPress={() => handleOpenUrl(usuario.githubProfile, "github")}
                 >
                   <FontAwesome name="github" size={40} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() =>
-                    handleOpenUrl("https://linkedin.com/in/username")
-                  }
+                  onPress={() => handleOpenUrl(usuario.linkedinProfile, "linkedin")}
                 >
                   <FontAwesome
                     name="linkedin-square"
@@ -137,7 +200,7 @@ export default function PerfilScreen() {
       />
     </KeyboardAvoidingView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -227,6 +290,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 30,
+    flex: 1, // Permite que el contenedor crezca y ocupe todo el espacio disponible
   },
   contactContainer: {
     flexDirection: "row",
@@ -270,4 +334,12 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     gap: 20,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
 });
+
+export default ProfileScreen;

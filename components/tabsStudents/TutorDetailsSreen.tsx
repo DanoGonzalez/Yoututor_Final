@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,14 +8,129 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import emailIcon from "../../assets/Profile/outlook.png";
 import materialIcon from "../../assets/Profile/book.png";
 import userImage from "../../assets/TutorDetails/Doctor 1.png";
+import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getTutor } from "../../controllers/usuariosController";
+import {
+  crearSolicitud,
+  verificarSolicitudPendiente,
+} from "../../controllers/solicitudesController";
+import { Usuario, TutorWithMaterias } from "../../models/usuarios";
 
+
+interface RouteParams {
+  tutorId: string;
+}
 export default function TutorDetailsScreen() {
+
+  const route = useRoute();
+  const navigation = useNavigation<any>();
+  const { tutorId } = route.params as RouteParams;
+  const [tutor, setTutor] = useState<TutorWithMaterias | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isRequested, setIsRequested] = useState(false);
+
+  // Manejar solicitud de tutoría
+  const handleRequestTutoring = async () => {
+    console.log("Solicitando tutoría...");
+    try {
+      const usuario = await AsyncStorage.getItem("usuario");
+      if (!usuario) {
+        alert("Error: No se pudo obtener la información del usuario");
+        return;
+      }
+
+      const estudiante = JSON.parse(usuario);
+      const estudianteId = estudiante.id;
+      const materiaId = tutor?.materiasDominadas[0].id || 0;
+
+      // Verificar si ya existe una solicitud
+      const solicitudExistente = await verificarSolicitudPendiente(
+        tutorId,
+        estudianteId
+      );
+      if (solicitudExistente) {
+        alert("Ya has enviado una solicitud para este tutor.");
+        return;
+      }
+
+      await crearSolicitud(tutorId, estudianteId, String(materiaId));
+      alert("Solicitud enviada con éxito");
+      setIsRequested(true);
+    } catch (error) {
+      console.error("Error al crear la solicitud:", error);
+      alert("Error al enviar la solicitud");
+    }
+  };
+
+  // Función para navegar de regreso a la pantalla de tutores
+  const handleBackPress = () => {
+    navigation.navigate("Tutores");
+  };
+
+  // Función para obtener datos del tutor y verificar solicitud
+  useFocusEffect(
+    useCallback(() => {
+      const fetchTutor = async () => {
+        setLoading(true);
+        try {
+          const data = await getTutor(tutorId);
+          // Convertimos las materias dominadas a un arreglo de strings
+          const tutorAdaptado: TutorWithMaterias = {
+            ...data,
+            materiasDominadas: data.materiasDominadas.map((materia) => ({
+              id: materia.id,
+              materia: materia.materia,
+            })), // Extraemos solo los nombres de las materias
+          };
+
+          setTutor(tutorAdaptado);
+          console.log(tutorAdaptado);
+
+          const usuario = await AsyncStorage.getItem("usuario");
+          if (usuario) {
+            const estudiante = JSON.parse(usuario);
+            const solicitudExistente = await verificarSolicitudPendiente(
+              tutorId,
+              estudiante.id
+            );
+            setIsRequested(solicitudExistente);
+          }
+        } catch (error) {
+          console.error("Error al obtener el tutor:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchTutor();
+    }, [tutorId])
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0078FF" />
+        <Text style={styles.loadingText}>Cargando...</Text>
+      </View>
+    );
+  }
+
+  if (!tutor) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: No se pudo cargar la información del tutor.</Text>
+      </View>
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -47,7 +162,7 @@ export default function TutorDetailsScreen() {
                 style={[styles.diagonalLine, { top: 360 }]}
               />
 
-              <TouchableOpacity style={styles.backButton}>
+              <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
                 <MaterialIcons name="arrow-back" size={30} color="white" />
               </TouchableOpacity>
               <Text style={styles.title}>Solicitar Tutor</Text>
@@ -57,49 +172,40 @@ export default function TutorDetailsScreen() {
               <View style={styles.userImageContainer}>
                 <Image source={userImage} style={styles.userImage} />
               </View>
-              <Text style={styles.name}>John Smith</Text>
+              <Text style={styles.name}>{tutor.nombres} {tutor.apellidos}</Text>
             </View>
 
             <View style={styles.contentContainer}>
               <View style={styles.contactContainer}>
                 <View style={styles.contactItemLeft}>
                   <Image source={emailIcon} style={styles.icon} />
-                  <Text style={styles.contactText}>Garcia@gmail.com</Text>
+                  <Text style={styles.contactText}>{tutor.correo} </Text>
                 </View>
                 <View style={styles.contactItemRight}>
                   <Image source={materialIcon} style={styles.icon} />
-                  <Text style={styles.contactText}>P00</Text>
+                  <Text style={styles.contactText}>
+                  {tutor.materiasDominadas && tutor.materiasDominadas.length > 0 ? (
+                      tutor.materiasDominadas.map((materia, index) => (
+                        <Text key={index} style={styles.infoText}>
+                          {materia.materia}
+                        </Text>
+                      ))
+                    ) : (
+                      <Text style={styles.infoText}>No hay materias dominadas.</Text>
+                    )}
+                  </Text>
                 </View>
               </View>
 
               <View style={styles.descriptionContainer}>
                 <Text style={styles.descriptionText}>
-                  Book an appointment with doctor. Chat with doctor via
-                  appointment letter and get consultation.Contrary to popular
-                  belief, Lorem Ipsum is not simply random text. It has roots in
-                  a piece of classical Latin literature from 45 BC, making it
-                  over 2000 years old. Richard McClintock, a Latin professor at
-                  Hampden-Sydney College in Virginia, looked up one of the more
-                  obscure Latin words, consectetur, from a Lorem Ipsum passage,
-                  and going through the cites of the word in classical
-                  literature, discovered the undoubtable source. Lorem Ipsum
-                  comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum
-                  et Malorum" (The Extremes of Good and Evil) by Cicero, written
-                  in 45 BC. This book is a treatise on the theory of ethics,
-                  very popular during the Renaissance. The first line of Lorem
-                  Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in
-                  section 1.10.32. The standard chunk of Lorem Ipsum used since
-                  the 1500s is reproduced below for those interested. Sections
-                  1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by
-                  Cicero are also reproduced in their exact original form,
-                  accompanied by English versions from the 1914 translation by
-                  H. Rackham.
+                  {tutor.descripcion || "No hay descripción disponible."}
                 </Text>
               </View>
             </View>
 
-            <TouchableOpacity style={styles.requestButton}>
-              <Text style={styles.requestButtonText}>Solicitar</Text>
+            <TouchableOpacity  style={[styles.requestButton, isRequested && styles.requestButtonDisabled]} disabled={isRequested} onPress={handleRequestTutoring}>
+              <Text style={styles.requestButtonText}>{isRequested ? "Solicitud Enviada" : "Solicitar Tutoría"}</Text>
             </TouchableOpacity>
           </View>
         }
@@ -109,6 +215,17 @@ export default function TutorDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#0078FF",
+  },
   container: {
     flex: 1,
     backgroundColor: "white",
@@ -166,7 +283,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   name: {
-    fontSize: 32,
+    fontSize: 25,
     fontWeight: "bold",
     color: "#545454",
     marginTop: 30,
@@ -213,9 +330,16 @@ const styles = StyleSheet.create({
     right: "10%",
     alignItems: "center",
   },
+  requestButtonDisabled: {
+    backgroundColor: "#cccccc",
+  },
   requestButtonText: {
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  infoText: {
+    color: "#545454",
+    fontSize: 14,
   },
 });
