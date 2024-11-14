@@ -2,42 +2,52 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Image,
+  StyleSheet,
   TouchableOpacity,
-  ScrollView,
-  StatusBar,
-  TextInput,
-  Modal,
+  Linking,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
 } from "react-native";
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import profileImage from "../assets/Profile/user.jpg";
+import emailIcon from "../assets/Profile/outlook.png";
+import materialIcon from "../assets/Profile/book.png";
+import jsIcon from "../assets/Profile/js.png";
+import reactIcon from "../assets/Profile/react.png";
+import githubIcon from "../assets/Profile/github.png";
+import { saveUserImage, getUserImage, updateUsuario, getUsuario } from "../controllers/usuariosController";
+import { ProfileScreenNavigationProp, ProfileScreenProps } from "../types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { ProfileScreenNavigationProp, ProfileScreenProps } from "../types";
-import { getUsuario } from "../controllers/usuariosController"; // Asegúrate de importar correctamente
-import { LinearGradient } from "expo-linear-gradient";
-import * as ImagePicker from "expo-image-picker";
-import {
-  saveUserImage,
-  getUserImage,
-  updateUsuario,
-} from "../controllers/usuariosController";
-import { defaultProfilePictures } from "../constants/profilePictures";
+import { getMateria } from "../controllers/materiasController";
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const [usuario, setUsuario] = useState<any>(null); // Cambiar `any` por tu tipo de usuario si tienes uno
+  const [usuario, setUsuario] = useState<any>(null); 
   const [loading, setLoading] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [showGallery, setShowGallery] = useState(false);
 
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem("usuario");
-      const usuario = await AsyncStorage.getItem("usuario");
-      onLogout();
-    } catch (error) {
-      console.error("Error al eliminar el usuario de AsyncStorage:", error);
+  const handleOpenUrl = (url: string | undefined, platform: "github" | "linkedin") => {
+    if (url) {
+      // Si la URL es completa
+      if (url.startsWith("http")) {
+        Linking.openURL(url);
+      } else {
+        // Si solo es el nombre de usuario
+        const baseUrl = platform === "github" ? "https://github.com/" : "https://linkedin.com/in/";
+        Linking.openURL(baseUrl + url);
+      }
+    } else {
+      alert("Perfil no disponible.");
     }
+  };
+
+  const handleLogout = () => {
+    onLogout();
+    console.log("Cerrando sesión");
   };
 
   const loadProfileImage = async (userId: string) => {
@@ -54,15 +64,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const loadUserData = async () => {
     console.log("Cargando datos del usuario...");
     try {
-      console.log("Obteniendo datos del usuario...");
       const usuarioData = await AsyncStorage.getItem("usuario");
-      console.log("Datos del usuario:", usuarioData);
+      console.log("Usuario:", usuarioData);
       if (usuarioData) {
+        console.log("Usuario encontrado en AsyncStorage.");
         const usuario = JSON.parse(usuarioData);
-        console.log("Usuario obtenido:", usuario);
-
         const data = await getUsuario(usuario.id);
-        console.log("Datos del usuario:", data);
+        if(data.role != 1) {
+          const materias = await Promise.all(data.materiasDominadas.map(async (materiaId: string) => await getMateria(materiaId)));
+          data.materiasDominadas = materias.map((materia: any) => materia.materia);  
+        }
         setUsuario(data);
 
         await loadProfileImage(usuario.id);
@@ -80,342 +91,258 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
     loadUserData();
   }, []);
 
-  const selectProfilePicture = async (imagePath: string) => {
-    try {
-      if (usuario?.id) {
-        await updateUsuario(usuario.id, { profilePicture: imagePath });
-        setProfileImage(imagePath);
-        setShowGallery(false);
-      }
-    } catch (error) {
-      console.error("Error al guardar la imagen de perfil:", error);
-    }
-  };
-
-  const ProfileGallery = () => (
-    <Modal
-      visible={showGallery}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={() => setShowGallery(false)}>
-      <View style={styles.galleryModal}>
-        <View style={styles.galleryContent}>
-          <Text style={styles.galleryTitle}>Selecciona una imagen de perfil</Text>
-          <ScrollView
-            style={styles.galleryScrollView}
-            showsVerticalScrollIndicator={false}>
-            <View style={styles.galleryGrid}>
-              {defaultProfilePictures.map((image, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.galleryItem}
-                  onPress={() =>
-                    selectProfilePicture(`profilePicture${index + 1}`)
-                  }>
-                  <Image
-                    source={image}
-                    style={styles.galleryImage}
-                    resizeMode="cover"
-                  />
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-          <TouchableOpacity
-            style={styles.closeGalleryButton}
-            onPress={() => setShowGallery(false)}>
-            <Text style={styles.closeGalleryButtonText}>Cerrar</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
-
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Cargando...</Text>
+        <ActivityIndicator size="large" color="#0078FF" />
+      </View>
+    );
+  }
+
+  if (!usuario) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>No se encontró información del usuario.</Text>
       </View>
     );
   }
 
   return (
-    <>
-      <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollViewContent}>
-        <LinearGradient colors={["#0078FF", "#0066DD"]} style={styles.header}>
-          <View style={styles.profilePictureContainer}>
-            <TouchableOpacity
-              onPress={() => setShowGallery(true)}
-              style={styles.profileImageContainer}>
-              <Image
-                source={
-                  profileImage
-                    ? defaultProfilePictures[
-                        parseInt(profileImage.replace("profilePicture", "")) - 1
-                      ]
-                    : require("../assets/icons/profile-picture.png")
-                }
-                style={styles.profilePicture}
-              />
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => setShowGallery(true)}>
-                <Image
-                  source={require("../assets/icons/editProfile.png")}
-                  style={styles.editIcon}
-                />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <FlatList
+        data={[]}
+        keyExtractor={() => "key"}
+        renderItem={() => null}
+        contentContainerStyle={{ backgroundColor: "white", flexGrow: 1 }}
+        ListHeaderComponent={
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <Text style={styles.title}>Perfil</Text>
+              <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                <MaterialIcons name="logout" size={30} color="white" />
               </TouchableOpacity>
-            </TouchableOpacity>
-            <Text style={styles.userName}>
-              {usuario ? `${usuario.nombres} ${usuario.apellidos}` : "Usuario"}
-            </Text>
-          </View>
-        </LinearGradient>
+            </View>
 
-        <View style={styles.content}>
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Correo electrónico</Text>
-            <TextInput
-              style={styles.infoInput}
-              defaultValue={usuario ? usuario.correo : ""}
-              placeholderTextColor="#000000"
-              editable={false}
-            />
-          </View>
+            <View style={styles.profileContainer}>
+              <View style={styles.editButtonContainer}>
+                <TouchableOpacity style={styles.editButton}>
+                  <MaterialIcons name="edit" size={24} color="white" />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.profileImageContainer}>
+                <Image source={profileImage ? { uri: profileImage } : require('../assets/Profile/user.jpg')} style={styles.profileImage} />
+              </View>
+              <Text style={styles.name}>{`${usuario.nombres} ${usuario.apellidos}`}</Text>
+              <Text style={styles.role}>
+                {usuario.role === 1 ? 'Admin' : usuario.role === 2 ? 'Estudiante' : usuario.role === 3 ? 'Tutor' : 'Desconocido'}
+              </Text>
+            </View>
 
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Intereses</Text>
-            <View style={styles.tagsContainer}>
-              {usuario?.tecnologias.map((tech: string, index: number) => (
-                <View key={index} style={styles.tag}>
-                  <Text style={styles.tagText}>{tech}</Text>
+            <View style={styles.contentContainer}>
+              <View style={styles.contactContainer}>
+                <View style={styles.contactItemLeft}>
+                  <Image source={emailIcon} style={styles.icon} />
+                  <Text style={styles.contactText}>{usuario.correo} </Text>
                 </View>
-              ))}
+                <View style={styles.contactItemRight}>
+                  <Image source={materialIcon} style={styles.icon} />
+                  <Text style={styles.contactText}>
+                    {usuario.materiasDominadas ? usuario.materiasDominadas.join(", ") : "Sin materias"}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.descriptionContainer}>
+                <Text style={styles.sectionTitle}>Descripción</Text>
+                <Text style={styles.descriptionText}>
+                  {usuario.descripcion ? usuario.descripcion : "Sin descripción"}
+                </Text>
+              </View>
+
+              <View style={styles.technologiesContainer}>
+                <Text style={styles.sectionTitle}>Tecnologías</Text>
+                <View style={styles.technologyIcons}>
+                  <Image
+                    source={jsIcon}
+                    style={[styles.icon, { width: 40, height: 40 }]}
+                  />
+                  <Image
+                    source={reactIcon}
+                    style={[styles.icon, { width: 40, height: 40 }]}
+                  />
+                  <Image
+                    source={githubIcon}
+                    style={[styles.icon, { width: 40, height: 40 }]}
+                  />
+                </View>
+              </View>
+
+              {/* Iconos de GitHub y LinkedIn como botones al final */}
+              <Text style={styles.sectionTitle}>Redes</Text>
+              <View style={styles.socialIconsContainer}>
+                <TouchableOpacity
+                  onPress={() => handleOpenUrl(usuario.githubProfile, "github")}
+                >
+                  <FontAwesome name="github" size={40} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleOpenUrl(usuario.linkedinProfile, "linkedin")}
+                >
+                  <FontAwesome
+                    name="linkedin-square"
+                    size={40}
+                    color="#0078FF"
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Método de aprendizaje</Text>
-            <TextInput
-              style={[styles.infoInput, styles.learningMethodInput]}
-              defaultValue={usuario ? usuario.descripcion : ""}
-              placeholderTextColor="#000000"
-              editable={false}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-            />
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Plataformas preferidas</Text>
-            <TextInput
-              style={styles.infoInput}
-              defaultValue=""
-              placeholderTextColor="#000000"
-              editable={false}
-            />
-          </View>
-
-          <TouchableOpacity style={styles.changeInfoButton}>
-            <Text style={styles.changeInfoButtonText}>Cambiar información</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-      <ProfileGallery />
-    </>
+        }
+      />
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "white",
+  },
+  header: {
+    backgroundColor: "#0078FF",
+    paddingBottom: 110,
+    paddingTop: 30,
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+  },
+  logoutButton: {
+    position: "absolute",
+    padding: 5,
+    right: 10,
+    top: 22,
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    marginRight: 5,
+  },
+  technologyIcons: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "flex-start",
+    marginTop: 1,
+  },
+  title: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  profileContainer: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    paddingTop: 60,
+    alignItems: "center",
+    marginTop: -45,
+    position: "relative",
+  },
+  editButtonContainer: {
+    position: "absolute",
+    top: 14,
+    right: 14,
+  },
+  editButton: {
+    backgroundColor: "#0078FF",
+    borderRadius: 30,
+    padding: 8,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  profileImageContainer: {
+    position: "absolute",
+    top: -50,
+    width: 130,
+    height: 130,
+    borderRadius: 90,
+    overflow: "hidden",
+    borderWidth: 4,
+    borderColor: "#fff",
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: "regular",
+    color: "#545454",
+    marginTop: 30,
+  },
+  role: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#545454",
+  },
+  contentContainer: {
+    paddingHorizontal: 30,
+    flex: 1, // Permite que el contenedor crezca y ocupe todo el espacio disponible
+  },
+  contactContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 20,
+  },
+  contactItemLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  contactItemRight: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  contactText: {
+    color: "#545454",
+    marginLeft: 10,
+    fontSize: 14,
+  },
+  descriptionContainer: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 19,
+    fontWeight: "bold",
+    color: "#545454",
+    marginBottom: 10,
+  },
+  descriptionText: {
+    fontSize: 16,
+    color: "#545454",
+    marginBottom: 10,
+  },
+  technologiesContainer: {
+    marginBottom: 20,
+  },
+  socialIconsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 1,
+    marginBottom: 30,
+    gap: 20,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  loadingText: {
-    fontSize: 16,
-    color: "#0078FF",
-  },
-  header: {
-    height: 180,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  profilePictureContainer: {
-    alignItems: "center",
-  },
-  profilePicture: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 3,
-    borderColor: "#FFFFFF",
-    marginBottom: 10,
-  },
-  userName: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#FFFFFF",
-  },
-  content: {
-    padding: 20,
-  },
-  infoItem: {
-    marginBottom: 20,
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: "#666666",
-    marginBottom: 8,
-    fontWeight: "500",
-  },
-  infoInput: {
-    fontSize: 16,
-    color: "#000000",
-    backgroundColor: "#F5F5F5",
-    padding: 12,
-    borderRadius: 8,
-    width: "100%",
-  },
-  learningMethodInput: {
-    minHeight: 100, // Altura mínima fija
-    maxHeight: 150, // Altura máxima
-    textAlignVertical: "top",
-    paddingTop: 12,
-    paddingBottom: 12,
-  },
-  tagsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    backgroundColor: "#F5F5F5",
-    padding: 12,
-    borderRadius: 8,
-  },
-  tag: {
-    backgroundColor: "#0078FF",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  tagText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-  },
-  changeInfoButton: {
-    backgroundColor: "#0078FF",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 20,
-  },
-  changeInfoButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  logoutButton: {
-    backgroundColor: "#FF3B30",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 15,
-  },
-  logoutButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  profileImageContainer: {
-    position: "relative",
-  },
-  editButton: {
-    position: "absolute",
-    right: 0,
-    bottom: 10,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 15,
-    padding: 8,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  editIcon: {
-    width: 20,
-    height: 20,
-  },
-  scrollViewContent: {
-    paddingBottom: 80, // Añade espacio suficiente para la barra de navegación
-  },
-  galleryModal: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  galleryContent: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 15,
-    width: "100%",
-    maxHeight: "80%", // Limita la altura máxima
-    paddingVertical: 20,
-  },
-  galleryTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 20,
-    textAlign: "center",
-    paddingHorizontal: 20,
-  },
-  galleryScrollView: {
-    maxHeight: "75%", // Asegura que haya espacio para el botón de cerrar
-  },
-  galleryGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-evenly",
-    paddingHorizontal: 10,
-    paddingBottom: 10,
-  },
-  galleryItem: {
-    width: "30%", // Aproximadamente 3 imágenes por fila
-    aspectRatio: 1,
-    margin: "1.5%",
-    borderRadius: 10,
-    overflow: "hidden",
-    backgroundColor: "#f0f0f0",
-  },
-  galleryImage: {
-    width: "100%",
-    height: "100%",
-  },
-  closeGalleryButton: {
-    backgroundColor: "#0078FF",
-    marginHorizontal: 20,
-    padding: 15,
-    borderRadius: 8,
-    marginTop: 15,
-  },
-  closeGalleryButtonText: {
-    color: "#FFFFFF",
-    textAlign: "center",
-    fontWeight: "600",
-    fontSize: 16,
+    backgroundColor: "white",
   },
 });
 

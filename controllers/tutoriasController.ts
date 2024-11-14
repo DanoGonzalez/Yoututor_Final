@@ -1,5 +1,5 @@
 import { db } from "../utils/Firebase";
-import { collection, addDoc, Timestamp, getDocs, query, where, getDoc, doc, updateDoc  } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, getDocs, query, where, getDoc, doc, updateDoc, onSnapshot  } from 'firebase/firestore';
 import { Tutoria } from "../models/tutorias";
 import { getUsuario } from "./usuariosController";
 import {getMateriaTutoria } from "./materiasController";
@@ -28,9 +28,10 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
       await crearNotificacion(estudianteId, mensaje, 2, tutorId , materiaId);
 
       await updateNotificacion(NotifiacionId);
-      const chatId = await newChat(estudianteId, tutorId);
+
       
       const tutoriaRef = await addDoc(tutoriaData, newTutoria);
+      const chatId = await newChat(estudianteId, tutorId,tutoriaRef.id );
 
       return tutoriaRef.id;
     } catch (error) {
@@ -40,22 +41,32 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
   };
   
 
-  export const getTutorias = async (estudianteId: string) => {
-    console.log("Buscando tutorías del estudiante:", estudianteId);
+  export const getTutorias = (estudianteId: string, callback: (tutorias: Tutoria[]) => void) => {
+    console.log("Buscando tutorías del estudiante en tiempo real:", estudianteId);
+  
     try {
-      const querySnapshot = await getDocs(
-        query(tutoriaData, where("estudianteId", "==", estudianteId))
+      const tutoriaQuery = query(
+        collection(db, "tutorias"),
+        where("estudianteId", "==", estudianteId)
       );
   
-      const tutorias = querySnapshot.docs.map((doc) => {
-        const data = doc.data() as Tutoria;
-        return { id: doc.id, ...data };
+      // Listener en tiempo real
+      const unsubscribe = onSnapshot(tutoriaQuery, (querySnapshot) => {
+        const tutorias = querySnapshot.docs.map((doc) => {
+          const data = doc.data() as Tutoria;
+          return { id: doc.id, ...data };
+        });
+  
+        // Llama al callback con los datos actualizados
+        callback(tutorias);
       });
-      
-      return tutorias;
+  
+      // Retorna la función de desuscripción para limpiar el listener
+      return unsubscribe;
     } catch (error) {
-      throw new Error("No se pudieron obtener las tutorías");
+      throw new Error("No se pudieron obtener las tutorías en tiempo real");
     }
+
   }
 
 
@@ -95,4 +106,5 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
       console.error("Error al actualizar la tutoría:", error);
       throw new Error("No se pudo actualizar la tutoría");
     }
+
   };
