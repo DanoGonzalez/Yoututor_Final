@@ -103,6 +103,7 @@ export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
         children={() => <ProfileScreenWrapper onLogout={onLogout} />}
         options={{ tabBarLabel: "Perfil" }}
       />
+      
 
       {/* Pantallas específicas para estudiantes (role 2) */}
       {userRole === 2 && (
