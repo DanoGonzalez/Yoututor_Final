@@ -1,31 +1,37 @@
 import { db } from "../utils/Firebase";
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, getDocs, query, where, getDoc, doc, updateDoc  } from 'firebase/firestore';
 import { Tutoria } from "../models/tutorias";
 import { getUsuario } from "./usuariosController";
 import {getMateriaTutoria } from "./materiasController";
+import { updateNotificacion } from "./notificacionesController";
+import { newChat } from "./chatsController";
+import { crearNotificacion } from "./notificacionesController";
 
 const tutoriaData = collection(db, "tutorias");
 
-export const crearTutoria = async (tutorId: string, estudianteId: string, materiaId: string): Promise<string> => {
+export const crearTutoria = async (tutorId: string, estudianteId: string, materiaId: string, NotifiacionId: string): Promise<string> => {
     try {
       const constTutor = await getUsuario(tutorId);
       const constEstudiante = await getUsuario(estudianteId);
-  
+      const constMateria = await getMateriaTutoria(materiaId);
+        
       const newTutoria: Tutoria = {
         tutorId: constTutor.id || '',
         tutorNombre: `${constTutor.nombres} ${constTutor.apellidos}`,
         estudianteId: constEstudiante.id || '',
         estudianteNombre: `${constEstudiante.nombres} ${constEstudiante.apellidos}`,
-        materiaId:0 || '',
-        materiaNombre: 0|| '',  // Usar la propiedad 'materia' correctamente
+        materiaId:constMateria.id || '',
+        materiaNombre: constMateria.materia || '',
         fechaCreacion: Timestamp.now(),
       };
-  
+      const mensaje = `ha aceptado la solicitud para la materia ${constMateria.materia}`;
+      await crearNotificacion(estudianteId, mensaje, 2, tutorId , materiaId);
+
+      await updateNotificacion(NotifiacionId);
+      const chatId = await newChat(estudianteId, tutorId);
+      
       const tutoriaRef = await addDoc(tutoriaData, newTutoria);
-  
-      console.log("Tutoría creada:", tutoriaRef.id);
-      console.log("Datos de la tutoría guardados:", { id: tutoriaRef.id, ...newTutoria });
-  
+
       return tutoriaRef.id;
     } catch (error) {
       console.error("Error al crear la tutoría:", error);
@@ -33,3 +39,60 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
     }
   };
   
+
+  export const getTutorias = async (estudianteId: string) => {
+    console.log("Buscando tutorías del estudiante:", estudianteId);
+    try {
+      const querySnapshot = await getDocs(
+        query(tutoriaData, where("estudianteId", "==", estudianteId))
+      );
+  
+      const tutorias = querySnapshot.docs.map((doc) => {
+        const data = doc.data() as Tutoria;
+        return { id: doc.id, ...data };
+      });
+      
+      return tutorias;
+    } catch (error) {
+      throw new Error("No se pudieron obtener las tutorías");
+    }
+  }
+
+
+  export const getTutoriasbyid = async (id: string) => {
+    console.log("Buscando tutorías del estudiante:", id);
+    try {
+      const tutoriaDoc = doc(tutoriaData, id);
+      const tutoriaSnapshot = await getDoc(tutoriaDoc);
+      if (tutoriaSnapshot.exists()) {
+        const data = tutoriaSnapshot.data();
+        return {
+          id: tutoriaSnapshot.id,
+          tutorId: data?.tutorId || '',
+          tutorNombre: data?.tutorNombre || '',
+          estudianteId: data?.estudianteId || '',
+          estudianteNombre: data?.estudianteNombre || '',
+          materiaId: data?.materiaId || '',
+          materiaNombre: data?.materiaNombre || '',
+          fechaCreacion: data?.fechaCreacion || Timestamp.now(),
+        } as Tutoria;
+      } else {
+        throw new Error('Tutoria no encontrada');
+      }
+    }
+    catch (error: any) {
+      throw new Error('Error al obtener el usuario: ' + error.message);
+    }
+  }
+
+
+  export const updateTutoria = async (id: string, updates: Partial<Tutoria>) => {
+    try {
+      const tutoriaRef = doc(db, 'tutorias', id);
+      await updateDoc(tutoriaRef, updates);
+      console.log("Tutoria actualizada correctamente");
+    } catch (error) {
+      console.error("Error al actualizar la tutoría:", error);
+      throw new Error("No se pudo actualizar la tutoría");
+    }
+  };

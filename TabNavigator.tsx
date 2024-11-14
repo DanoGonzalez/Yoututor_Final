@@ -1,7 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import { StyleSheet, Image } from "react-native";
+import { StyleSheet, View, Image } from "react-native";
 import HomeScreen from "./components/tabsStudents/index";
 import ProfileScreen from "./components/profile";
 import MessagesScreen from "./components/messages";
@@ -10,14 +10,17 @@ import TutorDetailsScreen from "./components/tabsStudents/TutorDetailsSreen";
 import HomeScreenTutor from "./components/tabsTuthor/index";
 import ScheduleConsulting from "./components/tabsTuthor/scheduleConsulting";
 import { TabParamList } from "./types";
+import { TabLayoutProps } from "./types";
+import MessagesIcon from "./assets/NavIcons/Messages.png";
+import HomeIcon from "./assets/NavIcons/Home.png";
+import ProfileIcon from "./assets/NavIcons/Profile.png";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import AdminDashboard from "./components/tabsAdmin/index";
+
+import AdminMessages from "./components/tabsAdmin/messages";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator();
-
-interface TabLayoutProps {
-  onLogout: () => void;
-  userRole: number;
-}
 
 const ProfileScreenWrapper: React.FC<{ onLogout: () => void }> = ({
   onLogout,
@@ -34,56 +37,92 @@ const TutorStack = () => {
   );
 };
 
+const getHomeComponent = (userRole: number) => {
+  switch (userRole) {
+    case 1: // Admin
+      return AdminDashboard;
+    case 2: // Student
+      return HomeScreen;
+    case 3: // Tutor
+      return TutorStack;
+    default:
+      return HomeScreen;
+  }
+};
+
+const getMessagesComponent = (userRole: number) => {
+  return userRole === 1 ? AdminMessages : MessagesScreen;
+};
+
 export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
+  console.log("User role: ", userRole);
+  if (userRole === null || userRole === undefined) {
+    // AsyncStorage.removeItem('usuario')
+    // .then(() => {
+    //   console.log('Usuario eliminado de AsyncStorage');
+    // })
+    // .catch((error) => {
+    //   console.error('Error al eliminar el usuario de AsyncStorage:', error);
+    // });
+    return null;
+  }
   return (
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color }) => {
+        tabBarIcon: ({ focused }) => {
           let iconSource;
           switch (route.name) {
             case "Messages":
-              iconSource = require("./assets/icons/messageTab.png");
+              iconSource = MessagesIcon;
               break;
             case "Home":
-              iconSource = require("./assets/icons/homeTab.png");
+              iconSource = HomeIcon;
               break;
             case "Profile":
-              iconSource = require("./assets/icons/userTab.png");
+              iconSource = ProfileIcon;
               break;
             default:
               iconSource = null;
           }
 
-          return (
-            <Image
-              source={iconSource}
-              style={[
-                styles.icon,
-                { tintColor: focused ? "#0078FF" : color },
-                focused && styles.activeIconShadow,
-              ]}
-              resizeMode="contain"
-            />
-          );
+          return iconSource ? (
+            <View style={styles.iconContainer}>
+              <Image
+                source={iconSource}
+                style={{
+                  width: 28,
+                  height: 28,
+                  tintColor: focused ? "#0078FF" : "#B0B0B0",
+                }}
+              />
+            </View>
+          ) : null;
         },
         tabBarActiveTintColor: "#0078FF",
         tabBarInactiveTintColor: "#B0B0B0",
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         headerShown: false,
         tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.tabBarLabel,
       })}>
-      <Tab.Screen name="Messages" component={MessagesScreen} />
       <Tab.Screen
         name="Home"
-        component={userRole === 3 ? TutorStack : HomeScreen}
+        component={getHomeComponent(userRole)}
+        options={{ tabBarLabel: "Inicio" }}
+      />
+      <Tab.Screen
+        name="Messages"
+        component={getMessagesComponent(userRole)}
+        options={{ tabBarLabel: "Mensajes" }}
       />
       <Tab.Screen
         name="Profile"
         children={() => <ProfileScreenWrapper onLogout={onLogout} />}
+        options={{ tabBarLabel: "Perfil" }}
       />
 
-      {/* Pantallas específicas para estudiantes (role 2) */}
+      {/* Solo mostrar estas pantallas para estudiantes (role 2) */}
       {userRole === 2 && (
         <>
           <Tab.Screen
@@ -104,28 +143,23 @@ export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
 
 const styles = StyleSheet.create({
   tabBar: {
-    position: "absolute",
-    bottom: 16,
-    left: 16,
-    right: 16,
-    height: 65,
-    borderRadius: 30,
+    height: 70,
     backgroundColor: "white",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 10,
     elevation: 5,
-    borderWidth: 0,
+    borderTopWidth: 0,
+    paddingBottom: 15,
+    paddingTop: 15,
   },
-  icon: {
-    width: 30,
-    height: 30,
+  iconContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingBottom: 3,
   },
-  activeIconShadow: {
-    shadowColor: "#0078FF",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 6,
+  tabBarLabel: {
+    fontSize: 12,
   },
 });

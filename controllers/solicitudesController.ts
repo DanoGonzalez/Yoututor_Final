@@ -30,7 +30,7 @@ export const crearSolicitud = async (tutorId: string, estudianteId: string, mate
       : "Nombre no disponible";
 
     // Crear notificación para el tutor con el nombre del estudiante en el mensaje
-    const mensaje = `El estudiante ${estudianteNombre} te ha enviado una solicitud para una tutoría.`;
+    const mensaje = `te ha enviado una solicitud para una tutoría.`;
     await crearNotificacion(tutorId, mensaje, 1, estudianteId, materiaId);
 
     return { id: docRef.id, ...nuevaSolicitud };
