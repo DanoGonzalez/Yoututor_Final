@@ -17,7 +17,7 @@ export type RootStackParamList = {
   NotificacionesScreen: undefined;
   Home: undefined;
   TutoriaDetails: { tutoriaId: string };
-  Chat: { chatId: string };
+  Chat: { chatId: string, chatName: string };
 };
 
 export type TabParamList = {

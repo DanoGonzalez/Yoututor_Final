@@ -25,6 +25,7 @@ type ChatScreenRouteProp = RouteProp<RootStackParamList, "Chat">;
 export default function ChatScreen({ route }: { route: ChatScreenRouteProp }) {
   const navigation = useNavigation();
   const { chatId } = route.params;
+  const { chatName } = route.params;
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState<Mensaje[]>([]);
   const [userId, setUserId] = useState<string>("");
@@ -92,7 +93,7 @@ export default function ChatScreen({ route }: { route: ChatScreenRouteProp }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Chat</Text>
+        <Text style={styles.headerText}>{chatName}</Text>
       </View>
 
       {/* Área de Mensajes */}
@@ -117,8 +118,9 @@ export default function ChatScreen({ route }: { route: ChatScreenRouteProp }) {
             >{message.mensaje}
             </Text>
             <Text style={styles.messageTime}>
-              {message.timestamp.toDate().toLocaleTimeString()}
+              {message.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
             </Text>
+
 
           </View>
         ))}
