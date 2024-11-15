@@ -37,7 +37,7 @@ const RejectTutorModal: React.FC<RejectTutorModalProps> = ({
             style={styles.image}
             resizeMode="contain"
           />
-          <Text style={styles.title}>Aseosria Cancelada</Text>
+          <Text style={styles.title}>Tutor Rechazado</Text>
           <TouchableOpacity style={styles.button} onPress={handleClose}>
             <Text style={styles.buttonText}>Cerrar</Text>
           </TouchableOpacity>

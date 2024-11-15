@@ -37,7 +37,7 @@ const SuccessModalTutor: React.FC<SuccessTutorModalProps> = ({
             style={styles.image}
             resizeMode="contain"
           />
-          <Text style={styles.title}>Solicitud enviada con Éxito</Text>
+          <Text style={styles.title}>Tutor Aceptado</Text>
           <TouchableOpacity style={styles.button} onPress={handleClose}>
             <Text style={styles.buttonText}>Cerrar</Text>
           </TouchableOpacity>
