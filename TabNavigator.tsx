@@ -15,9 +15,10 @@ import { TabLayoutProps } from "./types";
 import MessagesIcon from "./assets/NavIcons/Messages.png";
 import HomeIcon from "./assets/NavIcons/Home.png";
 import ProfileIcon from "./assets/NavIcons/Profile.png";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import AdminDashboard from "./components/tabsAdmin/index";
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import AdminMessages from "./components/tabsAdmin/messages";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator();
@@ -36,6 +37,23 @@ const TutorStack = () => {
       <Stack.Screen name="TutoriaDetails" component={TutoriaDetails} />
     </Stack.Navigator>
   );
+};
+
+const getHomeComponent = (userRole: number) => {
+  switch (userRole) {
+    case 1: // Admin
+      return AdminDashboard;
+    case 2: // Student
+      return HomeScreen;
+    case 3: // Tutor
+      return TutorStack;
+    default:
+      return HomeScreen;
+  }
+};
+
+const getMessagesComponent = (userRole: number) => {
+  return userRole === 1 ? AdminMessages : MessagesScreen;
 };
 
 export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
@@ -92,12 +110,12 @@ export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
       })}>
       <Tab.Screen
         name="Home"
-        component={userRole === 3 ? TutorStack : HomeScreen}
+        component={getHomeComponent(userRole)}
         options={{ tabBarLabel: "Inicio" }}
       />
       <Tab.Screen
         name="Messages"
-        component={MessagesScreen}
+        component={getMessagesComponent(userRole)}
         options={{ tabBarLabel: "Mensajes" }}
       />
       <Tab.Screen
@@ -105,10 +123,9 @@ export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
         children={() => <ProfileScreenWrapper onLogout={onLogout} />}
         options={{ tabBarLabel: "Perfil" }}
       />
-
       
+      {/* Solo mostrar estas pantallas para estudiantes (role 2) */}
 
-      {/* Pantallas específicas para estudiantes (role 2) */}
       {userRole === 2 && (
         <>
           <Tab.Screen

@@ -6,11 +6,12 @@ import { getUsuario } from "./usuariosController";
 // Referencia a la colección de chats
 const chatData = collection(db, "chats");
 
-export const newChat = async (estudianteId: string, tutorId: string): Promise<string> => {
+export const newChat = async (estudianteId: string, tutorId: string, tutoriaId: string): Promise<string> => {
   try {
     const newChat: Chats = {
       estudianteId,
       tutorId,
+      tutoriaId,
       ultimoMensaje: "",
       timestamp: Timestamp.now(),
       mensajesCount: 0,
