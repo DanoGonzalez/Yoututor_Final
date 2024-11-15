@@ -8,12 +8,13 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { onSnapshot, query, where, collection } from "firebase/firestore";
-import { db } from "../../utils/Firebase"; // Asegúrate de que esta es tu configuración de Firebase
+import { db } from "../../utils/Firebase";
 import { getUsuario } from "../../controllers/usuariosController";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types";
@@ -36,9 +37,12 @@ const HomeScreen = () => {
     navigation.navigate("Tutores");
   };
 
-  
   const handleChatPress = () => {
     navigation.navigate("MessagesScreen");
+  };
+  const handleCardPress = (id: string) => {
+    console.log("Tutoria ID:", id);
+    navigation.navigate("TutoriaDetails", { tutoriaId: id });
   };
 
   const handleNotificationsPress = () => {
@@ -55,7 +59,6 @@ const HomeScreen = () => {
         const data = await getUsuario(usuario.id);
         setStudentName(data.nombres);
 
-        // Listener en tiempo real para las tutorías
         const tutoriasQuery = query(
           collection(db, "tutorias"),
           where("estudianteId", "==", usuario.id)
@@ -71,7 +74,6 @@ const HomeScreen = () => {
           setTutorias(tutoriasData);
         });
 
-        // Listener en tiempo real para las notificaciones
         const notificacionesQuery = query(
           collection(db, "notificaciones"),
           where("receptorId", "==", usuario.id),
@@ -81,7 +83,6 @@ const HomeScreen = () => {
           setHasUnreadNotifications(hasUnread);
         });
 
-        // Limpieza de los listeners al desmontar el componente
         return () => {
           unsubscribeTutorias();
           unsubscribeNotificaciones();
@@ -93,7 +94,7 @@ const HomeScreen = () => {
   }, []);
 
   const renderItem = ({ item }: { item: TutorItem }) => (
-    <View style={styles.advisoryCard}>
+    <TouchableOpacity key={item.id} onPress={() => handleCardPress(item.id)} style={styles.advisoryCard}>
       <Image source={require("../../assets/icons/POO.jpg")} style={styles.advisoryImageBackground} />
       <View style={styles.advisoryContent}>
         <Text style={styles.subject}>{item.subject}</Text>
@@ -103,8 +104,9 @@ const HomeScreen = () => {
         </View>
         <Text style={styles.activeStatus}>Activo</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
+  
 
   return (
     <>
@@ -127,39 +129,41 @@ const HomeScreen = () => {
           </View>
         </View>
 
-        <View style={styles.mainAdvisoryContainer}>
-          <View style={styles.advisoryContent}>
-            <View style={styles.advisoryTitleContainer}>
-              <Ionicons name="book-outline" size={16} color="#34A853" />
-              <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <View style={styles.mainAdvisoryContainer}>
+            <View style={styles.advisoryContent}>
+              <View style={styles.advisoryTitleContainer}>
+                <Ionicons name="book-outline" size={16} color="#34A853" />
+                <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
+              </View>
+              <Text style={styles.advisorySubject}>Diseño y Arquitectura del Software</Text>
+              <View style={styles.advisoryButtonsContainer}>
+                <TouchableOpacity 
+                onPress={handleChatPress}
+                style={styles.chatButton}>
+                  <Text style={styles.chatButtonText}>Ir al chat</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.scheduleButton}>
+                  <Text style={styles.scheduleButtonText}>Ver horarios</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <Text style={styles.advisorySubject}>Diseño y Arquitectura del Software</Text>
-            <View style={styles.advisoryButtonsContainer}>
-              <TouchableOpacity 
-              onPress={handleChatPress}
-              style={styles.chatButton}>
-                <Text style={styles.chatButtonText}>Ir al chat</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.scheduleButton}>
-                <Text style={styles.scheduleButtonText}>Ver horarios</Text>
-              </TouchableOpacity>
-            </View>
+            <Image
+              source={require("../../assets/icons/pana1.png")}
+              style={styles.advisoryImage}
+            />
           </View>
-          <Image
-            source={require("../../assets/icons/pana1.png")}
-            style={styles.advisoryImage}
-          />
-        </View>
 
-        <View style={styles.content}>
-          <Text style={styles.subtitle}>Mis asesorias</Text>
-          <FlatList
-            data={tutorias}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.list}
-          />
-        </View>
+          <View style={styles.content}>
+            <Text style={styles.subtitle}>Mis asesorias</Text>
+            <FlatList
+              data={tutorias}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.list}
+            />
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </>
   );
@@ -206,6 +210,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "red",
   },
+  scrollViewContent: {
+    paddingBottom: 20,
+  },
   mainAdvisoryContainer: {
     flexDirection: "row",
     padding: 15,
@@ -239,37 +246,36 @@ const styles = StyleSheet.create({
   },
   chatButton: {
     backgroundColor: "#0078D4",
-    paddingVertical: 6,
-    paddingHorizontal: 14,
+    paddingVertical: 4, // Reduced padding for narrower button
+    paddingHorizontal: 12,
     borderRadius: 20,
-    marginBottom: 8,
+    marginBottom: 6,
     alignItems: "center",
   },
   chatButtonText: {
     color: "#FFFFFF",
-    fontSize: 13,
+    fontSize: 12,
   },
   scheduleButton: {
     borderColor: "#0078D4",
     borderWidth: 1,
-    paddingVertical: 6,
-    paddingHorizontal: 14,
+    paddingVertical: 4, // Reduced padding for narrower button
+    paddingHorizontal: 12,
     borderRadius: 20,
     alignItems: "center",
   },
   scheduleButtonText: {
     color: "#0078D4",
-    fontSize: 13,
+    fontSize: 12,
   },
   advisoryImage: {
-    width: 150,
-    height: 120,
+    width: 170, // Increased width
+    height: 140, // Increased height
     resizeMode: "contain",
     marginLeft: 17,
-    transform: [{ scale: 1.2 }],
+    transform: [{ scale: 1.3 }], // Slightly larger scale
   },
   content: {
-    flex: 1,
     paddingHorizontal: 20,
     backgroundColor: "#FFFFFF",
   },
@@ -313,6 +319,11 @@ const styles = StyleSheet.create({
   },
   activeStatus: {
     color: "#34A853",
+  },
+  subject: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
   },
 });
 

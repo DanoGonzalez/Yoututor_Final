@@ -76,6 +76,8 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
       const tutoriaSnapshot = await getDoc(tutoriaDoc);
       if (tutoriaSnapshot.exists()) {
         const data = tutoriaSnapshot.data();
+        const tutor = await getUsuario(data?.tutorId || '');
+        const estudiante = await getUsuario(data?.estudianteId || '');
         return {
           id: tutoriaSnapshot.id,
           tutorId: data?.tutorId || '',
@@ -85,7 +87,15 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
           materiaId: data?.materiaId || '',
           materiaNombre: data?.materiaNombre || '',
           fechaCreacion: data?.fechaCreacion || Timestamp.now(),
+          descripcion: data?.descripcion || '',
+          horario: data?.horario || '',
+          plataforma: data?.plataforma || '',
+          enlaceAsesoria: data?.enlaceAsesoria || '',
+          tutorData: tutor,
+          estudianteData: estudiante,
         } as Tutoria;
+     
+        
       } else {
         throw new Error('Tutoria no encontrada');
       }
@@ -98,6 +108,7 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
 
   export const updateTutoria = async (id: string, updates: Partial<Tutoria>) => {
     try {
+      console.log("Actualizando tutoría:", id, updates);
       const tutoriaRef = doc(db, 'tutorias', id);
       await updateDoc(tutoriaRef, updates);
       console.log("Tutoria actualizada correctamente");
