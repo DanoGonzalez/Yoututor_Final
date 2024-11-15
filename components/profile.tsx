@@ -327,6 +327,7 @@ const styles = StyleSheet.create({
   contactContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    flexWrap: "wrap",
     marginVertical: 20,
   },
   contactItemLeft: {
