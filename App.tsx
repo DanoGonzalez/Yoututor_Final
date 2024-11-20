@@ -15,6 +15,7 @@ import ChatScreen from "./components/ChatScreen";
 import TutorDetailsScreen from "./components/tabsStudents/TutorDetailsSreen";
 import TutoresScreen from "./components/tabsStudents/tutores";
 import NotificacionesScreen from "./components/welcome/notificacionesScreen";
+import TutoriaDetails from "./components/TutoriaDetails";
 import { TabLayoutProps } from "./types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -105,6 +106,12 @@ export default function App() {
     <Stack.Screen name="Tutores" component={TutoresScreen} />
     <Stack.Screen name="TutorDetailsScreen" component={TutorDetailsScreen} />
     <Stack.Screen name="NotificacionesScreen" component={NotificacionesScreen} />
+    <Stack.Screen
+        name="TutoriaDetails"
+        component={TutoriaDetails as React.ComponentType<any>}
+        options={{ headerShown: false }}
+      />
+
   </Stack.Navigator>
 </NavigationContainer>
   );

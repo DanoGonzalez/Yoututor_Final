@@ -10,6 +10,7 @@ export interface Tutoria {
     fechaCreacion: Timestamp;
     descripcion?: string;
     horario?: string;    
+    plataforma?: string;
     enlaceAsesoria?: string;
   }
   

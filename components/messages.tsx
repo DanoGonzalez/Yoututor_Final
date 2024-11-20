@@ -67,8 +67,8 @@ export default function MessagesScreen() {
     return unsubscribe;
   }, [navigation]);
 
-  const handleChatPress = (chatId: string) => {
-    navigation.navigate("Chat", { chatId: chatId });
+  const handleChatPress = (chatId: string, chatName: string) => {
+    navigation.navigate("Chat", { chatId: chatId, chatName: chatName });
   };
 
   if (loading) {
@@ -99,7 +99,7 @@ export default function MessagesScreen() {
               lastMessage={chat.ultimoMensaje || "No hay mensajes"}
               time={chat.timestamp.toDate().toLocaleTimeString()}
               avatar={chat.avatar}
-              onPress={() => chat.id && handleChatPress(chat.id)}
+              onPress={() => chat.id && chat.displayName && handleChatPress(chat.id, chat.displayName)}
             />
           ))}
         </ScrollView>
