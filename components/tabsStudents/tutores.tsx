@@ -15,12 +15,15 @@ import { useNavigation } from "@react-navigation/native";
 import { TutoresScreenProps } from "../../types";
 import { getTutores } from "../../controllers/usuariosController";
 import { Usuario } from "../../models/usuarios";
+import { Materia } from "../../models/materias";
+import { getmaterias } from "../../controllers/materiasController";
 
 const COLORS = ["#007AFF", "#34C759", "#FF9500"];
 
 const TutoresScreen: React.FC = () => {
   const navigation = useNavigation<TutoresScreenProps["navigation"]>();
   const [tutores, setTutores] = useState<Usuario[]>([]);
+  const [materias, setMaterias] = useState<Materia[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,31 +32,29 @@ const TutoresScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchTutores = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getTutores();
-        setTutores(data);
+        const [tutoresData, materiasData] = await Promise.all([
+          getTutores(),
+          getmaterias(),
+        ]);
+        setTutores(tutoresData);
+        setMaterias(materiasData);
       } catch (error) {
-        setError("Error al obtener los tutores");
+        setError("Error al obtener los datos");
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTutores();
+    fetchData();
   }, []);
 
-  const subjects = [
-    { id: 1, name: "Matematicas" },
-    { id: 2, name: "Biologia" },
-    { id: 3, name: "English" },
-    { id: 4, name: "SQL" },
-    { id: 5, name: "Programacion" },
-  ].map((subject) => ({
-    ...subject,
-    color: COLORS[(subject.id - 1) % COLORS.length],
+  const subjects = materias.map((materia, index) => ({
+    ...materia,
+    color: COLORS[index % COLORS.length],
   }));
 
   return (
@@ -73,10 +74,9 @@ const TutoresScreen: React.FC = () => {
           contentContainerStyle={styles.subjectsContainer}>
           {subjects.map((subject) => (
             <View
-              key={subject.id}
+              key={subject.materia}
               style={[styles.subjectCard, { backgroundColor: subject.color }]}>
-              <Text style={styles.subjectNumber}>{subject.id}</Text>
-              <Text style={styles.subjectName}>{subject.name}</Text>
+              <Text style={styles.subjectName}>{subject.materia}</Text>
             </View>
           ))}
         </ScrollView>
