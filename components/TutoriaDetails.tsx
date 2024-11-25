@@ -13,6 +13,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getTutoriasbyid, updateTutoria } from "../controllers/tutoriasController";
+import LoadingScreen from "./welcome/Loading";
 
 const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation, route }) => {
   const { tutoriaId } = route.params || {};
@@ -38,8 +39,8 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
       setTutoria(fetchtutoria);
       setEditableData({
         horario: fetchtutoria.horario || "",
-        modalidad: "Virtual",
-        plataforma: fetchtutoria.plataforma || "Discord",
+        modalidad: "",
+        plataforma: fetchtutoria.plataforma || "",
         descripcion: fetchtutoria.descripcion || "",
         enlaceAsesoria: fetchtutoria.enlaceAsesoria || "",
       });
@@ -69,8 +70,8 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
   const handleCancel = () => {
     setEditableData({
       horario: tutoria.horario || "",
-      modalidad: "Virtual",
-      plataforma: tutoria.plataforma || "Discord",
+      modalidad: "",
+      plataforma: tutoria.plataforma || "",
       descripcion: tutoria.descripcion || "",
       enlaceAsesoria: tutoria.enlaceAsesoria || "",
     });
@@ -82,11 +83,7 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
   }, []);
 
   if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text>Cargando...</Text>
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   const isTutor = userRole === 3;

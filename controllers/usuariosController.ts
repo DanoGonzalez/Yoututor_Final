@@ -210,3 +210,19 @@ export const getUserImage = async (userId: string) => {
     return null;
   }
 };
+
+
+export const getLogerUser = async () => {
+  try {
+    const usuario = await AsyncStorage.getItem('usuario');
+    const usuarioId = usuario ? JSON.parse(usuario).id : null;
+    if (usuarioId !== null) {
+      const usuarioData = await getUsuario(usuarioId);
+      return { id: usuarioId, ...usuarioData };
+    } else {
+      throw new Error('No hay usuario logueado');
+    }
+  } catch (error: any) {
+    throw new Error('Error al obtener el usuario logueado: ' + error.message);
+  }
+};

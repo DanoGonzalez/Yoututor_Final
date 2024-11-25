@@ -1,11 +1,12 @@
 import { db } from "../utils/Firebase";
 import { collection, addDoc, Timestamp, getDocs, query, where, getDoc, doc, updateDoc, onSnapshot  } from 'firebase/firestore';
 import { Tutoria } from "../models/tutorias";
-import { getUsuario } from "./usuariosController";
+import { getUsuario, getLogerUser } from "./usuariosController";
 import {getMateriaTutoria } from "./materiasController";
 import { updateNotificacion } from "./notificacionesController";
 import { newChat } from "./chatsController";
 import { crearNotificacion } from "./notificacionesController";
+import { createNewLog } from "./logsController";
 
 const tutoriaData = collection(db, "tutorias");
 
@@ -32,14 +33,14 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
       
       const tutoriaRef = await addDoc(tutoriaData, newTutoria);
       const chatId = await newChat(estudianteId, tutorId,tutoriaRef.id );
-
+      const usuario = await getLogerUser();
+      await createNewLog(usuario.id, `${usuario.nombres} ${usuario.apellidos}`, 'Creación', `Se ha creado la tutoría ${tutoriaRef.id}`);
       return tutoriaRef.id;
     } catch (error) {
       console.error("Error al crear la tutoría:", error);
       throw new Error("No se pudo crear la tutoría");
     }
   };
-  
 
   export const getTutorias = (estudianteId: string, callback: (tutorias: Tutoria[]) => void) => {
     console.log("Buscando tutorías del estudiante en tiempo real:", estudianteId);
@@ -110,12 +111,26 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
   export const updateTutoria = async (id: string, updates: Partial<Tutoria>) => {
     try {
       console.log("Actualizando tutoría:", id, updates);
+  
+      // Validar que los datos de la actualización no sean nulos o vacíos
+      for (const key of Object.keys(updates) as Array<keyof Tutoria>) {
+        if (updates[key] === null || updates[key] === undefined || updates[key] === "") {
+          const usuario = await getLogerUser();
+          await createNewLog(usuario.id, `${usuario.nombres} ${usuario.apellidos}`, 'Error de Actualización', `El campo ${key} no puede ser nulo, indefinido o vacío al actualizar la tutoría ${id}`);
+          throw new Error(`El campo ${key} no puede ser nulo, indefinido o vacío`);
+        }
+      }
+  
       const tutoriaRef = doc(db, 'tutorias', id);
       await updateDoc(tutoriaRef, updates);
+      const usuario = await getLogerUser();
+      await createNewLog(usuario.id, `${usuario.nombres} ${usuario.apellidos}`, 'Actualización', `Se ha actualizado la tutoría ${id}`);
       console.log("Tutoria actualizada correctamente");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al actualizar la tutoría:", error);
-      throw new Error("No se pudo actualizar la tutoría");
+      throw new Error("No se pudo actualizar la tutoría: " + error.message);
     }
-
   };
+  
+  
+  

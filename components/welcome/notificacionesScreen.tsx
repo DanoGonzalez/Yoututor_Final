@@ -12,11 +12,13 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getNotificaciones } from "../../controllers/notificacionesController";
+import { crearNotificacion, getNotificaciones } from "../../controllers/notificacionesController";
 import { NotificacionesScreenProps } from "../../types";
 import { Notificacion } from "../../models/notificaciones";
 import { crearTutoria } from "../../controllers/tutoriasController";
 import { useFocusEffect } from "@react-navigation/native";
+import { createNewLog } from "../../controllers/logsController";
+import { getLogerUser } from "../../controllers/usuariosController";
 
 const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation }) => {
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
@@ -85,7 +87,7 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
             <TouchableOpacity style={styles.actionButton} onPress={() => handleAccept(item)}>
               <Text style={styles.actionButtonText}>Confirmar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton2} onPress={() => handleApprove(item)}>
+            <TouchableOpacity style={styles.actionButton2} onPress={() => handlereject(item)}>
               <Text style={styles.actionButtonText2}>Rechazar</Text>
             </TouchableOpacity>
           </View>
@@ -113,9 +115,24 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
     }
   };
 
-  const handleApprove = (item: Notificacion) => {
-    console.log("Rechazar solicitud:", item);
-  };
+
+  const handlereject = async (item: Notificacion) => {
+    try {
+      const tutorId = item.receptorId;
+      const estudianteId = item.solicitanteId;
+      const materiaId = item.materiaId;
+      const NotifiacionId = item.id;
+      const mensaje = `ha rechazado la solicitud para la materia ${item.materiaId}`;
+
+      const response = await crearNotificacion(estudianteId, mensaje, 3, tutorId, materiaId);
+      const datatutor = await getLogerUser();
+      await createNewLog(datatutor.id, `${datatutor.nombres} ${datatutor.apellidos}`, 'Rechazo', `Se ha rechazado la solicitud de la tutoría ${NotifiacionId}`);
+      await fetchNotificaciones();
+      alert("Solicitud rechazada con éxito");
+    } catch (error) {
+      console.error("Error al rechazar la solicitud:", error);
+    }
+  }
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0078FF" style={styles.loadingIndicator} />;
