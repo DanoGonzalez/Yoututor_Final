@@ -18,7 +18,12 @@ import materialIcon from "../assets/Profile/book.png";
 import jsIcon from "../assets/Profile/js.png";
 import reactIcon from "../assets/Profile/react.png";
 import githubIcon from "../assets/Profile/github.png";
-import { saveUserImage, getUserImage, updateUsuario, getUsuario } from "../controllers/usuariosController";
+import {
+  saveUserImage,
+  getUserImage,
+  updateUsuario,
+  getUsuario,
+} from "../controllers/usuariosController";
 import { ProfileScreenNavigationProp, ProfileScreenProps } from "../types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -26,18 +31,24 @@ import { getMateria } from "../controllers/materiasController";
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const [usuario, setUsuario] = useState<any>(null); 
+  const [usuario, setUsuario] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
-  const handleOpenUrl = (url: string | undefined, platform: "github" | "linkedin") => {
+  const handleOpenUrl = (
+    url: string | undefined,
+    platform: "github" | "linkedin"
+  ) => {
     if (url) {
       // Si la URL es completa
       if (url.startsWith("http")) {
         Linking.openURL(url);
       } else {
         // Si solo es el nombre de usuario
-        const baseUrl = platform === "github" ? "https://github.com/" : "https://linkedin.com/in/";
+        const baseUrl =
+          platform === "github"
+            ? "https://github.com/"
+            : "https://linkedin.com/in/";
         Linking.openURL(baseUrl + url);
       }
     } else {
@@ -70,9 +81,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
         console.log("Usuario encontrado en AsyncStorage.");
         const usuario = JSON.parse(usuarioData);
         const data = await getUsuario(usuario.id);
-        if(data.role != 1) {
-          const materias = await Promise.all(data.materiasDominadas.map(async (materiaId: string) => await getMateria(materiaId)));
-          data.materiasDominadas = materias.map((materia: any) => materia.materia);  
+        if (data.role != 1) {
+          const materias = await Promise.all(
+            data.materiasDominadas.map(
+              async (materiaId: string) => await getMateria(materiaId)
+            )
+          );
+          data.materiasDominadas = materias.map((materia: any) => materia.materia);
         }
         setUsuario(data);
 
@@ -110,8 +125,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+      behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <FlatList
         data={[]}
         keyExtractor={() => "key"}
@@ -133,11 +147,27 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
                 </TouchableOpacity>
               </View>
               <View style={styles.profileImageContainer}>
-                <Image source={profileImage ? { uri: profileImage } : require('../assets/Profile/user.jpg')} style={styles.profileImage} />
+                <Image
+                  source={
+                    profileImage
+                      ? { uri: profileImage }
+                      : require("../assets/Profile/user.jpg")
+                  }
+                  style={styles.profileImage}
+                />
               </View>
-              <Text style={styles.name}>{`${usuario.nombres} ${usuario.apellidos}`}</Text>
+              <Text
+                style={
+                  styles.name
+                }>{`${usuario.nombres} ${usuario.apellidos}`}</Text>
               <Text style={styles.role}>
-                {usuario.role === 1 ? 'Admin' : usuario.role === 2 ? 'Estudiante' : usuario.role === 3 ? 'Tutor' : 'Desconocido'}
+                {usuario.role === 1
+                  ? "Admin"
+                  : usuario.role === 2
+                  ? "Estudiante"
+                  : usuario.role === 3
+                  ? "Tutor"
+                  : "Desconocido"}
               </Text>
             </View>
 
@@ -149,12 +179,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
                 </View>
                 <View style={styles.contactItemRight}>
                   <Image source={materialIcon} style={styles.icon} />
-                  <Text
-                    style={styles.contactText}
-                    numberOfLines={1} // Limita a una línea
-                    ellipsizeMode="tail" // Agrega "..." al final si se recorta el texto
-                  >
-                    {usuario.materiasDominadas ? usuario.materiasDominadas.join(", ") : "Sin materias"}
+
+                  <Text style={styles.contactText}>
+                    {usuario.materiasDominadas
+                      ? usuario.materiasDominadas.join(", ")
+                      : "Sin materias"}
                   </Text>
 
                 </View>
@@ -189,18 +218,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
               <Text style={styles.sectionTitle}>Redes</Text>
               <View style={styles.socialIconsContainer}>
                 <TouchableOpacity
-                  onPress={() => handleOpenUrl(usuario.githubProfile, "github")}
-                >
+                  onPress={() => handleOpenUrl(usuario.githubProfile, "github")}>
                   <FontAwesome name="github" size={40} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => handleOpenUrl(usuario.linkedinProfile, "linkedin")}
-                >
-                  <FontAwesome
-                    name="linkedin-square"
-                    size={40}
-                    color="#0078FF"
-                  />
+                  onPress={() =>
+                    handleOpenUrl(usuario.linkedinProfile, "linkedin")
+                  }>
+                  <FontAwesome name="linkedin-square" size={40} color="#0078FF" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -219,7 +244,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: "#0078FF",
     paddingBottom: 110,
-    paddingTop: 30,
+    paddingTop: 35,
     paddingHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
@@ -230,7 +255,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     padding: 5,
     right: 10,
-    top: 22,
+    top: 28,
   },
   icon: {
     width: 24,
@@ -304,6 +329,7 @@ const styles = StyleSheet.create({
   contactContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    flexWrap: "wrap",
     marginVertical: 20,
   },
   contactItemLeft: {

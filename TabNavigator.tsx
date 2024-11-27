@@ -18,7 +18,7 @@ import ProfileIcon from "./assets/NavIcons/Profile.png";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AdminDashboard from "./components/tabsAdmin/index";
 
-import AdminMessages from "./components/tabsAdmin/messages";
+import AdminMessages from "./components/tabsAdmin/List";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator();
@@ -116,14 +116,15 @@ export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
       <Tab.Screen
         name="Messages"
         component={getMessagesComponent(userRole)}
-        options={{ tabBarLabel: "Mensajes" }}
+        options={{
+          tabBarLabel: userRole === 1 ? "Lista" : "Mensajes",
+        }}
       />
       <Tab.Screen
         name="Profile"
         children={() => <ProfileScreenWrapper onLogout={onLogout} />}
         options={{ tabBarLabel: "Perfil" }}
       />
-      
       {/* Solo mostrar estas pantallas para estudiantes (role 2) */}
 
       {userRole === 2 && (

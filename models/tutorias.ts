@@ -7,6 +7,7 @@ export interface Tutoria {
     estudianteNombre: string;
     materiaId: string;
     materiaNombre: string;
+    
     fechaCreacion: Timestamp;
     descripcion?: string;
     horario?: string;    
