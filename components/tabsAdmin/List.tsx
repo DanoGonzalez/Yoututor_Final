@@ -66,6 +66,18 @@ const AdminList = () => {
     fetchUserData();
   }, []);
 
+  useEffect(() => {
+    const savePendingTutors = async () => {
+      try {
+        await AsyncStorage.setItem('pendingTutors', JSON.stringify(pendingTutors));
+      } catch (error) {
+        console.error('Error saving pending tutors:', error);
+      }
+    };
+
+    savePendingTutors();
+  }, [pendingTutors]);
+
   const handleReject = (tutorId: number) => {
     setSelectedTutorId(tutorId);
     setShowRejectModal(true);
