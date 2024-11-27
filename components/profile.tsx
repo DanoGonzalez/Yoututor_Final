@@ -179,11 +179,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
                 </View>
                 <View style={styles.contactItemRight}>
                   <Image source={materialIcon} style={styles.icon} />
+
                   <Text style={styles.contactText}>
                     {usuario.materiasDominadas
                       ? usuario.materiasDominadas.join(", ")
                       : "Sin materias"}
                   </Text>
+
                 </View>
               </View>
 
@@ -337,12 +339,18 @@ const styles = StyleSheet.create({
   contactItemRight: {
     flexDirection: "row",
     alignItems: "center",
+    flexWrap: "nowrap", // Evita que los elementos se envuelvan
+    maxWidth: "80%", // Limita el ancho
   },
+  
   contactText: {
     color: "#545454",
     marginLeft: 10,
     fontSize: 14,
+    maxWidth: "80%", // Ajusta el ancho disponible para el texto
+    overflow: "hidden", // Esconde el texto desbordado
   },
+  
   descriptionContainer: {
     marginBottom: 20,
   },

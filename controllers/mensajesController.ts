@@ -1,7 +1,8 @@
 import { db } from "../utils/Firebase";
-import { collection, addDoc, Timestamp, query, where, doc, orderBy, getDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, query, where, doc, orderBy, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 import { Mensaje } from "../models/mensajes";
 
+const chatcollection = collection(db, "chats");
 
 export const newMensaje = async (chatId: string, emisorId: string, mensaje: string): Promise<string> => {
     try {
@@ -14,6 +15,10 @@ export const newMensaje = async (chatId: string, emisorId: string, mensaje: stri
         };
     
         const mensajeRef = await addDoc(collection(db, "mensajes"), mensajeData);
+        const ultimoMensajeRef = doc(chatcollection, chatId);
+        await updateDoc(ultimoMensajeRef, {
+          ultimoMensaje: mensaje,
+        });
         mensajeData.id = mensajeRef.id;
     
         console.log("Mensaje creado:", mensajeRef.id);

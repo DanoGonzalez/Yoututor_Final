@@ -8,6 +8,7 @@ import MessagesScreen from "./components/messages";
 import TutoresScreen from "./components/tabsStudents/tutores";
 import TutorDetailsScreen from "./components/tabsStudents/TutorDetailsSreen";
 import HomeScreenTutor from "./components/tabsTuthor/index";
+import TutoriaDetails from "./components/TutoriaDetails";
 import ScheduleConsulting from "./components/tabsTuthor/scheduleConsulting";
 import { TabParamList } from "./types";
 import { TabLayoutProps } from "./types";
@@ -33,6 +34,7 @@ const TutorStack = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="TutorHome" component={HomeScreenTutor} />
       <Stack.Screen name="ScheduleConsulting" component={ScheduleConsulting} />
+      <Stack.Screen name="TutoriaDetails" component={TutoriaDetails} />
     </Stack.Navigator>
   );
 };
@@ -123,8 +125,8 @@ export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
         children={() => <ProfileScreenWrapper onLogout={onLogout} />}
         options={{ tabBarLabel: "Perfil" }}
       />
-
       {/* Solo mostrar estas pantallas para estudiantes (role 2) */}
+
       {userRole === 2 && (
         <>
           <Tab.Screen
@@ -139,6 +141,8 @@ export default function TabLayout({ onLogout, userRole }: TabLayoutProps) {
           />
         </>
       )}
+      
+
     </Tab.Navigator>
   );
 }

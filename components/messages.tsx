@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { ThemedView } from "./ThemedView";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,7 +35,6 @@ export default function MessagesScreen() {
 
       let chatsData: Chats[] = [];
       if (usuarioId && usuarioRol === 2) {
-        // Chat de estudiantes: mostrar nombre del tutor
         const chatEstudiante = await getChatEstudiante(usuarioId);
         chatsData = chatEstudiante.map((chat) => ({
           ...chat,
@@ -43,7 +43,6 @@ export default function MessagesScreen() {
           displayName: chat.tutorInfo.nombres, // Mostrar nombre del tutor
         }));
       } else if (usuarioId && usuarioRol === 3) {
-        // Chat de tutores: mostrar nombre del estudiante
         const chatTutor = await getChatTutor(usuarioId);
         chatsData = chatTutor.map((chat) => ({
           ...chat,
@@ -67,12 +66,15 @@ export default function MessagesScreen() {
     return unsubscribe;
   }, [navigation]);
 
-  const handleChatPress = (chatId: string) => {
-    navigation.navigate("Chat", { chatId: chatId });
+  const handleChatPress = (chatId: string, chatName: string) => {
+    navigation.navigate("Chat", { chatId: chatId, chatName: chatName });
   };
 
   if (loading) {
-    return <Text style={styles.loadingText}>Cargando chats...</Text>;
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0078FF" />
+        <Text style={styles.loadingText}>Cargando...</Text>
+    </View>
   }
 
   return (
@@ -99,7 +101,7 @@ export default function MessagesScreen() {
               lastMessage={chat.ultimoMensaje || "No hay mensajes"}
               time={chat.timestamp.toDate().toLocaleTimeString()}
               avatar={chat.avatar}
-              onPress={() => chat.id && handleChatPress(chat.id)}
+              onPress={() => chat.id && chat.displayName && handleChatPress(chat.id, chat.displayName)}
             />
           ))}
         </ScrollView>
@@ -159,6 +161,12 @@ const styles = StyleSheet.create({
   },
   chatList: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
   },
   loadingText: {
     textAlign: "center",
