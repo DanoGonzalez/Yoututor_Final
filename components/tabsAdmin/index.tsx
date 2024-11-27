@@ -101,7 +101,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     loadTotalUsers();
     const interval = setInterval(loadTotalUsers, 30000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
