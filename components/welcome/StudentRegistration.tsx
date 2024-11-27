@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import { StudentRegistrationProps } from "../../types";
 import { createStudents } from "../../controllers/usuariosController";
+import SuccessRegisterModal from "../Modals/SuccessRegister";
 
 const StudentRegistration: React.FC<StudentRegistrationProps> = ({
   navigation,
@@ -26,6 +27,7 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,13 +59,11 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
       };
 
       await createStudents(usuarioData);
-      console.log("Estudiante creado exitosamente.");
-      Alert.alert("Éxito", "¡Usuario creado exitosamente!", [
-        {
-          text: "OK",
-          onPress: () => navigation.navigate("Login"),
-        },
-      ]);
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        navigation.navigate("Login");
+      }, 2000);
     } catch (error: any) {
       Alert.alert(
         "Error",
@@ -164,6 +164,10 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       </SafeAreaView>
+      <SuccessRegisterModal
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
     </View>
   );
 };

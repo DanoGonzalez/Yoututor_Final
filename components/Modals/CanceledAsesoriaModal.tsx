@@ -16,7 +16,10 @@ type SuccessModalProps = {
   onClose: () => void;
 };
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose }) => {
+const CanceledAsesoriaModal: React.FC<SuccessModalProps> = ({
+  visible,
+  onClose,
+}) => {
   const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
 
   const handleClose = () => {
@@ -33,11 +36,11 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose }) => {
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Image
-            source={require("../assets/ModalImages/Cancel.png")}
+            source={require("../../assets/ModalImages/Cancel.png")}
             style={styles.image}
             resizeMode="contain"
           />
-          <Text style={styles.title}>Aseosria Cancelada</Text>
+          <Text style={styles.title}>Cancelar Asesoría</Text>
           <TouchableOpacity style={styles.button} onPress={handleClose}>
             <Text style={styles.buttonText}>Cerrar</Text>
           </TouchableOpacity>
@@ -94,4 +97,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SuccessModal;
+export default CanceledAsesoriaModal;
+
+//Hay que modificar este nombre

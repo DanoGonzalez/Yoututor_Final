@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
-  Image
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,10 +17,16 @@ import { NotificacionesScreenProps } from "../../types";
 import { Notificacion } from "../../models/notificaciones";
 import { crearTutoria } from "../../controllers/tutoriasController";
 import { useFocusEffect } from "@react-navigation/native";
+import SuccessTutoriaModal from "../Modals/SuccessTutoria";
+import CanceledTutoriaModal from "../Modals/CanceledTutoria";
 
-const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation }) => {
+const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({
+  navigation,
+}) => {
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showCanceledModal, setShowCanceledModal] = useState(false);
 
   const fetchNotificaciones = async () => {
     try {
@@ -53,8 +59,7 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
         return nombre;
     }
   };
-  
-  
+
   const renderItem = ({ item }: { item: Notificacion }) => {
     let iconSource;
     switch (item.tipo) {
@@ -74,18 +79,22 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
         <View style={styles.notificationContent}>
           <Image source={iconSource} style={styles.icon} />
           <View style={styles.messageContainer}>
-          <Text style={styles.tutor}>
+            <Text style={styles.tutor}>
               {getNotificationText(item.tipo, item.estudianteNombre || "")}
-          </Text>
+            </Text>
             <Text style={styles.messageText}>{item.mensaje}</Text>
           </View>
         </View>
         {!item.leido && item.tipo === 1 && (
           <View style={styles.actionButtonsContainer}>
-            <TouchableOpacity style={styles.actionButton} onPress={() => handleAccept(item)}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => handleAccept(item)}>
               <Text style={styles.actionButtonText}>Confirmar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton2} onPress={() => handleApprove(item)}>
+            <TouchableOpacity
+              style={styles.actionButton2}
+              onPress={() => handleApprove(item)}>
               <Text style={styles.actionButtonText2}>Rechazar</Text>
             </TouchableOpacity>
           </View>
@@ -102,8 +111,13 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
       const NotifiacionId = item.id;
       if (tutorId && estudianteId && materiaId && NotifiacionId) {
         console.log("Aceptar solicitud:", tutorId, estudianteId);
-        const response = await crearTutoria(tutorId, estudianteId, materiaId, NotifiacionId);
-        alert("Tutoria creada con éxito");
+        const response = await crearTutoria(
+          tutorId,
+          estudianteId,
+          materiaId,
+          NotifiacionId
+        );
+        setShowSuccessModal(true);
         await fetchNotificaciones();
       } else {
         console.error("Error: Missing required fields");
@@ -113,12 +127,24 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
     }
   };
 
-  const handleApprove = (item: Notificacion) => {
-    console.log("Rechazar solicitud:", item);
+  const handleApprove = async (item: Notificacion) => {
+    try {
+      console.log("Rechazar solicitud:", item);
+      setShowCanceledModal(true);
+      // Aquí puedes agregar la lógica para rechazar la tutoría
+    } catch (error) {
+      console.error("Error al rechazar la solicitud:", error);
+    }
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0078FF" style={styles.loadingIndicator} />;
+    return (
+      <ActivityIndicator
+        size="large"
+        color="#0078FF"
+        style={styles.loadingIndicator}
+      />
+    );
   }
 
   return (
@@ -126,7 +152,9 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.leftSection}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Home")}
+            style={styles.leftSection}>
             <Ionicons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Notificaciones</Text>
@@ -149,6 +177,14 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
           />
         )}
       </SafeAreaView>
+      <SuccessTutoriaModal
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
+      <CanceledTutoriaModal
+        visible={showCanceledModal}
+        onClose={() => setShowCanceledModal(false)}
+      />
     </>
   );
 };
