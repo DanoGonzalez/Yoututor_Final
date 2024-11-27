@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { ThemedView } from "./ThemedView";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,7 +35,6 @@ export default function MessagesScreen() {
 
       let chatsData: Chats[] = [];
       if (usuarioId && usuarioRol === 2) {
-        // Chat de estudiantes: mostrar nombre del tutor
         const chatEstudiante = await getChatEstudiante(usuarioId);
         chatsData = chatEstudiante.map((chat) => ({
           ...chat,
@@ -43,7 +43,6 @@ export default function MessagesScreen() {
           displayName: chat.tutorInfo.nombres, // Mostrar nombre del tutor
         }));
       } else if (usuarioId && usuarioRol === 3) {
-        // Chat de tutores: mostrar nombre del estudiante
         const chatTutor = await getChatTutor(usuarioId);
         chatsData = chatTutor.map((chat) => ({
           ...chat,
@@ -72,7 +71,10 @@ export default function MessagesScreen() {
   };
 
   if (loading) {
-    return <Text style={styles.loadingText}>Cargando chats...</Text>;
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0078FF" />
+        <Text style={styles.loadingText}>Cargando...</Text>
+    </View>
   }
 
   return (
@@ -159,6 +161,12 @@ const styles = StyleSheet.create({
   },
   chatList: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
   },
   loadingText: {
     textAlign: "center",
