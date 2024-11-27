@@ -35,4 +35,3 @@ export interface TutorWithMaterias {
   createdAt: Timestamp;
   materiasDominadas: { id: string; materia: string }[]; 
 }
-

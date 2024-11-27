@@ -10,36 +10,25 @@ import {
   ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getUsuario } from "../../controllers/usuariosController";
+import { getUsuario, getUsuarios } from "../../controllers/usuariosController";
 import AddSubjectModal from "./modal/AddSubjectModal";
 import SuccessModal from "./modal/SuccessModal";
+import { getmaterias, addMateria } from "../../controllers/materiasController";
+
+interface Subject {
+  name: string;
+  tutors: number;
+  image: any;
+}
 
 const AdminDashboard = () => {
   const [adminName, setAdminName] = useState<string>("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [subjects, setSubjects] = useState([
-    {
-      name: "Poo",
-      tutors: 12,
-      image: require("../../assets/AdminScreen/Subjects/Subject1.png"),
-    },
-    {
-      name: "Matematicas",
-      tutors: 2,
-      image: require("../../assets/AdminScreen/Subjects/Subject2.png"),
-    },
-    {
-      name: "Programación",
-      tutors: 6,
-      image: require("../../assets/AdminScreen/Subjects/Subject3.png"),
-    },
-    {
-      name: "Base de Datos",
-      tutors: 3,
-      image: require("../../assets/AdminScreen/Subjects/Subject4.png"),
-    },
-  ]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [pendingTutors, setPendingTutors] = useState<number>(0);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -55,16 +44,70 @@ const AdminDashboard = () => {
     fetchUserData();
   }, []);
 
-  const handleAddSubject = (subjectName: string) => {
-    const newSubject = {
-      name: subjectName,
-      tutors: 2,
-      image: require("../../assets/AdminScreen/Subjects/Subject1.png"),
+  useEffect(() => {
+    const loadPendingTutors = async () => {
+      try {
+        const usuarioData = await AsyncStorage.getItem("pendingTutors");
+        const tutors = usuarioData ? JSON.parse(usuarioData) : [];
+        setPendingTutors(tutors.length);
+      } catch (error) {
+        console.error("Error loading pending tutors:", error);
+      }
     };
 
-    setSubjects([...subjects, newSubject]);
-    setShowSuccessModal(true);
+    loadPendingTutors();
+
+    const interval = setInterval(loadPendingTutors, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadMaterias = async () => {
+    try {
+      const materiasData = await getmaterias();
+      const formattedSubjects = materiasData.map((materia) => ({
+        name: materia.materia,
+        tutors: 0,
+        image: require("../../assets/AdminScreen/Subjects/Subject1.png"),
+      }));
+      console.log("Materias cargadas:", materiasData);
+      setSubjects(formattedSubjects);
+    } catch (error) {
+      console.error("Error loading materias:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    loadMaterias();
+  }, []);
+
+  const handleAddSubject = async (subjectName: string) => {
+    try {
+      await addMateria(subjectName);
+      setShowSuccessModal(true);
+      await loadMaterias();
+    } catch (error) {
+      console.error("Error adding subject:", error);
+    }
+  };
+
+  const loadTotalUsers = async () => {
+    try {
+      const usuarios = await getUsuarios();
+      setTotalUsers(usuarios.length);
+    } catch (error) {
+      console.error("Error loading users:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadTotalUsers();
+    const interval = setInterval(loadTotalUsers, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
@@ -96,13 +139,13 @@ const AdminDashboard = () => {
 
           <View style={styles.statsContainer}>
             <TouchableOpacity style={styles.statBox}>
-              <Text style={styles.statLabel}>Usuarios Activos</Text>
-              <Text style={styles.statNumber}>23</Text>
+              <Text style={styles.statLabel}>Usuarios Registrados</Text>
+              <Text style={styles.statNumber}>{totalUsers}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.outlinedBox}>
               <Text style={styles.outlinedLabel}>Tutores por Aprobar</Text>
-              <Text style={styles.outlinedNumber}>52</Text>
+              <Text style={styles.outlinedNumber}>{pendingTutors}</Text>
             </TouchableOpacity>
           </View>
 
@@ -140,8 +183,8 @@ const AdminDashboard = () => {
                       />
                     </View>
 
-                    <Text style={styles.tutorLabel}>Tutores disponibles</Text>
-                    <Text style={styles.tutorCount}>{subject.tutors}</Text>
+                    {/* <Text style={styles.tutorLabel}>Tutores disponibles</Text>
+                    <Text style={styles.tutorCount}>{subject.tutors}</Text> */}
                   </View>
                 </TouchableOpacity>
               ))}

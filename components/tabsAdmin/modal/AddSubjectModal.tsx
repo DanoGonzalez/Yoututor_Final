@@ -17,12 +17,21 @@ interface AddSubjectModalProps {
 
 const AddSubjectModal = ({ visible, onClose, onAdd }: AddSubjectModalProps) => {
   const [subjectName, setSubjectName] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (subjectName.trim()) {
-      onAdd(subjectName);
-      setSubjectName("");
-      onClose();
+      setIsLoading(true);
+      try {
+        await onAdd(subjectName);
+        setSubjectName("");
+        onClose();
+      } catch (error) {
+        console.error('Error adding subject:', error);
+        // Aquí podrías mostrar un mensaje de error al usuario
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -44,8 +53,14 @@ const AddSubjectModal = ({ visible, onClose, onAdd }: AddSubjectModalProps) => {
                 onChangeText={setSubjectName}
                 placeholderTextColor="#999"
               />
-              <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
-                <Text style={styles.buttonText}>Agregar</Text>
+              <TouchableOpacity 
+                style={[styles.addButton, isLoading && styles.disabledButton]} 
+                onPress={handleAdd}
+                disabled={isLoading}
+              >
+                <Text style={styles.buttonText}>
+                  {isLoading ? 'Agregando...' : 'Agregar'}
+                </Text>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
@@ -93,6 +108,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "600",
+  },
+  disabledButton: {
+    opacity: 0.7,
   },
 });
 
