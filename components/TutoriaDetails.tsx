@@ -9,6 +9,7 @@ import {
   ScrollView,
   TextInput,
   Linking,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -83,9 +84,10 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <Text>Cargando...</Text>
-      </View>
+      <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#0078FF" />
+      <Text style={styles.loadingText}>Cargando...</Text>
+    </View>
     );
   }
 
@@ -352,6 +354,17 @@ const styles = StyleSheet.create({
   descriptionText: {
     fontSize: 14,
     color: "#666",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#0078FF",
+    marginTop: 10,
   },
   buttonContainer: {
     marginTop: 20,
