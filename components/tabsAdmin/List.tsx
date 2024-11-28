@@ -12,43 +12,16 @@ import {
 import AcceptTutorModal from "./modal/AcceptTutorModal";
 import RejectTutorModal from "./modal/RejectTutorModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getUsuario } from "../../controllers/usuariosController";
+import { getUsuario, getTutorPendientes, acceptTutor } from "../../controllers/usuariosController";
+import { Usuario } from "../../models/usuarios";
+import { useNavigation } from "@react-navigation/native";
+import {TutorDetailsScreenProps} from "../../types";
 
 const AdminList = () => {
+  const navigation = useNavigation<TutorDetailsScreenProps["navigation"]>();
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [pendingTutors, setPendingTutors] = useState([
-    {
-      id: 1,
-      name: "Angel Garcia Pech",
-      subject: "Poo",
-      image: require("../../assets/AdminScreen/Subjects/Subject1.png"),
-    },
-    {
-      id: 2,
-      name: "Angel Garcia Pech",
-      subject: "Base de Datos",
-      image: require("../../assets/AdminScreen/Subjects/Subject4.png"),
-    },
-    {
-      id: 3,
-      name: "Angel Garcia Pech",
-      subject: "Base de Datos",
-      image: require("../../assets/AdminScreen/Subjects/Subject2.png"),
-    },
-    {
-      id: 4,
-      name: "Angel Garcia Pech",
-      subject: "Base de Datos",
-      image: require("../../assets/AdminScreen/Subjects/Subject3.png"),
-    },
-    {
-      id: 5,
-      name: "Angel Garcia Pech",
-      subject: "Base de Datos",
-      image: require("../../assets/AdminScreen/Subjects/Subject1.png"),
-    },
-  ]);
+  const [pendingTutors, setPendingTutors] = useState<Usuario[]>([]);
   const [selectedTutorId, setSelectedTutorId] = useState<number | null>(null);
   const [adminName, setAdminName] = useState<string>("");
 
@@ -66,66 +39,79 @@ const AdminList = () => {
     fetchUserData();
   }, []);
 
-  useEffect(() => {
-    const savePendingTutors = async () => {
-      try {
-        await AsyncStorage.setItem('pendingTutors', JSON.stringify(pendingTutors));
-      } catch (error) {
-        console.error('Error saving pending tutors:', error);
-      }
-    };
+  const fetchPendingTutors = async () => {
+    try {
+      const tutores = await getTutorPendientes();
+      console.log("Tutores pendientes:", tutores);
+      setPendingTutors(tutores);
+    } catch (error) {
+      console.error('Error fetching pending tutors:', error);
+    }
+  };
 
-    savePendingTutors();
-  }, [pendingTutors]);
+  useEffect(() => {
+    fetchPendingTutors();
+  }, []);
 
   const handleReject = (tutorId: number) => {
     setSelectedTutorId(tutorId);
     setShowRejectModal(true);
   };
 
-  const handleAccept = (tutorId: number) => {
-    setSelectedTutorId(tutorId);
+  const handleAccept = async (tutorId: string) => {
+    console.log("Aceptar tutor con ID:", tutorId);
+    await acceptTutor(tutorId);
+    setSelectedTutorId(Number(tutorId));
+    fetchPendingTutors();
     setShowAcceptModal(true);
   };
 
+  const handleTutorDetails = (tutorId: string) => {
+    console.log("Detalles del tutor con ID:", tutorId);
+    navigation.navigate("TutorDetailsScreen", { tutorId });
+  }
+
+
   const handleRejectConfirm = () => {
     if (selectedTutorId) {
-      setPendingTutors((prevTutors) =>
-        prevTutors.filter((tutor) => tutor.id !== selectedTutorId)
-      );
+      console.log("Rechazar tutor con ID:", selectedTutorId);
     }
     setShowRejectModal(false);
   };
 
   const handleAcceptConfirm = () => {
     if (selectedTutorId) {
-      setPendingTutors((prevTutors) =>
-        prevTutors.filter((tutor) => tutor.id !== selectedTutorId)
-      );
+      console.log("Aceptar tutor con ID:", selectedTutorId);
     }
     setShowAcceptModal(false);
   };
 
-  const TutorCard = ({ tutor }: { tutor: any }) => (
-    <View style={styles.tutorCard}>
-      <Image source={tutor.image} style={styles.subjectImage} />
+  const TutorCard = ({ tutor }: { tutor: Usuario }) => (
+    <TouchableOpacity
+      style={styles.tutorCard}
+      onPress={() => tutor.id && handleTutorDetails(tutor.id)}
+    >
+      <Image 
+        source={tutor.profilePicture ? { uri: tutor.profilePicture } : require("../../assets/AdminScreen/Subjects/Subject1.png")}
+        style={styles.subjectImage} 
+      />
       <View style={styles.cardContent}>
         <View style={styles.contentRow}>
           <View style={styles.textContainer}>
-            <Text style={styles.subjectName}>{tutor.subject}</Text>
-            <Text style={styles.tutorName}>{tutor.name}</Text>
+            <Text style={styles.subjectName}>{tutor.materiasDominadas || "Materia Desconocida"}</Text>
+            <Text style={styles.tutorName}>{tutor.nombres}</Text>
           </View>
           <View style={styles.actionButtons}>
             <TouchableOpacity
-              onPress={() => handleReject(tutor.id)}
-              style={[styles.actionButton]}>
+              style={[styles.actionButton]}
+              onPress={() => tutor.id && handleTutorDetails(tutor.id)}>
               <Image
                 source={require("../../assets/AdminScreen/List/Rechazar.png")}
                 style={styles.actionIcon}
               />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => handleAccept(tutor.id)}
+              onPress={() => tutor.id && handleAccept(tutor.id)}
               style={[styles.actionButton]}>
               <Image
                 source={require("../../assets/AdminScreen/List/Aceptar.png")}
@@ -135,7 +121,7 @@ const AdminList = () => {
           </View>
         </View>
       </View>
-    </View>
+      </TouchableOpacity>
   );
 
   return (
@@ -278,7 +264,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   actionIcon: {
     width: 48,
     height: 48,

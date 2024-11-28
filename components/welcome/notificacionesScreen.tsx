@@ -47,8 +47,10 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
       case 1:
         return `El Estudiante ${nombre}`;
       case 2:
-      case 3:
         return `El Tutor ${nombre}`;
+      case 3:
+      case 4:
+        return `¡Hola! ${nombre}`;
       default:
         return nombre;
     }
@@ -66,6 +68,8 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
         break;
       case 3:
         iconSource = require("../../assets/icons/iconReject.png");
+      case 4:
+        iconSource = require("../../assets/icons/iconSuccess.png");
         break;
     }
 

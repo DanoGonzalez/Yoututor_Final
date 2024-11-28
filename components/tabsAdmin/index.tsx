@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getUsuario, getUsuarios } from "../../controllers/usuariosController";
+import { getUsuario, getUsuarios, getTutorPendientes } from "../../controllers/usuariosController";
 import AddSubjectModal from "./modal/AddSubjectModal";
 import SuccessModal from "./modal/SuccessModal";
 import { getmaterias, addMateria } from "../../controllers/materiasController";
@@ -47,9 +47,8 @@ const AdminDashboard = () => {
   useEffect(() => {
     const loadPendingTutors = async () => {
       try {
-        const usuarioData = await AsyncStorage.getItem("pendingTutors");
-        const tutors = usuarioData ? JSON.parse(usuarioData) : [];
-        setPendingTutors(tutors.length);
+        const pendingTutors = await getTutorPendientes();
+        setPendingTutors(pendingTutors.length);
       } catch (error) {
         console.error("Error loading pending tutors:", error);
       }

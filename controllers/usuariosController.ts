@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const usuariosCollection = collection(db, 'usuarios');
 import { getMateria } from './materiasController';
 import { imageToBase64 } from '../utils/imageUtils';
+import { crearNotificacion } from './notificacionesController';
 
 
 /*Obtenemos todos los usaurios */
@@ -188,3 +189,47 @@ export const getUsuario = async (id: string) => {
   }
 }
 
+
+
+/*Get para obtener tutores pendientes */
+
+export const getTutorPendientes = async () => {
+  try {
+    const q = query(
+      usuariosCollection,
+      where('role', '==', 3),
+      where('status', '==', 0),
+      where('statusExam', '==', 0)
+    );
+
+    const querySnapshot = await getDocs(q);
+    const tutores: Usuario[] = [];
+
+    for (const doc of querySnapshot.docs) {
+      const tutor = { id: doc.id, ...doc.data() } as Usuario;
+      const materiasDominadas = await Promise.all(
+        tutor.materiasDominadas.map(async (materiaId) => {
+          const materia = await getMateria(materiaId);
+          return materia.materia;
+        })
+      );
+      tutores.push({ ...tutor, materiasDominadas });
+    }
+
+    return tutores;
+  } catch (error: any) {
+    throw new Error('Error al obtener los tutores pendientes: ' + error.message);
+  }
+}
+
+/*Aceptar tutor */
+
+export const acceptTutor = async (tutorId: string) => {
+  try {
+    const tutorDoc = doc(db, 'usuarios', tutorId);
+    await updateDoc(tutorDoc, { status: 1, statusExam: 1 });
+    await crearNotificacion(tutorId, '¡Felicidades! Tu solicitud ha sido aceptada.', 4, tutorId, '');
+  } catch (error: any) {
+    throw new Error('Error al aceptar al tutor: ' + error.message);
+  }
+}
