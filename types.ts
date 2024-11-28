@@ -17,7 +17,7 @@ export type RootStackParamList = {
   NotificacionesScreen: undefined;
   Home: undefined;
   TutoriaDetails: { tutoriaId: string };
-  Chat: { chatId: string, chatName: string };
+  Chat: { chatId: string; chatName: string };
   Messages: undefined;
   EditProfile: undefined;
   Profile: undefined;

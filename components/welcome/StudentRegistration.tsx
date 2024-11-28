@@ -13,8 +13,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler"; // Usa esta versión para mejores resultados
 import { StudentRegistrationProps } from "../../types";
 import { createStudents } from "../../controllers/usuariosController";
 
@@ -81,25 +81,24 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
-        <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
+    <View style={styles.container}>
+      <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
 
-        <SafeAreaView style={styles.contentContainer}>
-          <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
-            <View style={styles.fixedHeader} pointerEvents="box-none">
-              <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                <Image
-                  source={require("../../assets/icons/arrow.png")}
-                  style={styles.backIcon}
-                />
-              </TouchableOpacity>
-            </View>
-
+      <SafeAreaView style={styles.contentContainer}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
+              <View style={styles.fixedHeader}>
+                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                  <Image
+                    source={require("../../assets/icons/arrow.png")}
+                    style={styles.backIcon}
+                  />
+                </TouchableOpacity>
+              </View>
+
               <View style={styles.content}>
                 <View style={styles.iconContainer}>
                   <Image
@@ -154,8 +153,7 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.alternativeButton}
-                    onPress={handleAlternativeRegistration}
-                  >
+                    onPress={handleAlternativeRegistration}>
                     <Text style={styles.alternativeButtonText}>
                       Usar otro método de registro
                     </Text>
@@ -165,6 +163,10 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
             </ScrollView>
           </KeyboardAvoidingView>
         </SafeAreaView>
+      <SuccessRegisterModal
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -194,7 +196,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: { flexGrow: 1 },
-  content: { paddingTop: 100, alignItems: "center" },
+  content: { paddingTop: 80, alignItems: "center" },
   iconContainer: { alignItems: "center", marginBottom: 24 },
   icon: { width: 80, height: 80 },
   title: {

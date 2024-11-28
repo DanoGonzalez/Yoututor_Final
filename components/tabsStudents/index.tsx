@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -38,7 +37,7 @@ const HomeScreen = () => {
   };
 
   const handleChatPress = () => {
-    navigation.navigate("MessagesScreen");
+    navigation.navigate("Messages");
   };
   const handleCardPress = (id: string) => {
     console.log("Tutoria ID:", id);
@@ -129,41 +128,43 @@ const HomeScreen = () => {
           </View>
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <View style={styles.mainAdvisoryContainer}>
-            <View style={styles.advisoryContent}>
-              <View style={styles.advisoryTitleContainer}>
-                <Ionicons name="book-outline" size={16} color="#34A853" />
-                <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
+        <FlatList
+          data={tutorias}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+          ListHeaderComponent={() => (
+            <>
+              <View style={styles.mainAdvisoryContainer}>
+                <View style={styles.advisoryContent}>
+                  <View style={styles.advisoryTitleContainer}>
+                    <Ionicons name="book-outline" size={16} color="#34A853" />
+                    <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
+                  </View>
+                  <Text style={styles.advisorySubject}>Diseño y Arquitectura del Software</Text>
+                  <View style={styles.advisoryButtonsContainer}>
+                    <TouchableOpacity 
+                      onPress={handleChatPress}
+                      style={styles.chatButton}>
+                      <Text style={styles.chatButtonText}>Ir al chat</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.scheduleButton}>
+                      <Text style={styles.scheduleButtonText}>Ver horarios</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <Image
+                  source={require("../../assets/icons/pana1.png")}
+                  style={styles.advisoryImage}
+                />
               </View>
-              <Text style={styles.advisorySubject}>Diseño y Arquitectura del Software</Text>
-              <View style={styles.advisoryButtonsContainer}>
-                <TouchableOpacity 
-                onPress={handleChatPress}
-                style={styles.chatButton}>
-                  <Text style={styles.chatButtonText}>Ir al chat</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.scheduleButton}>
-                  <Text style={styles.scheduleButtonText}>Ver horarios</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <Image
-              source={require("../../assets/icons/pana1.png")}
-              style={styles.advisoryImage}
-            />
-          </View>
 
-          <View style={styles.content}>
-            <Text style={styles.subtitle}>Mis asesorias</Text>
-            <FlatList
-              data={tutorias}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.list}
-            />
-          </View>
-        </ScrollView>
+              <View style={styles.content}>
+                <Text style={styles.subtitle}>Mis asesorias</Text>
+              </View>
+            </>
+          )}
+        />
       </SafeAreaView>
     </>
   );
@@ -209,9 +210,6 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: "red",
-  },
-  scrollViewContent: {
-    paddingBottom: 20,
   },
   mainAdvisoryContainer: {
     flexDirection: "row",
