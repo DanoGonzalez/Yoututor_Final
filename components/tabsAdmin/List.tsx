@@ -12,7 +12,7 @@ import {
 import AcceptTutorModal from "./modal/AcceptTutorModal";
 import RejectTutorModal from "./modal/RejectTutorModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getUsuario, getTutorPendientes, acceptTutor } from "../../controllers/usuariosController";
+import { getUsuario, getTutorPendientes, acceptTutor, rejectTutor } from "../../controllers/usuariosController";
 import { Usuario } from "../../models/usuarios";
 import { useNavigation } from "@react-navigation/native";
 import {TutorDetailsScreenProps} from "../../types";
@@ -53,8 +53,10 @@ const AdminList = () => {
     fetchPendingTutors();
   }, []);
 
-  const handleReject = (tutorId: number) => {
-    setSelectedTutorId(tutorId);
+  const handleReject = async (tutorId: string) => {
+    await rejectTutor(tutorId);
+    setSelectedTutorId(Number(tutorId));
+    fetchPendingTutors();
     setShowRejectModal(true);
   };
 
@@ -104,7 +106,7 @@ const AdminList = () => {
           <View style={styles.actionButtons}>
             <TouchableOpacity
               style={[styles.actionButton]}
-              onPress={() => tutor.id && handleTutorDetails(tutor.id)}>
+              onPress={() => tutor.id && handleReject(tutor.id)}>
               <Image
                 source={require("../../assets/AdminScreen/List/Rechazar.png")}
                 style={styles.actionIcon}

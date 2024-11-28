@@ -233,3 +233,14 @@ export const acceptTutor = async (tutorId: string) => {
     throw new Error('Error al aceptar al tutor: ' + error.message);
   }
 }
+
+
+export const rejectTutor = async (tutorId: string) => {
+  try {
+    const tutorDoc = doc(db, 'usuarios', tutorId);
+    await updateDoc(tutorDoc, { status: 5})
+    await crearNotificacion(tutorId, 'Tu solicitud ha sido rechazada.', 5, tutorId, '');
+  } catch (error: any) {
+    throw new Error('Error al rechazar al tutor: ' + error.message);
+  }
+}

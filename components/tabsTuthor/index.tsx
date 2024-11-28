@@ -42,6 +42,11 @@ const HomeScreenTutor = () => {
   const handleCardPress = (id: string) => {
     navigation.navigate("TutoriaDetails", { tutoriaId: id });
   };
+  
+  const handleChat = () => {
+    console.log("Chatting...");
+    navigation.navigate("Messages");
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -119,7 +124,7 @@ const HomeScreenTutor = () => {
               </View>
               <Text style={styles.advisorySubject}>{materiasDominadas.join(", ")}</Text>
               <View style={styles.advisoryButtonsContainer}>
-                <TouchableOpacity style={styles.chatButton}>
+                <TouchableOpacity style={styles.chatButton} onPress={handleChat}>
                   <Text style={styles.chatButtonText}>Ir al chat</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.scheduleButton}>

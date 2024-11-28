@@ -68,9 +68,13 @@ const NotificacionesScreen: React.FC<NotificacionesScreenProps> = ({ navigation 
         break;
       case 3:
         iconSource = require("../../assets/icons/iconReject.png");
+        break;
       case 4:
         iconSource = require("../../assets/icons/iconSuccess.png");
         break;
+      case 5:
+      iconSource = require("../../assets/icons/iconReject.png");
+      break;
     }
 
     return (

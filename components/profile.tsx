@@ -19,8 +19,8 @@ import jsIcon from "../assets/Profile/js.png";
 import reactIcon from "../assets/Profile/react.png";
 import githubIcon from "../assets/Profile/github.png";
 import {
-  saveUserImage,
-  getUserImage,
+  // saveUserImage,
+  // getUserImage,
   updateUsuario,
   getUsuario,
 } from "../controllers/usuariosController";
@@ -60,6 +60,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
     onLogout();
     console.log("Cerrando sesión");
   };
+
+  const handleEdit = () => {
+    console.log("Editando perfil...");
+    navigation.navigate("EditProfile");
+  }
 
   const loadProfileImage = async (userId: string) => {
     try {
@@ -142,7 +147,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
 
             <View style={styles.profileContainer}>
               <View style={styles.editButtonContainer}>
-                <TouchableOpacity style={styles.editButton}>
+                <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
                   <MaterialIcons name="edit" size={24} color="white" />
                 </TouchableOpacity>
               </View>

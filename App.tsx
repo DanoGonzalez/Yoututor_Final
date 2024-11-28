@@ -17,6 +17,7 @@ import TutoresScreen from "./components/tabsStudents/tutores";
 import NotificacionesScreen from "./components/welcome/notificacionesScreen";
 import TutoriaDetails from "./components/TutoriaDetails";
 import { TabLayoutProps } from "./types";
+import  EditarPerfilScreen  from "./components/EditProfile";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -111,6 +112,7 @@ export default function App() {
         component={TutoriaDetails as React.ComponentType<any>}
         options={{ headerShown: false }}
       />
+    <Stack.Screen name="EditProfile" component={EditarPerfilScreen} />
 
   </Stack.Navigator>
 </NavigationContainer>
