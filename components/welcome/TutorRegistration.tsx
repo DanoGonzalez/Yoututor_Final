@@ -1,10 +1,30 @@
 import React, { useState, useEffect } from "react";
-import {View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Image, StatusBar, ScrollView, Button, FlatList, Alert, Modal, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Platform, } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  TextInput,
+  Image,
+  StatusBar,
+  ScrollView,
+  Button,
+  FlatList,
+  Alert,
+  Modal,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Platform,
+  ActivityIndicator,
+} from "react-native";
 import { TutorRegistrationProps } from "../../types";
 import { getmaterias } from "../../controllers/materiasController";
 import { Materia } from "../../models/materias";
 import { createTutor } from "../../controllers/usuariosController";
 import SuccessRegisterModal from "../Modals/SuccessRegister";
+import ErrorRegisterModal from "../Modals/ErrorRegisterModal";
 
 const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => {
   const [name, setName] = useState("");
@@ -18,6 +38,9 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
   const [selectedMateria, setSelectedMateria] = useState<string | null>(null);
   const [modalMateriasVisible, setModalMateriasVisible] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,6 +94,7 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
   };
 
   const handleNext = async () => {
+    // Primero hacemos todas las validaciones
     if (
       !name ||
       !lastName ||
@@ -80,19 +104,24 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
       !selectedMateria ||
       !githubProfile
     ) {
-      Alert.alert("Error", "Por favor, completa todos los campos obligatorios.");
+      setErrorMessage("Por favor, completa todos los campos obligatorios.");
+      setShowErrorModal(true);
       return;
     }
     if (!isValidEmail(email)) {
-      Alert.alert("Error", "Por favor, introduce un correo electrónico válido.");
+      setErrorMessage("Por favor, introduce un correo electrónico válido.");
+      setShowErrorModal(true);
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert("Error", "Las contraseñas no coinciden.");
+      setErrorMessage("Las contraseñas no coinciden.");
+      setShowErrorModal(true);
       return;
     }
 
+    // Solo si pasó todas las validaciones, activamos el loader y procedemos
     try {
+      setIsLoading(true);
       await createTutor({
         nombres: name,
         apellidos: lastName,
@@ -108,10 +137,10 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
         navigation.navigate("Login");
       }, 2000);
     } catch (error) {
-      Alert.alert(
-        "Error",
-        "No se pudo crear la cuenta del tutor. Intenta de nuevo."
-      );
+      setErrorMessage("No se pudo crear la cuenta del tutor. Intenta de nuevo.");
+      setShowErrorModal(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -127,164 +156,176 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}>
-            <ScrollView
-              contentContainerStyle={styles.scrollContent}
-              keyboardShouldPersistTaps="handled">
-              {/* Botón de retroceso fuera del ScrollView */}
-              <View style={styles.fixedHeader}>
-                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                  <Image
-                    source={require("../../assets/icons/arrow.png")}
-                    style={styles.backIcon}
-                  />
-                </TouchableOpacity>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled">
+            {/* Botón de retroceso fuera del ScrollView */}
+            <View style={styles.fixedHeader}>
+              <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                <Image
+                  source={require("../../assets/icons/arrow.png")}
+                  style={styles.backIcon}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.content}>
+              <View style={styles.iconContainer}>
+                <Image
+                  source={require("../../assets/icons/signup_tutores.png")}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
               </View>
-              <View style={styles.content}>
-                <View style={styles.iconContainer}>
+              <Text style={styles.title}>Nueva cuenta</Text>
+              <Text style={styles.subtitle}>
+                Llena el siguiente formulario con tus datos personales. Crea una
+                contraseña y registra una cuenta de correo electrónico.
+              </Text>
+              <View style={styles.form}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nombre"
+                  value={name}
+                  onChangeText={setName}
+                  autoCapitalize="words"
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Apellidos"
+                  value={lastName}
+                  onChangeText={setLastName}
+                  autoCapitalize="words"
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Correo"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Contraseña"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirmar Contraseña"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                />
+                <View style={styles.inputContainer}>
                   <Image
-                    source={require("../../assets/icons/signup_tutores.png")}
-                    style={styles.icon}
-                    resizeMode="contain"
-                  />
-                </View>
-                <Text style={styles.title}>Nueva cuenta</Text>
-                <Text style={styles.subtitle}>
-                  Llena el siguiente formulario con tus datos personales. Crea una
-                  contraseña y registra una cuenta de correo electrónico.
-                </Text>
-                <View style={styles.form}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Nombre"
-                    value={name}
-                    onChangeText={setName}
-                    autoCapitalize="words"
+                    source={require("../../assets/icons/github-mark.png")}
+                    style={styles.inputIcon}
                   />
                   <TextInput
-                    style={styles.input}
-                    placeholder="Apellidos"
-                    value={lastName}
-                    onChangeText={setLastName}
-                    autoCapitalize="words"
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Correo"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
+                    style={styles.inputWithIcon}
+                    placeholder="Usuario o URL de GitHub"
+                    placeholderTextColor="#999999"
+                    value={githubProfile}
+                    onChangeText={setGithubProfile}
                     autoCapitalize="none"
                   />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Contraseña"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Confirmar Contraseña"
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    secureTextEntry
-                  />
-                  <View style={styles.inputContainer}>
-                    <Image
-                      source={require("../../assets/icons/github-mark.png")}
-                      style={styles.inputIcon}
-                    />
-                    <TextInput
-                      style={styles.inputWithIcon}
-                      placeholder="Usuario o URL de GitHub"
-                      placeholderTextColor="#999999"
-                      value={githubProfile}
-                      onChangeText={setGithubProfile}
-                      autoCapitalize="none"
-                    />
-                  </View>
-                  <View style={styles.inputContainer}>
-                    <Image
-                      source={require("../../assets/icons/linkedin.png")}
-                      style={styles.inputIcon}
-                    />
-                    <TextInput
-                      style={styles.inputWithIcon}
-                      placeholder="Usuario o URL de LinkedIn"
-                      placeholderTextColor="#999999"
-                      value={linkedinProfile}
-                      onChangeText={setLinkedinProfile}
-                      autoCapitalize="none"
-                    />
-                  </View>
-                  <TouchableOpacity onPress={() => setModalMateriasVisible(true)}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Selecciona una materia"
-                      value={
-                        selectedMateria
-                          ? materias.find((m) => m.id === selectedMateria)?.materia
-                          : ""
-                      }
-                      editable={false}
-                      pointerEvents="none"
-                    />
-                  </TouchableOpacity>
                 </View>
-
-                {/* Modal para seleccionar materias */}
-                <Modal
-                  visible={modalMateriasVisible}
-                  animationType="slide"
-                  transparent={true}>
-                  <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                      <FlatList
-                        data={materias}
-                        keyExtractor={(item) => item.id || ""}
-                        renderItem={({ item }) => (
-                          <TouchableOpacity
-                            style={styles.modalItem}
-                            onPress={() => {
-                              if (item.id) {
-                                setSelectedMateria(item.id);
-                              }
-                              setModalMateriasVisible(false);
-                            }}>
-                            <Text style={styles.modalItemText}>
-                              {item.materia}
-                            </Text>
-                          </TouchableOpacity>
-                        )}
-                      />
-                      <Button
-                        title="Cerrar"
-                        onPress={() => setModalMateriasVisible(false)}
-                      />
-                    </View>
-                  </View>
-                </Modal>
-
-                <TouchableOpacity
-                  style={[styles.nextButton, { marginTop: 20 }]}
-                  onPress={handleNext}>
-                  <Text style={styles.nextButtonText}>Crear Cuenta</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.alternativeButton}
-                  onPress={() => navigation.navigate("Login")}>
-                  <Text style={styles.alternativeButtonText}>
-                    Usar otro método de registro
-                  </Text>
+                <View style={styles.inputContainer}>
+                  <Image
+                    source={require("../../assets/icons/linkedin.png")}
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.inputWithIcon}
+                    placeholder="Usuario o URL de LinkedIn"
+                    placeholderTextColor="#999999"
+                    value={linkedinProfile}
+                    onChangeText={setLinkedinProfile}
+                    autoCapitalize="none"
+                  />
+                </View>
+                <TouchableOpacity onPress={() => setModalMateriasVisible(true)}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Selecciona una materia"
+                    value={
+                      selectedMateria
+                        ? materias.find((m) => m.id === selectedMateria)?.materia
+                        : ""
+                    }
+                    editable={false}
+                    pointerEvents="none"
+                  />
                 </TouchableOpacity>
               </View>
-            </ScrollView>
+
+              {/* Modal para seleccionar materias */}
+              <Modal
+                visible={modalMateriasVisible}
+                animationType="slide"
+                transparent={true}>
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContent}>
+                    <FlatList
+                      data={materias}
+                      keyExtractor={(item) => item.id || ""}
+                      renderItem={({ item }) => (
+                        <TouchableOpacity
+                          style={styles.modalItem}
+                          onPress={() => {
+                            if (item.id) {
+                              setSelectedMateria(item.id);
+                            }
+                            setModalMateriasVisible(false);
+                          }}>
+                          <Text style={styles.modalItemText}>{item.materia}</Text>
+                        </TouchableOpacity>
+                      )}
+                    />
+                    <Button
+                      title="Cerrar"
+                      onPress={() => setModalMateriasVisible(false)}
+                    />
+                  </View>
+                </View>
+              </Modal>
+
+              <TouchableOpacity
+                style={[
+                  styles.nextButton,
+                  isLoading && styles.nextButtonDisabled,
+                  { marginTop: 20 },
+                ]}
+                onPress={handleNext}
+                disabled={isLoading}>
+                {isLoading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text style={styles.nextButtonText}>Crear Cuenta</Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.alternativeButton}
+                onPress={() => navigation.navigate("Login")}>
+                <Text style={styles.alternativeButtonText}>
+                  Usar otro método de registro
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
-      <SuccessRegisterModal 
-        visible={showSuccessModal} 
-        onClose={() => setShowSuccessModal(false)} 
+      <SuccessRegisterModal
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
+      <ErrorRegisterModal
+        visible={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        message={errorMessage}
       />
     </View>
   );
@@ -348,7 +389,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
   },
-  nextButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "bold" },
+  nextButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  nextButtonDisabled: {
+    opacity: 0.7,
+  },
   alternativeButton: { marginTop: 12 },
   alternativeButtonText: { fontSize: 14, color: "#0078FF" },
   modalContainer: {
