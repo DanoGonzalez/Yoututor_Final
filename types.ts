@@ -7,7 +7,7 @@ export type RootStackParamList = {
   Onboarding1: undefined;
   Onboarding2: undefined;
   Onboarding3: undefined;
-
+  Messages: undefined;
   Login: undefined;
   TutorRegistration: undefined;
   StudentRegistration: undefined;
@@ -17,7 +17,7 @@ export type RootStackParamList = {
   NotificacionesScreen: undefined;
   Home: undefined;
   TutoriaDetails: { tutoriaId: string };
-  Chat: { chatId: string, chatName: string };
+  Chat: { chatId: string; chatName: string };
 };
 
 export type TabParamList = {
@@ -109,4 +109,3 @@ export interface TabLayoutProps
   onLogout: () => void;
   userRole: number | null;
 }
-

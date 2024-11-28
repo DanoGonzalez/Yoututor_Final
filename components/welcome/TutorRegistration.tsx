@@ -4,6 +4,7 @@ import { TutorRegistrationProps } from "../../types";
 import { getmaterias } from "../../controllers/materiasController";
 import { Materia } from "../../models/materias";
 import { createTutor } from "../../controllers/usuariosController";
+import SuccessRegisterModal from "../Modals/SuccessRegister";
 
 const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => {
   const [name, setName] = useState("");
@@ -16,6 +17,7 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
   const [materias, setMaterias] = useState<Materia[]>([]);
   const [selectedMateria, setSelectedMateria] = useState<string | null>(null);
   const [modalMateriasVisible, setModalMateriasVisible] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -91,17 +93,18 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
     }
 
     try {
-      const newUser = await createTutor({
+      await createTutor({
         nombres: name,
         apellidos: lastName,
         correo: email,
         password,
         materiasDominadas: [selectedMateria],
-        githubProfile: formatGithubUrl(githubProfile), // Convert to URL
-        linkedinProfile: linkedinProfile ? formatLinkedinUrl(linkedinProfile) : "", // Convert to URL if provided
+        githubProfile: formatGithubUrl(githubProfile),
+        linkedinProfile: linkedinProfile ? formatLinkedinUrl(linkedinProfile) : "",
       });
-      Alert.alert("Éxito", "¡Tutor creado exitosamente!");
+      setShowSuccessModal(true);
       setTimeout(() => {
+        setShowSuccessModal(false);
         navigation.navigate("Login");
       }, 2000);
     } catch (error) {
@@ -279,6 +282,10 @@ const TutorRegistration: React.FC<TutorRegistrationProps> = ({ navigation }) => 
             </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
+      <SuccessRegisterModal 
+        visible={showSuccessModal} 
+        onClose={() => setShowSuccessModal(false)} 
+      />
     </View>
   );
 };

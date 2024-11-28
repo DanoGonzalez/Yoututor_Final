@@ -12,18 +12,13 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
-import profileImage from "../assets/Profile/user.jpg";
+import profileImage from "../assets/Profile/User.jpg";
 import emailIcon from "../assets/Profile/outlook.png";
 import materialIcon from "../assets/Profile/book.png";
 import jsIcon from "../assets/Profile/js.png";
 import reactIcon from "../assets/Profile/react.png";
 import githubIcon from "../assets/Profile/github.png";
-import {
-  saveUserImage,
-  getUserImage,
-  updateUsuario,
-  getUsuario,
-} from "../controllers/usuariosController";
+import { updateUsuario, getUsuario } from "../controllers/usuariosController";
 import { ProfileScreenNavigationProp, ProfileScreenProps } from "../types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -151,7 +146,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
                   source={
                     profileImage
                       ? { uri: profileImage }
-                      : require("../assets/Profile/user.jpg")
+                      : require("../assets/Profile/User.jpg")
                   }
                   style={styles.profileImage}
                 />
@@ -185,7 +180,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
                       ? usuario.materiasDominadas.join(", ")
                       : "Sin materias"}
                   </Text>
-
                 </View>
               </View>
 
@@ -342,7 +336,7 @@ const styles = StyleSheet.create({
     flexWrap: "nowrap", // Evita que los elementos se envuelvan
     maxWidth: "80%", // Limita el ancho
   },
-  
+
   contactText: {
     color: "#545454",
     marginLeft: 10,
@@ -350,7 +344,7 @@ const styles = StyleSheet.create({
     maxWidth: "80%", // Ajusta el ancho disponible para el texto
     overflow: "hidden", // Esconde el texto desbordado
   },
-  
+
   descriptionContainer: {
     marginBottom: 20,
   },
