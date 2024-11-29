@@ -21,7 +21,7 @@ import githubIcon from "../assets/Profile/github.png";
 import { updateUsuario, getUsuario } from "../controllers/usuariosController";
 import { ProfileScreenNavigationProp, ProfileScreenProps } from "../types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { getMateria } from "../controllers/materiasController";
 import ProfileNotFoundModal from "./Modals/ProfileNotFoundModal";
 
@@ -103,6 +103,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
       setLoading(false);
     }
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadUserData();
+    }, [])
+  );
 
   useEffect(() => {
     loadUserData();
