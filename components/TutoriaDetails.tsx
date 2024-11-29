@@ -94,7 +94,7 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
       };
       await updateTutoria(tutoriaId, updatedTutoria);
       setTutoria({ ...tutoria, ...updatedTutoria });
-      setShowCanceledModal(true)
+      setShowCanceledModal(true);
     } catch (error) {
       console.error("Error al cancelar la tutoría:", error);
     }
@@ -129,7 +129,8 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            style={styles.leftSection}>
+            style={styles.leftSection}
+          >
             <Ionicons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerText}>{tutoria.materiaNombre} </Text>
@@ -141,6 +142,15 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
         />
 
         <View style={styles.tutorContainer}>
+          {isTutor && !isEditing && (
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => setIsEditing(true)}
+            >
+              <Ionicons name="pencil" size={24} color="#000" />
+            </TouchableOpacity>
+          )}
+
           <View style={styles.tutorProfileAndDetails}>
             <View style={styles.tutorProfileContainer}>
               <Image source={profilePicture} style={styles.profileImageLarge} />
@@ -148,7 +158,8 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
                 <Text
                   style={styles.tutorName}
                   numberOfLines={1}
-                  ellipsizeMode="tail">
+                  ellipsizeMode="tail"
+                >
                   {profileName}
                 </Text>
                 <Text style={styles.tutorRole}>{profileRole}</Text>
@@ -204,15 +215,6 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
                 </View>
               )}
               <Text style={styles.statusActive}>Activo</Text>
-              {isTutor && (
-                <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-                  <Ionicons
-                    name={isEditing ? "save" : "pencil"}
-                    size={24}
-                    color="#000"
-                  />
-                </TouchableOpacity>
-              )}
             </View>
           </View>
         </View>
@@ -237,13 +239,13 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
           <Text style={styles.descriptionTitle}>Descripción de la Asesoría</Text>
           {isEditing ? (
             <TextInput
-              style={[styles.input, styles.multilineInput]} // Estilo adicional para múltiples líneas
+              style={[styles.input, styles.multilineInput]}
               value={editableData.descripcion}
               onChangeText={(text) =>
                 setEditableData({ ...editableData, descripcion: text })
               }
               placeholder="Agrega una descripción..."
-              multiline={true} // Permitir múltiples líneas
+              multiline={true}
             />
           ) : (
             <Text style={styles.descriptionText}>
@@ -263,28 +265,21 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
               </TouchableOpacity>
             </>
           ) : (
-            <>
-              <TouchableOpacity
-                style={styles.startButton}
-                onPress={() => {
-                  if (tutoria.enlaceAsesoria) {
-                    setShowSuccessModal(true);
-                    Linking.openURL(tutoria.enlaceAsesoria).catch((err) =>
-                      console.error("Failed to open URL:", err)
-                    );
-                  } else {
-                    setShowNoLinkModal(true);
-                  }
-                }}>
-                <Text style={styles.startButtonText}>Iniciar Asesoría</Text>
-              </TouchableOpacity>
-              {/* <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={(handleCancelarAsesoria)}
-              >
-                <Text style={styles.cancelButtonText}>Cancelar Asesoría</Text>
-              </TouchableOpacity> */}
-            </>
+            <TouchableOpacity
+              style={styles.startButton}
+              onPress={() => {
+                if (tutoria.enlaceAsesoria) {
+                  setShowSuccessModal(true);
+                  Linking.openURL(tutoria.enlaceAsesoria).catch((err) =>
+                    console.error("Failed to open URL:", err)
+                  );
+                } else {
+                  setShowNoLinkModal(true);
+                }
+              }}
+            >
+              <Text style={styles.startButtonText}>Iniciar Asesoría</Text>
+            </TouchableOpacity>
           )}
         </View>
       </ScrollView>
@@ -304,6 +299,7 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -345,6 +341,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     marginVertical: 20,
+    position: "relative",
+  },
+  editButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "#f0f0f0",
+    padding: 8,
+    borderRadius: 20,
   },
   tutorProfileAndDetails: {
     flexDirection: "row",
@@ -363,7 +368,7 @@ const styles = StyleSheet.create({
   },
   tutorInfo: {
     alignItems: "center",
-    maxWidth: 120, // Limit the width to avoid overflow issues
+    maxWidth: 120,
   },
   tutorName: {
     fontSize: 16,
@@ -436,11 +441,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: "90%",
     justifyContent: "center",
-    alignItems: "center", // Centrar los botones horizontalmente
+    alignItems: "center",
   },
   startButton: {
     backgroundColor: "#0078D4",
-    paddingVertical: 15, // Ajuste del padding para que coincida con Figma
+    paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 8,
     alignItems: "center",
@@ -449,13 +454,13 @@ const styles = StyleSheet.create({
   },
   startButtonText: {
     color: "#FFF",
-    fontSize: 16, // Aumentar el tamaño de la fuente del botón
-    fontWeight: "600", // Añadir grosor al texto para más visibilidad
+    fontSize: 16,
+    fontWeight: "600",
   },
   cancelButton: {
     borderColor: "#0078D4",
     borderWidth: 1,
-    paddingVertical: 15, // Ajuste del padding para que coincida con Figma
+    paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 8,
     alignItems: "center",
@@ -463,8 +468,8 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     color: "#0078D4",
-    fontSize: 16, // Aumentar el tamaño de la fuente del botón
-    fontWeight: "600", // Añadir grosor al texto para más visibilidad
+    fontSize: 16,
+    fontWeight: "600",
   },
   inputLabel: {
     fontSize: 14,
@@ -481,8 +486,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   multilineInput: {
-    height: 100, // Adjust the height as needed
-    textAlignVertical: "top", // Align text to the top
+    height: 100,
+    textAlignVertical: "top",
   },
   linkInputContainer: {
     width: "90%",

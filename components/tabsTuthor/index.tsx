@@ -168,7 +168,7 @@ const HomeScreenTutor = () => {
                 onPress={() => handleCardPress(item.id)}
                 style={styles.advisoryCard}>
                 <Image
-                  source={require("../../assets/icons/tutoriasRemotas.png")}
+                  source={require("../../assets/icons/POO.jpg")}
                   style={styles.advisoryImageBackground}
                 />
                 <View style={styles.advisoryContent}>
