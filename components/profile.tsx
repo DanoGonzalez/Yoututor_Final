@@ -23,12 +23,14 @@ import { ProfileScreenNavigationProp, ProfileScreenProps } from "../types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { getMateria } from "../controllers/materiasController";
+import ProfileNotFoundModal from "./Modals/ProfileNotFoundModal";
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const [usuario, setUsuario] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [showProfileNotFoundModal, setShowProfileNotFoundModal] = useState(false);
 
   const handleOpenUrl = (
     url: string | undefined,
@@ -47,7 +49,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
         Linking.openURL(baseUrl + url);
       }
     } else {
-      alert("Perfil no disponible.");
+      setShowProfileNotFoundModal(true);
     }
   };
 
@@ -59,7 +61,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   const handleEdit = () => {
     console.log("Editando perfil...");
     navigation.navigate("EditProfile");
-  }
+  };
 
   const loadProfileImage = async (userId: string) => {
     try {
@@ -105,6 +107,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
   useEffect(() => {
     loadUserData();
   }, []);
+
+  const handleCloseProfileNotFoundModal = () => {
+    setShowProfileNotFoundModal(false);
+  };
 
   if (loading) {
     return (
@@ -230,6 +236,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
             </View>
           </View>
         }
+      />
+      <ProfileNotFoundModal
+        visible={showProfileNotFoundModal}
+        onClose={handleCloseProfileNotFoundModal}
       />
     </KeyboardAvoidingView>
   );
