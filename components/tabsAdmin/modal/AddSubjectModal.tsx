@@ -48,7 +48,7 @@ const AddSubjectModal = ({ visible, onClose, onAdd }: AddSubjectModalProps) => {
               <Text style={styles.title}>Agregar Materia</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Ingles"
+                placeholder="Agregar Materia"
                 value={subjectName}
                 onChangeText={setSubjectName}
                 placeholderTextColor="#999"
