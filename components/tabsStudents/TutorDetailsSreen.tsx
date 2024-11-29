@@ -138,7 +138,7 @@ export default function TutorDetailsScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: "white" }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <ErrorRequestInfoModal
         visible={showErrorInfoModal}

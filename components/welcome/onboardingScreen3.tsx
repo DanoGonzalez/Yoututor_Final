@@ -12,7 +12,9 @@ import {
 import { Onboarding3ScreenProps } from "../../types";
 const { width } = Dimensions.get("window");
 
-const OnboardingScreen3: React.FC<Onboarding3ScreenProps> = ({ navigation }) => {
+const OnboardingScreen3: React.FC<Onboarding3ScreenProps> = ({
+  navigation,
+}) => {
   const onTeach = () => {
     navigation.navigate("TutorRegistration");
   };
@@ -47,8 +49,8 @@ const OnboardingScreen3: React.FC<Onboarding3ScreenProps> = ({ navigation }) => 
           />
           <Text style={styles.title}>Únete a la red de Tutoría</Text>
           <Text style={styles.description}>
-            Conviértase en parte de una comunidad vibrante de tutores y aprendices
-            apasionados, comparta y adquiera conocimientos.
+            Conviértase en parte de una comunidad vibrante de tutores y
+            aprendices apasionados, comparta y adquiera conocimientos.
           </Text>
         </View>
         <View style={styles.buttonContainer}>
@@ -58,12 +60,18 @@ const OnboardingScreen3: React.FC<Onboarding3ScreenProps> = ({ navigation }) => 
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.roleButton, styles.roleButtonOutline]}
-              onPress={onLearn}>
+              onPress={onLearn}
+            >
               <Text style={styles.roleButtonTextOutline}>Aprender</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.button} onPress={onFinish}>
+          {/* <TouchableOpacity style={styles.button} onPress={onFinish}>
             <Text style={styles.buttonText}>Iniciar Sesíon</Text>
+          </TouchableOpacity> */}
+          <TouchableOpacity style={styles.alternativeButton} onPress={onFinish}>
+            <Text style={styles.alternativeButtonText}>
+              ¿Ya tienes una cuenta? Iniciar Sesión
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -160,6 +168,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  alternativeButton: {alignItems: "center", paddingBottom: 10},
+  alternativeButtonText: { fontSize: 14, color: "#0078FF" },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
 });
 
