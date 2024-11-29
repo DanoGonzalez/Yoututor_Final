@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { loginUsuario } from "../controllers/usuariosController";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import SkeletonLoader from "../components/SkeletonLoader";
 
 interface LoginProps {
   navigation?: any;
@@ -26,6 +27,15 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Retraso de 2.5 segundos para simular la obtención de datos
+    const timer = setTimeout(() => {
+      setIsLoading(false); // Desactiva el loader después del tiempo
+    }, 2500);
+
+    return () => clearTimeout(timer); // Limpia el temporizador al desmontar el componente
+  }, []);
 
   const handleLogin = async () => {
     try {
@@ -55,9 +65,16 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
     navigation.navigate("Onboarding3");
   };
 
+  if (isLoading) {
+    return <SkeletonLoader />; // Muestra el loader si `isLoading` es verdadero
+  }
+
   return (
     <>
-      <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
+    <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
+    {isLoading ? (
+      <SkeletonLoader /> // Mostrar el skeleton loader mientras carga
+    ) : (
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         enabled={Platform.OS === "ios"}
@@ -110,12 +127,9 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
             <TouchableOpacity
               style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
               onPress={handleLogin}
-              disabled={isLoading}>
-              {isLoading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
-              )}
+              disabled={isLoading}
+            >
+              <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -130,6 +144,7 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+    )}
     </>
   );
 };
