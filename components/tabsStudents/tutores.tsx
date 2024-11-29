@@ -17,6 +17,8 @@ import { getTutores } from "../../controllers/usuariosController";
 import { Usuario } from "../../models/usuarios";
 import { Materia } from "../../models/materias";
 import { getmaterias } from "../../controllers/materiasController";
+import { query, where, getDocs, collection } from "firebase/firestore";
+import { db } from "../../utils/Firebase";
 
 const COLORS = ["#007AFF", "#34C759", "#FF9500"];
 
@@ -26,8 +28,10 @@ const TutoresScreen: React.FC = () => {
   const [materias, setMaterias] = useState<Materia[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedMateria, setSelectedMateria] = useState<string | null>(null);
 
   const handleBackPress = () => {
+    setSelectedMateria(null); // Reinicia el filtro al regresar
     navigation.navigate("Home");
   };
 
@@ -52,6 +56,54 @@ const TutoresScreen: React.FC = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (selectedMateria) {
+      fetchTutoresPorMateria(selectedMateria);
+    } else {
+      fetchAllTutores();
+    }
+  }, [selectedMateria]);
+
+  const fetchTutoresPorMateria = async (id: string) => {
+    console.log("Buscando tutores por materia:", id);
+    try {
+      setLoading(true);
+      const tutoresCollection = collection(db, "usuarios");
+      const q = query(
+        tutoresCollection,
+        where("role", "==", 3),
+        where("status", "==", 1),
+        where("statusExam", "==", 1),
+        where("materiasDominadas", "array-contains", id)
+      );
+      const querySnapshot = await getDocs(q);
+      const filteredTutores: Usuario[] = [];
+      querySnapshot.forEach((doc) => {
+        filteredTutores.push({ id: doc.id, ...doc.data() } as Usuario);
+      });
+      setTutores(filteredTutores);
+    } catch (error) {
+      console.error("Error al obtener tutores por materia:", error);
+      setError("Error al obtener tutores por materia");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllTutores = async () => {
+    console.log("Buscando todos los tutores...");
+    try {
+      setLoading(true);
+      const tutoresData = await getTutores();
+      setTutores(tutoresData);
+    } catch (error) {
+      console.error("Error al obtener todos los tutores:", error);
+      setError("Error al obtener todos los tutores");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const subjects = materias.map((materia, index) => ({
     ...materia,
     color: COLORS[index % COLORS.length],
@@ -72,12 +124,18 @@ const TutoresScreen: React.FC = () => {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.subjectsContainer}>
+          <TouchableOpacity
+            onPress={() => setSelectedMateria(null)} // Mostrar todos los tutores
+            style={[styles.subjectCard, { backgroundColor: "#8E8E93" }]}>
+            <Text style={styles.subjectName}>Todos</Text>
+          </TouchableOpacity>
           {subjects.map((subject) => (
-            <View
+            <TouchableOpacity
               key={subject.materia}
+              onPress={() => subject.id && setSelectedMateria(subject.id)}
               style={[styles.subjectCard, { backgroundColor: subject.color }]}>
               <Text style={styles.subjectName}>{subject.materia}</Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
@@ -88,41 +146,47 @@ const TutoresScreen: React.FC = () => {
         <ActivityIndicator size="large" color="#0078FF" />
       ) : (
         <ScrollView style={styles.tutorsContainer}>
-          {tutores.map((tutor) => (
-            <TouchableOpacity
-              key={tutor.id}
-              style={styles.tutorCard}
-              onPress={() =>
-                tutor.id !== undefined &&
-                navigation.navigate("TutorDetailsScreen", { tutorId: tutor.id })
-              }>
-              <View style={styles.tutorInfo}>
-                <Image
-                  source={require("../../assets/SearchAsesor/Profile.png")}
-                  style={styles.profileImage}
-                />
-                <View style={styles.tutorDetails}>
-                  <Text
-                    style={
-                      styles.tutorName
-                    }>{`${tutor.nombres} ${tutor.apellidos}`}</Text>
-                  <Text style={styles.tutorSubject}>
-                    {tutor.materiasDominadas.length > 0
-                      ? tutor.materiasDominadas[0]
-                      : "Sin materia"}
-                  </Text>
+          {tutores.length === 0 ? (
+            <Text style={styles.noTutorsText}>
+              No hay tutores disponibles para esta materia.
+            </Text>
+          ) : (
+            tutores.map((tutor) => (
+              <TouchableOpacity
+                key={tutor.id}
+                style={styles.tutorCard}
+                onPress={() =>
+                  tutor.id !== undefined &&
+                  navigation.navigate("TutorDetailsScreen", { tutorId: tutor.id })
+                }>
+                <View style={styles.tutorInfo}>
+                  <Image
+                    source={require("../../assets/SearchAsesor/Profile.png")}
+                    style={styles.profileImage}
+                  />
+                  <View style={styles.tutorDetails}>
+                    <Text
+                      style={
+                        styles.tutorName
+                      }>{`${tutor.nombres} ${tutor.apellidos}`}</Text>
+                    <Text style={styles.tutorSubject}>
+                      {tutor.materiasDominadas.length > 0
+                        ? tutor.materiasDominadas[0]
+                        : "Sin materia"}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-              <Image
-                source={
-                  tutor.status === 1
-                    ? require("../../assets/SearchAsesor/active.png")
-                    : require("../../assets/SearchAsesor/inactive.png")
-                }
-                style={styles.statusIcon}
-              />
-            </TouchableOpacity>
-          ))}
+                <Image
+                  source={
+                    tutor.status === 1
+                      ? require("../../assets/SearchAsesor/active.png")
+                      : require("../../assets/SearchAsesor/inactive.png")
+                  }
+                  style={styles.statusIcon}
+                />
+              </TouchableOpacity>
+            ))
+          )}
         </ScrollView>
       )}
     </SafeAreaView>
@@ -159,11 +223,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 4,
-  },
-  subjectNumber: {
-    color: "white",
-    fontSize: 24,
-    fontWeight: "bold",
   },
   subjectName: {
     color: "white",
@@ -220,6 +279,11 @@ const styles = StyleSheet.create({
   statusIcon: {
     width: 12,
     height: 12,
+  },
+  noTutorsText: {
+    textAlign: "center",
+    color: "#666",
+    marginTop: 20,
   },
 });
 

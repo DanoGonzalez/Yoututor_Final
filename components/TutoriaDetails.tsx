@@ -246,12 +246,12 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
               >
                 <Text style={styles.startButtonText}>Iniciar Asesoría</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              {/* <TouchableOpacity 
                 style={styles.cancelButton}
                 onPress={(handleCancelarAsesoria)}
               >
                 <Text style={styles.cancelButtonText}>Cancelar Asesoría</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </>
           )}
         </View>

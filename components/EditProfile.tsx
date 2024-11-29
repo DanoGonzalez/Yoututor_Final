@@ -4,7 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  FlatList,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -20,7 +20,6 @@ import { getUsuario, updateUsuario } from "../controllers/usuariosController";
 import { getMateria } from "../controllers/materiasController";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../types";
-import { EditProfileScreenProps } from "../types";
 
 export default function EditarPerfilScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -117,7 +116,6 @@ export default function EditarPerfilScreen() {
       } else {
         console.error("Usuario ID is undefined");
       }
-      // Aquí puedes actualizar el estado local si deseas reflejar los cambios inmediatamente
     } catch (error) {
       Alert.alert("Error", "Hubo un problema al actualizar el perfil. Inténtalo nuevamente.");
       console.error("Error al actualizar el usuario:", error);
@@ -126,7 +124,11 @@ export default function EditarPerfilScreen() {
   
   const handleCancel = () => {
     navigation.goBack();
-  }
+  };
+
+  const HandleBack = () => {
+    navigation.goBack();
+  };
 
   useEffect(() => {
     loadUserData();
@@ -137,98 +139,92 @@ export default function EditarPerfilScreen() {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <FlatList
-        data={[]} 
-        keyExtractor={() => "key"}
-        renderItem={() => null} 
-        ListHeaderComponent={
-          <View style={styles.container}>
-            <View style={styles.header}>
-              <TouchableOpacity style={styles.backButton}>
-                <MaterialIcons name="arrow-back" size={30} color="white" />
-              </TouchableOpacity>
-              <Text style={styles.title}>Editar Perfil</Text>
-            </View>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={HandleBack}>
+            <MaterialIcons name="arrow-back" size={30} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Editar Perfil</Text>
+        </View>
 
-            <View style={styles.profileContainer}>
-              <View style={styles.profileImageContainer}>
-                <Image source={profileUri ? { uri: profileUri } : profileImage} style={styles.profileImage} />
-              </View>
-              <TouchableOpacity style={styles.editButton} onPress={handleEditPhoto}>
-                <MaterialIcons name="edit" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.contentContainer}>
-              <TextInput
-                label="Nombre(s)"
-                style={styles.input}
-                value={nombre}
-                onChangeText={(text) => setNombre(text)}
-                mode="outlined"
-              />
-
-              <TextInput
-                label="Apellidos"
-                style={styles.input}
-                value={apellido}
-                onChangeText={(text) => setApellido(text)}
-                mode="outlined"
-              />
-
-              <TextInput
-                label="Correo"
-                style={styles.input}
-                value={correo}
-                onChangeText={(text) => setCorreo(text)}
-                mode="outlined"
-              />
-
-              <TextInput
-                label="Descripción"
-                style={[styles.input, styles.descriptionInput]}
-                value={descripcion}
-                onChangeText={(text) => setDescripcion(text)}
-                mode="outlined"
-                multiline
-              />
-
-              <TextInput
-                label="Github"
-                style={styles.input}
-                value={github}
-                onChangeText={(text) => setGithub(text)}
-                mode="outlined"
-              />
-
-              <TextInput
-                label="LinkedIn"
-                style={styles.input}
-                value={linkedin}
-                onChangeText={(text) => setLinkedin(text)}
-                mode="outlined"
-              />
-            </View>
-
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
-                <Text style={styles.buttonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleUpdate}>
-                <Text style={styles.buttonText}>Guardar</Text>
-              </TouchableOpacity>
-            </View>
+        <View style={styles.profileContainer}>
+          <View style={styles.profileImageContainer}>
+            <Image source={profileUri ? { uri: profileUri } : profileImage} style={styles.profileImage} />
           </View>
-        }
-      />
+          <TouchableOpacity style={styles.editButton} onPress={handleEditPhoto}>
+            <MaterialIcons name="edit" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.contentContainer}>
+          <TextInput
+            label="Nombre(s)"
+            style={styles.input}
+            value={nombre}
+            onChangeText={(text) => setNombre(text)}
+            mode="outlined"
+          />
+
+          <TextInput
+            label="Apellidos"
+            style={styles.input}
+            value={apellido}
+            onChangeText={(text) => setApellido(text)}
+            mode="outlined"
+          />
+
+          <TextInput
+            label="Correo"
+            style={styles.input}
+            value={correo}
+            onChangeText={(text) => setCorreo(text)}
+            mode="outlined"
+          />
+
+          <TextInput
+            label="Descripción"
+            style={[styles.input, styles.descriptionInput]}
+            value={descripcion}
+            onChangeText={(text) => setDescripcion(text)}
+            mode="outlined"
+            multiline
+          />
+
+          <TextInput
+            label="Github"
+            style={styles.input}
+            value={github}
+            onChangeText={(text) => setGithub(text)}
+            mode="outlined"
+          />
+
+          <TextInput
+            label="LinkedIn"
+            style={styles.input}
+            value={linkedin}
+            onChangeText={(text) => setLinkedin(text)}
+            mode="outlined"
+          />
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
+            <Text style={styles.buttonText}>Cancelar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleUpdate}>
+            <Text style={styles.buttonText}>Guardar</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "white",
+    flexGrow: 1,
+    backgroundColor: "#fff",
+    paddingBottom: 20,
   },
   header: {
     backgroundColor: "#0078FF",
@@ -284,6 +280,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   contentContainer: {
+    flex: 1,
     paddingHorizontal: 20,
     paddingTop: 20,
   },
