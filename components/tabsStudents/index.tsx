@@ -308,7 +308,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   advisoryCard: {
-    marginHorizontal: 10,
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     overflow: "hidden",
