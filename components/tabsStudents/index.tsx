@@ -173,7 +173,7 @@ const HomeScreen = () => {
                       <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
                     </View>
                     <Text style={styles.advisorySubject}>
-                      Diseño y Arquitectura del Software
+                      Mira tus chats
                     </Text>
                     <View style={styles.advisoryButtonsContainer}>
                       <TouchableOpacity
