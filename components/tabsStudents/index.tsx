@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { onSnapshot, query, where, collection } from "firebase/firestore";
 import { db } from "../../utils/Firebase";
@@ -50,52 +50,58 @@ const HomeScreen = () => {
     navigation.navigate("NotificacionesScreen");
   };
 
+  const fetchUserData = async () => {
+    const usuarioData = await AsyncStorage.getItem("usuario");
+    const usuario = usuarioData ? JSON.parse(usuarioData) : null;
+
+    if (usuario) {
+      const data = await getUsuario(usuario.id);
+      setStudentName(data.nombres);
+
+      const tutoriasQuery = query(
+        collection(db, "tutorias"),
+        where("estudianteId", "==", usuario.id),
+        where("status", "==", 1)
+      );
+      const unsubscribeTutorias = onSnapshot(tutoriasQuery, (querySnapshot) => {
+        const tutoriasData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          subject: doc.data().materiaNombre,
+          category: doc.data().estudianteNombre,
+          tutor: doc.data().tutorNombre,
+          color: "#0078D4",
+        }));
+        setTutorias(tutoriasData);
+      });
+
+      const notificacionesQuery = query(
+        collection(db, "notificaciones"),
+        where("receptorId", "==", usuario.id)
+      );
+      const unsubscribeNotificaciones = onSnapshot(
+        notificacionesQuery,
+        (querySnapshot) => {
+          const hasUnread = querySnapshot.docs.some((doc) => !doc.data().leido);
+          setHasUnreadNotifications(hasUnread);
+        }
+      );
+
+      return () => {
+        unsubscribeTutorias();
+        unsubscribeNotificaciones();
+      };
+    }
+  };
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      const usuarioData = await AsyncStorage.getItem("usuario");
-      const usuario = usuarioData ? JSON.parse(usuarioData) : null;
-
-      if (usuario) {
-        const data = await getUsuario(usuario.id);
-        setStudentName(data.nombres);
-
-        const tutoriasQuery = query(
-          collection(db, "tutorias"),
-          where("estudianteId", "==", usuario.id),
-          where("status", "==", 1)
-        );
-        const unsubscribeTutorias = onSnapshot(tutoriasQuery, (querySnapshot) => {
-          const tutoriasData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            subject: doc.data().materiaNombre,
-            category: doc.data().estudianteNombre,
-            tutor: doc.data().tutorNombre,
-            color: "#0078D4",
-          }));
-          setTutorias(tutoriasData);
-        });
-
-        const notificacionesQuery = query(
-          collection(db, "notificaciones"),
-          where("receptorId", "==", usuario.id)
-        );
-        const unsubscribeNotificaciones = onSnapshot(
-          notificacionesQuery,
-          (querySnapshot) => {
-            const hasUnread = querySnapshot.docs.some((doc) => !doc.data().leido);
-            setHasUnreadNotifications(hasUnread);
-          }
-        );
-
-        return () => {
-          unsubscribeTutorias();
-          unsubscribeNotificaciones();
-        };
-      }
-    };
-
     fetchUserData();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserData();
+    }, [])
+  );
 
   const renderItem = ({ item }: { item: TutorItem }) => (
     <TouchableOpacity
@@ -168,9 +174,6 @@ const HomeScreen = () => {
                       style={styles.chatButton}>
                       <Text style={styles.chatButtonText}>Ir al chat</Text>
                     </TouchableOpacity>
-                    {/* <TouchableOpacity style={styles.scheduleButton}>
-                      <Text style={styles.scheduleButtonText}>Ver horarios</Text>
-                    </TouchableOpacity> */}
                   </View>
                 </View>
                 <Image
@@ -274,18 +277,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 12,
   },
-  scheduleButton: {
-    borderColor: "#0078D4",
-    borderWidth: 1,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    alignItems: "center",
-  },
-  scheduleButtonText: {
-    color: "#0078D4",
-    fontSize: 12,
-  },
   advisoryImage: {
     width: 170,
     height: 140,
@@ -304,14 +295,14 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   list: {
-    paddingBottom: 100, 
+    paddingBottom: 100,
     paddingHorizontal: 20,
   },
   advisoryCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     overflow: "hidden",
-    marginBottom: 24, // Aumentar margen inferior para más separación entre las tarjetas
+    marginBottom: 24,
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },

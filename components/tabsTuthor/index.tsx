@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { TutorStackParamList } from "../../types";
@@ -43,65 +43,71 @@ const HomeScreenTutor = () => {
   const handleCardPress = (id: string) => {
     navigation.navigate("TutoriaDetails", { tutoriaId: id });
   };
-  
+
   const handleChat = () => {
     console.log("Chatting...");
     navigation.navigate("Messages");
   };
 
+  const fetchUserData = async () => {
+    const usuarioData = await AsyncStorage.getItem("usuario");
+    const usuario = usuarioData ? JSON.parse(usuarioData) : null;
+
+    if (usuario) {
+      const data = await getUsuario(usuario.id);
+      const materias = await Promise.all(
+        data.materiasDominadas.map(
+          async (materiaId: string) => await getMateria(materiaId)
+        )
+      );
+      data.materiasDominadas = materias.map((materia: any) => materia.materia);
+      setTutorName(data.nombres);
+      setMateriasDominadas(data.materiasDominadas);
+
+      const studentsQuery = query(
+        collection(db, "tutorias"),
+        where("tutorId", "==", usuario.id),
+        where("status", "==", 1)
+      );
+      const unsubscribeStudents = onSnapshot(studentsQuery, (querySnapshot) => {
+        const studentsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          subject: doc.data().materiaNombre,
+          category: doc.data().categoria,
+          tutor: doc.data().estudianteNombre,
+          color: "#0078FF",
+        }));
+        setStudents(studentsData);
+      });
+
+      const notificacionesQuery = query(
+        collection(db, "notificaciones"),
+        where("receptorId", "==", usuario.id)
+      );
+      const unsubscribeNotificaciones = onSnapshot(
+        notificacionesQuery,
+        (querySnapshot) => {
+          const hasUnread = querySnapshot.docs.some((doc) => !doc.data().leido);
+          setHasUnreadNotifications(hasUnread);
+        }
+      );
+
+      return () => {
+        unsubscribeStudents();
+        unsubscribeNotificaciones();
+      };
+    }
+  };
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      const usuarioData = await AsyncStorage.getItem("usuario");
-      const usuario = usuarioData ? JSON.parse(usuarioData) : null;
-
-      if (usuario) {
-        const data = await getUsuario(usuario.id);
-        const materias = await Promise.all(
-          data.materiasDominadas.map(
-            async (materiaId: string) => await getMateria(materiaId)
-          )
-        );
-        data.materiasDominadas = materias.map((materia: any) => materia.materia);
-        setTutorName(data.nombres);
-        setMateriasDominadas(data.materiasDominadas);
-
-        const studentsQuery = query(
-          collection(db, "tutorias"),
-          where("tutorId", "==", usuario.id),
-          where("status", "==", 1)
-        );
-        const unsubscribeStudents = onSnapshot(studentsQuery, (querySnapshot) => {
-          const studentsData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            subject: doc.data().materiaNombre,
-            category: doc.data().categoria,
-            tutor: doc.data().estudianteNombre,
-            color: "#0078FF",
-          }));
-          setStudents(studentsData);
-        });
-
-        const notificacionesQuery = query(
-          collection(db, "notificaciones"),
-          where("receptorId", "==", usuario.id)
-        );
-        const unsubscribeNotificaciones = onSnapshot(
-          notificacionesQuery,
-          (querySnapshot) => {
-            const hasUnread = querySnapshot.docs.some((doc) => !doc.data().leido);
-            setHasUnreadNotifications(hasUnread);
-          }
-        );
-
-        return () => {
-          unsubscribeStudents();
-          unsubscribeNotificaciones();
-        };
-      }
-    };
-
     fetchUserData();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserData();
+    }, [])
+  );
 
   return (
     <>
