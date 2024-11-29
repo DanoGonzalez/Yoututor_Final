@@ -6,6 +6,7 @@ interface ChatListItemProps {
   lastMessage: string;
   time: string;
   avatar?: string;
+  isUnread: boolean; // Añadir propiedad para saber si el mensaje está sin leer
   onPress: () => void;
 }
 
@@ -14,6 +15,7 @@ export default function ChatListItem({
   lastMessage,
   time,
   avatar,
+  isUnread,
   onPress,
 }: ChatListItemProps) {
   return (
@@ -29,9 +31,12 @@ export default function ChatListItem({
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.time}>{time}</Text>
         </View>
-        <Text style={styles.lastMessage} numberOfLines={1}>
-          {lastMessage}
-        </Text>
+        <View style={styles.messageContainer}>
+          {isUnread && <View style={styles.unreadDot} />}
+          <Text style={[styles.lastMessage, isUnread && styles.unreadMessage]}>
+            {lastMessage}
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -63,12 +68,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  time: {
-    fontSize: 12,
-    color: "#666",
+  messageContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   lastMessage: {
     fontSize: 14,
+    color: "#666",
+  },
+  unreadMessage: {
+    fontWeight: "bold",
+    color: "#000", // Cambiar el color para resaltar el mensaje no leído
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#0078FF",
+    marginRight: 8,
+  },
+  time: {
+    fontSize: 12,
     color: "#666",
   },
 });

@@ -3,8 +3,6 @@ import {
   StyleSheet,
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   ScrollView,
   StatusBar,
   ActivityIndicator,
@@ -16,7 +14,9 @@ import ChatListItem from "./ChatListItem";
 import { RootStackParamList } from "../types";
 import { getChatEstudiante, getChatTutor } from "../controllers/chatsController";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Chats } from "../models/chats"; // Importamos la nueva interfaz ChatData
+import { Chats } from "../models/chats"; // Importamos la interfaz original ChatData
+import { onSnapshot, query, where, collection } from "firebase/firestore";
+import { db } from "../utils/Firebase";
 
 export default function MessagesScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -29,41 +29,70 @@ export default function MessagesScreen() {
       console.log("Obteniendo chats...");
       const usuarioData = await AsyncStorage.getItem("usuario");
       const usuario = usuarioData ? JSON.parse(usuarioData) : null;
-      const usuarioId = usuario.id;
-      const usuarioRol = usuario.role;
-      console.log("role", usuarioRol);
+      const usuarioId = usuario?.id;
+      const usuarioRol = usuario?.role;
 
-      let chatsData: Chats[] = [];
-      if (usuarioId && usuarioRol === 2) {
-        const chatEstudiante = await getChatEstudiante(usuarioId);
-        chatsData = chatEstudiante.map((chat) => ({
-          ...chat,
-          id: chat.id,
-          avatar: chat.tutorInfo.profilePicture, // Usar avatar del tutor
-          displayName: chat.tutorInfo.nombres, // Mostrar nombre del tutor
-        }));
-      } else if (usuarioId && usuarioRol === 3) {
-        const chatTutor = await getChatTutor(usuarioId);
-        chatsData = chatTutor.map((chat) => ({
-          ...chat,
-          id: chat.id,
-          avatar: chat.estudianteInfo.profilePicture,
-          displayName: chat.estudianteInfo.nombres, // Mostrar nombre del estudiante
-        }));
+      if (!usuarioId) {
+        setError("No se encontró información del usuario.");
+        setLoading(false);
+        return;
       }
 
-      setChats(chatsData);
+      let initialChats: Chats[] = [];
+      if (usuarioRol === 2) {
+        initialChats = await getChatEstudiante(usuarioId);
+      } else if (usuarioRol === 3) {
+        initialChats = await getChatTutor(usuarioId);
+      }
+
+      // Añadir la propiedad isUnread según el valor de mensajesCount
+      const extendedChats = initialChats.map(chat => ({
+        ...chat,
+        isUnread: chat.mensajesCount > 0, // Si hay mensajes no leídos, marcar como no leído
+      }));
+
+      setChats(extendedChats);
+      setLoading(false);
+
+      // Crear una suscripción en tiempo real a los cambios en los chats
+      const chatData = collection(db, "chats");
+      let chatsQuery;
+      if (usuarioRol === 2) {
+        chatsQuery = query(chatData, where("estudianteId", "==", usuarioId));
+      } else if (usuarioRol === 3) {
+        chatsQuery = query(chatData, where("tutorId", "==", usuarioId));
+      }
+
+      if (chatsQuery) {
+        const unsubscribe = onSnapshot(chatsQuery, (querySnapshot) => {
+          const updatedChats = querySnapshot.docs.map((doc) => {
+            const data = doc.data() as Chats;
+            const existingChat = initialChats.find(chat => chat.id === doc.id);
+
+            return {
+              ...data,
+              id: doc.id,
+              avatar: existingChat?.tutorInfo?.profilePicture || existingChat?.estudianteInfo?.profilePicture || "", // Usamos el avatar que ya se obtuvo
+              displayName: existingChat?.tutorInfo?.nombres || existingChat?.estudianteInfo?.nombres || "", // Usamos el nombre que ya se obtuvo
+              isUnread: data.mensajesCount > 0, // Actualizar estado de no leído
+            };
+          });
+          setChats(updatedChats);
+        });
+
+        // Si el componente se desmonta, cancelar la suscripción
+        return () => unsubscribe();
+      }
     } catch (error) {
       console.error("Error al obtener los chats:", error);
       setError("No se pudieron cargar los chats.");
-    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", fetchChats);
-    return unsubscribe;
+    const unsubscribeFocus = navigation.addListener("focus", fetchChats);
+    return unsubscribeFocus;
   }, [navigation]);
 
   const handleChatPress = (chatId: string, chatName: string) => {
@@ -86,18 +115,9 @@ export default function MessagesScreen() {
         <View style={styles.header}>
           <Text style={styles.headerText}>Chats</Text>
         </View>
-        {/* <View style={styles.searchContainer}>
-          <Ionicons name="search" size={24} color="#8E8E93" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Buscar..."
-            placeholderTextColor="#8E8E93"
-          />
-        </View> */}
         <Text style={styles.subheader}>Mis chats</Text>
 
         {chats.length === 0 ? (
-          // Si no hay chats, mostramos el mensaje de "No tienes chats por el momento"
           <View style={styles.noChatsContainer}>
             <Ionicons name="chatbubble-ellipses-outline" size={60} color="#8E8E93" />
             <Text style={styles.noChatsText}>No tienes chats por el momento.</Text>
@@ -106,11 +126,12 @@ export default function MessagesScreen() {
           <ScrollView style={styles.chatList}>
             {chats.map((chat, index) => (
               <ChatListItem
-                key={chat.id || `chat-${index}`} // Usa un key provisional si chat.id es nulo o undefined
+                key={chat.id || `chat-${index}`}
                 name={chat.displayName || "Desconocido"}
                 lastMessage={chat.ultimoMensaje || "No hay mensajes"}
                 time={chat.timestamp.toDate().toLocaleTimeString()}
                 avatar={chat.avatar}
+                isUnread={chat.isUnread || false} // Pasamos si está sin leer para mostrar un indicador visual
                 onPress={() => chat.id && chat.displayName && handleChatPress(chat.id, chat.displayName)}
               />
             ))}
@@ -136,30 +157,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 20,
     fontWeight: "bold",
-  },
-  leftSection: {
-    position: "absolute",
-    left: 20,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    borderWidth: 1,
-    borderColor: "#E6E6E6",
-    marginHorizontal: 20,
-    marginTop: 10,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: "#000000",
   },
   subheader: {
     fontSize: 17,

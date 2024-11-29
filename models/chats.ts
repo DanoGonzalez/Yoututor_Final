@@ -10,5 +10,8 @@ export interface Chats {
     displayName?: string;
     avatar?: string;
     id?: string;
+    tutorInfo?: any; // Añadido para que tutorInfo sea reconocido por TypeScript
+    estudianteInfo?: any; 
+    isUnread?: boolean; 
   }
   
