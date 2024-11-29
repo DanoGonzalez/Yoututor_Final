@@ -60,7 +60,8 @@ const HomeScreen = () => {
 
         const tutoriasQuery = query(
           collection(db, "tutorias"),
-          where("estudianteId", "==", usuario.id)
+          where("estudianteId", "==", usuario.id),
+          where("status", "==", 1)
         );
         const unsubscribeTutorias = onSnapshot(tutoriasQuery, (querySnapshot) => {
           const tutoriasData = querySnapshot.docs.map((doc) => ({
@@ -105,7 +106,6 @@ const HomeScreen = () => {
       </View>
     </TouchableOpacity>
   );
-  
 
   return (
     <>
@@ -148,9 +148,9 @@ const HomeScreen = () => {
                       style={styles.chatButton}>
                       <Text style={styles.chatButtonText}>Ir al chat</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.scheduleButton}>
+                    {/* <TouchableOpacity style={styles.scheduleButton}>
                       <Text style={styles.scheduleButtonText}>Ver horarios</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                   </View>
                 </View>
                 <Image
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   },
   chatButton: {
     backgroundColor: "#0078D4",
-    paddingVertical: 4, // Reduced padding for narrower button
+    paddingVertical: 4,
     paddingHorizontal: 12,
     borderRadius: 20,
     marginBottom: 6,
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   scheduleButton: {
     borderColor: "#0078D4",
     borderWidth: 1,
-    paddingVertical: 4, // Reduced padding for narrower button
+    paddingVertical: 4,
     paddingHorizontal: 12,
     borderRadius: 20,
     alignItems: "center",
@@ -267,11 +267,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   advisoryImage: {
-    width: 170, // Increased width
-    height: 140, // Increased height
+    width: 170,
+    height: 140,
     resizeMode: "contain",
     marginLeft: 17,
-    transform: [{ scale: 1.3 }], // Slightly larger scale
+    transform: [{ scale: 1.3 }],
   },
   content: {
     paddingHorizontal: 20,
@@ -284,17 +284,19 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   list: {
-    paddingBottom: 85,
+    paddingBottom: 100, 
+    paddingHorizontal: 20,
   },
   advisoryCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     overflow: "hidden",
-    marginBottom: 16,
+    marginBottom: 24, // Aumentar margen inferior para más separación entre las tarjetas
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
+    padding: 12,
     shadowRadius: 4,
   },
   advisoryImageBackground: {

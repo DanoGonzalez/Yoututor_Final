@@ -13,7 +13,7 @@ import {
 import { TextInput } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import profileImage from "../assets/Profile/User.jpg";
+import profileImage from "../assets/Profile/User1.jpg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Usuario } from "../models/usuarios";
 import { getUsuario, updateUsuario } from "../controllers/usuariosController";

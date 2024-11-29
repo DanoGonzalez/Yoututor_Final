@@ -67,7 +67,8 @@ const HomeScreenTutor = () => {
 
         const studentsQuery = query(
           collection(db, "tutorias"),
-          where("tutorId", "==", usuario.id)
+          where("tutorId", "==", usuario.id),
+          where("status", "==", 1)
         );
         const unsubscribeStudents = onSnapshot(studentsQuery, (querySnapshot) => {
           const studentsData = querySnapshot.docs.map((doc) => ({
@@ -117,9 +118,6 @@ const HomeScreenTutor = () => {
               <Text style={styles.studentName}>{tutorName}</Text>
             </View>
             <View style={styles.iconsContainer}>
-              <TouchableOpacity>
-                <Ionicons name="search-outline" size={24} color="#000" />
-              </TouchableOpacity>
               <TouchableOpacity onPress={handleNotificationsPress}>
                 <Ionicons
                   name="notifications-outline"
