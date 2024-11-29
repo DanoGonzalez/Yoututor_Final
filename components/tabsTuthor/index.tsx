@@ -149,9 +149,9 @@ const HomeScreenTutor = () => {
                 <TouchableOpacity style={styles.chatButton} onPress={handleChat}>
                   <Text style={styles.chatButtonText}>Ir al chat</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.scheduleButton}>
+                {/* <TouchableOpacity style={styles.scheduleButton}>
                   <Text style={styles.scheduleButtonText}>Ver horarios</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
             </View>
             <Image
