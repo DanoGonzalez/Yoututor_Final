@@ -12,12 +12,16 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getTutoriasbyid, updateTutoria } from "../controllers/tutoriasController";
 import SuccessAsesoriaModal from "./Modals/SuccessAsesoriaModal";
 import CanceledAsesoriaModal from "./Modals/CanceledAsesoriaModal";
+import ModalTutoriaDetails from "./Modals/ModalTutoriaDetails";
 
-const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation, route }) => {
+const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
+  navigation,
+  route,
+}) => {
   const { tutoriaId } = route.params || {};
   const [loading, setLoading] = useState(true);
   const [tutoria, setTutoria] = useState<any>({});
@@ -32,6 +36,7 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
   });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showCanceledModal, setShowCanceledModal] = useState(false);
+  const [showNoLinkModal, setShowNoLinkModal] = useState(false);
 
   const fetchTutoriadetails = async () => {
     try {
@@ -73,7 +78,7 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
 
   const handleCancel = () => {
     setEditableData({
-      horario: tutoria.horario || "",
+      horario: tutoria.horario,
       modalidad: "Virtual",
       plataforma: tutoria.plataforma || "Discord",
       descripcion: tutoria.descripcion || "",
@@ -89,37 +94,48 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color="#0078FF" />
-      <Text style={styles.loadingText}>Cargando...</Text>
-    </View>
+        <ActivityIndicator size="large" color="#0078FF" />
+        <Text style={styles.loadingText}>Cargando...</Text>
+      </View>
     );
   }
 
   const isTutor = userRole === 3;
-  const profileName = isTutor ? tutoria.estudianteData.nombres : tutoria.tutorData.nombres;
+  const profileName = isTutor
+    ? tutoria.estudianteData.nombres
+    : tutoria.tutorData.nombres;
   const profileRole = isTutor ? "Estudiante" : "Tutor";
   const profilePicture = isTutor
-    ? tutoria.estudianteData?.profilePicture || "../assets/icons/profile-picture.png"
+    ? tutoria.estudianteData?.profilePicture ||
+      "../assets/icons/profile-picture.png"
     : tutoria.tutorData?.profilePicture || "../assets/icons/profile-picture.png";
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.leftSection}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.leftSection}>
             <Ionicons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerText}>{tutoria.materiaNombre} </Text>
         </View>
 
-        <Image source={require("../assets/icons/POO.jpg")} style={styles.backgroundImage} />
+        <Image
+          source={require("../assets/icons/POO.jpg")}
+          style={styles.backgroundImage}
+        />
 
         <View style={styles.tutorContainer}>
           <View style={styles.tutorProfileAndDetails}>
             <View style={styles.tutorProfileContainer}>
               <Image source={profilePicture} style={styles.profileImageLarge} />
               <View style={styles.tutorInfo}>
-                <Text style={styles.tutorName} numberOfLines={1} ellipsizeMode="tail">
+                <Text
+                  style={styles.tutorName}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
                   {profileName}
                 </Text>
                 <Text style={styles.tutorRole}>{profileRole}</Text>
@@ -132,19 +148,25 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
                   <TextInput
                     style={styles.input}
                     value={editableData.horario}
-                    onChangeText={(text) => setEditableData({ ...editableData, horario: text })}
+                    onChangeText={(text) =>
+                      setEditableData({ ...editableData, horario: text })
+                    }
                     placeholder="Horario"
                   />
                   <TextInput
                     style={styles.input}
                     value={editableData.modalidad}
-                    onChangeText={(text) => setEditableData({ ...editableData, modalidad: text })}
+                    onChangeText={(text) =>
+                      setEditableData({ ...editableData, modalidad: text })
+                    }
                     placeholder="Modalidad"
                   />
                   <TextInput
                     style={styles.input}
                     value={editableData.plataforma}
-                    onChangeText={(text) => setEditableData({ ...editableData, plataforma: text })}
+                    onChangeText={(text) =>
+                      setEditableData({ ...editableData, plataforma: text })
+                    }
                     placeholder="Plataforma"
                   />
                 </View>
@@ -152,7 +174,9 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
                 <View>
                   <View style={styles.detailItemContainerSmaller}>
                     <Text style={styles.detailLabelSmaller}>Horario:</Text>
-                    <Text style={styles.detailValueSmaller}>{tutoria.horario}</Text>
+                    <Text style={styles.detailValueSmaller}>
+                      {tutoria.horario}
+                    </Text>
                   </View>
                   <View style={styles.detailItemContainerSmaller}>
                     <Text style={styles.detailLabelSmaller}>Modalidad:</Text>
@@ -160,14 +184,20 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
                   </View>
                   <View style={styles.detailItemContainerSmaller}>
                     <Text style={styles.detailLabelSmaller}>Plataforma:</Text>
-                    <Text style={styles.detailValueSmaller}>{tutoria.plataforma}</Text>
+                    <Text style={styles.detailValueSmaller}>
+                      {tutoria.plataforma}
+                    </Text>
                   </View>
                 </View>
               )}
               <Text style={styles.statusActive}>Activo</Text>
               {isTutor && (
                 <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-                  <Ionicons name={isEditing ? "save" : "pencil"} size={24} color="#000" />
+                  <Ionicons
+                    name={isEditing ? "save" : "pencil"}
+                    size={24}
+                    color="#000"
+                  />
                 </TouchableOpacity>
               )}
             </View>
@@ -175,35 +205,38 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
         </View>
 
         {isEditing && (
-        <View style={styles.descriptionContainer}>
+          <View style={styles.descriptionContainer}>
             <View style={styles.linkInputContainer}>
-                <Text style={styles.inputLabel}>Enlace de la Asesoría:</Text>
-                <TextInput
+              <Text style={styles.inputLabel}>Enlace de la Asesoría:</Text>
+              <TextInput
                 style={styles.input}
                 value={editableData.enlaceAsesoria}
-                onChangeText={(text) => setEditableData({ ...editableData, enlaceAsesoria: text })}
+                onChangeText={(text) =>
+                  setEditableData({ ...editableData, enlaceAsesoria: text })
+                }
                 placeholder="Ingrese el enlace de la asesoría"
-                />
+              />
             </View>
-        </View>
+          </View>
         )}
 
         <View style={styles.descriptionContainer}>
           <Text style={styles.descriptionTitle}>Descripción de la Asesoría</Text>
           {isEditing ? (
             <TextInput
-                style={[styles.input, styles.multilineInput]} // Estilo adicional para múltiples líneas
-                value={editableData.descripcion}
-                onChangeText={(text) => setEditableData({ ...editableData, descripcion: text })}
-                placeholder="Agrega una descripción..."
-                multiline={true} // Permitir múltiples líneas
+              style={[styles.input, styles.multilineInput]} // Estilo adicional para múltiples líneas
+              value={editableData.descripcion}
+              onChangeText={(text) =>
+                setEditableData({ ...editableData, descripcion: text })
+              }
+              placeholder="Agrega una descripción..."
+              multiline={true} // Permitir múltiples líneas
             />
-            ) : (
+          ) : (
             <Text style={styles.descriptionText}>
-                {tutoria.descripcion || "Sin descripción disponible."}
+              {tutoria.descripcion || "Sin descripción disponible."}
             </Text>
-            )}
-
+          )}
         </View>
 
         <View style={styles.buttonContainer}>
@@ -223,20 +256,18 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
                 onPress={() => {
                   if (tutoria.enlaceAsesoria) {
                     setShowSuccessModal(true);
-                    Linking.openURL(tutoria.enlaceAsesoria).catch(err =>
+                    Linking.openURL(tutoria.enlaceAsesoria).catch((err) =>
                       console.error("Failed to open URL:", err)
                     );
                   } else {
-                    alert("No hay un enlace disponible para esta tutoría.");
+                    setShowNoLinkModal(true);
                   }
-                }}
-              >
+                }}>
                 <Text style={styles.startButtonText}>Iniciar Asesoría</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.cancelButton}
-                onPress={() => setShowCanceledModal(true)}
-              >
+                onPress={() => setShowCanceledModal(true)}>
                 <Text style={styles.cancelButtonText}>Cancelar Asesoría</Text>
               </TouchableOpacity>
             </>
@@ -244,13 +275,17 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
         </View>
       </ScrollView>
 
-      <SuccessAsesoriaModal 
+      <SuccessAsesoriaModal
         visible={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
       />
-      <CanceledAsesoriaModal 
+      <CanceledAsesoriaModal
         visible={showCanceledModal}
         onClose={() => setShowCanceledModal(false)}
+      />
+      <ModalTutoriaDetails
+        visible={showNoLinkModal}
+        onClose={() => setShowNoLinkModal(false)}
       />
     </SafeAreaView>
   );
@@ -387,11 +422,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: "90%",
     justifyContent: "center",
-    alignItems: 'center',  // Centrar los botones horizontalmente
+    alignItems: "center", // Centrar los botones horizontalmente
   },
   startButton: {
     backgroundColor: "#0078D4",
-    paddingVertical: 15,  // Ajuste del padding para que coincida con Figma
+    paddingVertical: 15, // Ajuste del padding para que coincida con Figma
     paddingHorizontal: 25,
     borderRadius: 8,
     alignItems: "center",
@@ -400,13 +435,13 @@ const styles = StyleSheet.create({
   },
   startButtonText: {
     color: "#FFF",
-    fontSize: 16,  // Aumentar el tamaño de la fuente del botón
-    fontWeight: '600',  // Añadir grosor al texto para más visibilidad
+    fontSize: 16, // Aumentar el tamaño de la fuente del botón
+    fontWeight: "600", // Añadir grosor al texto para más visibilidad
   },
   cancelButton: {
     borderColor: "#0078D4",
     borderWidth: 1,
-    paddingVertical: 15,  // Ajuste del padding para que coincida con Figma
+    paddingVertical: 15, // Ajuste del padding para que coincida con Figma
     paddingHorizontal: 25,
     borderRadius: 8,
     alignItems: "center",
@@ -414,8 +449,8 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     color: "#0078D4",
-    fontSize: 16,  // Aumentar el tamaño de la fuente del botón
-    fontWeight: '600',  // Añadir grosor al texto para más visibilidad
+    fontSize: 16, // Aumentar el tamaño de la fuente del botón
+    fontWeight: "600", // Añadir grosor al texto para más visibilidad
   },
   inputLabel: {
     fontSize: 14,
@@ -433,7 +468,7 @@ const styles = StyleSheet.create({
   },
   multilineInput: {
     height: 100, // Adjust the height as needed
-    textAlignVertical: 'top', // Align text to the top
+    textAlignVertical: "top", // Align text to the top
   },
   linkInputContainer: {
     width: "90%",
