@@ -23,19 +23,25 @@ import {
   verificarSolicitudPendiente,
 } from "../../controllers/solicitudesController";
 import { Usuario, TutorWithMaterias } from "../../models/usuarios";
-
+import ErrorRequestInfoModal from "../Modals/ErrorRequestInfoModal";
+import ErrorRequestTutorModal from "../Modals/ErrorRequestTutorModal";
+import SuccessRequestTutorModal from "../Modals/SuccessRequestTutorModal";
+import ErrorRequest404Modal from "../Modals/ErrorRequest404Modal";
 
 interface RouteParams {
   tutorId: string;
 }
 export default function TutorDetailsScreen() {
-
   const route = useRoute();
   const navigation = useNavigation<any>();
   const { tutorId } = route.params as RouteParams;
   const [tutor, setTutor] = useState<TutorWithMaterias | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRequested, setIsRequested] = useState(false);
+  const [showErrorInfoModal, setShowErrorInfoModal] = useState(false);
+  const [showErrorTutorModal, setShowErrorTutorModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showError404Modal, setShowError404Modal] = useState(false);
 
   // Manejar solicitud de tutoría
   const handleRequestTutoring = async () => {
@@ -43,7 +49,7 @@ export default function TutorDetailsScreen() {
     try {
       const usuario = await AsyncStorage.getItem("usuario");
       if (!usuario) {
-        alert("Error: No se pudo obtener la información del usuario");
+        setShowErrorInfoModal(true);
         return;
       }
 
@@ -51,22 +57,21 @@ export default function TutorDetailsScreen() {
       const estudianteId = estudiante.id;
       const materiaId = tutor?.materiasDominadas[0].id || 0;
 
-      // Verificar si ya existe una solicitud
       const solicitudExistente = await verificarSolicitudPendiente(
         tutorId,
         estudianteId
       );
       if (solicitudExistente) {
-        alert("Ya has enviado una solicitud para este tutor.");
+        setShowErrorTutorModal(true);
         return;
       }
 
       await crearSolicitud(tutorId, estudianteId, String(materiaId));
-      alert("Solicitud enviada con éxito");
+      setShowSuccessModal(true);
       setIsRequested(true);
     } catch (error) {
       console.error("Error al crear la solicitud:", error);
-      alert("Error al enviar la solicitud");
+      setShowError404Modal(true);
     }
   };
 
@@ -134,8 +139,24 @@ export default function TutorDetailsScreen() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+      behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <ErrorRequestInfoModal
+        visible={showErrorInfoModal}
+        onClose={() => setShowErrorInfoModal(false)}
+      />
+      <ErrorRequestTutorModal
+        visible={showErrorTutorModal}
+        onClose={() => setShowErrorTutorModal(false)}
+      />
+      <SuccessRequestTutorModal
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
+      <ErrorRequest404Modal
+        visible={showError404Modal}
+        onClose={() => setShowError404Modal(false)}
+      />
+
       <FlatList
         data={[]}
         keyExtractor={() => "key"}
@@ -162,7 +183,9 @@ export default function TutorDetailsScreen() {
                 style={[styles.diagonalLine, { top: 360 }]}
               />
 
-              <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={handleBackPress}>
                 <MaterialIcons name="arrow-back" size={30} color="white" />
               </TouchableOpacity>
               <Text style={styles.title}>Solicitar Tutor</Text>
@@ -172,7 +195,9 @@ export default function TutorDetailsScreen() {
               <View style={styles.userImageContainer}>
                 <Image source={userImage} style={styles.userImage} />
               </View>
-              <Text style={styles.name}>{tutor.nombres} {tutor.apellidos}</Text>
+              <Text style={styles.name}>
+                {tutor.nombres} {tutor.apellidos}
+              </Text>
             </View>
 
             <View style={styles.contentContainer}>
@@ -184,14 +209,17 @@ export default function TutorDetailsScreen() {
                 <View style={styles.contactItemRight}>
                   <Image source={materialIcon} style={styles.icon} />
                   <Text style={styles.contactText}>
-                  {tutor.materiasDominadas && tutor.materiasDominadas.length > 0 ? (
+                    {tutor.materiasDominadas &&
+                    tutor.materiasDominadas.length > 0 ? (
                       tutor.materiasDominadas.map((materia, index) => (
                         <Text key={index} style={styles.infoText}>
                           {materia.materia}
                         </Text>
                       ))
                     ) : (
-                      <Text style={styles.infoText}>No hay materias dominadas.</Text>
+                      <Text style={styles.infoText}>
+                        No hay materias dominadas.
+                      </Text>
                     )}
                   </Text>
                 </View>
@@ -204,8 +232,16 @@ export default function TutorDetailsScreen() {
               </View>
             </View>
 
-            <TouchableOpacity  style={[styles.requestButton, isRequested && styles.requestButtonDisabled]} disabled={isRequested} onPress={handleRequestTutoring}>
-              <Text style={styles.requestButtonText}>{isRequested ? "Solicitud Enviada" : "Solicitar Tutoría"}</Text>
+            <TouchableOpacity
+              style={[
+                styles.requestButton,
+                isRequested && styles.requestButtonDisabled,
+              ]}
+              disabled={isRequested}
+              onPress={handleRequestTutoring}>
+              <Text style={styles.requestButtonText}>
+                {isRequested ? "Solicitud Enviada" : "Solicitar Tutoría"}
+              </Text>
             </TouchableOpacity>
           </View>
         }
