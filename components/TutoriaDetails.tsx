@@ -87,6 +87,19 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
     setIsEditing(false);
   };
 
+  const handleCancelarAsesoria = async () => {
+    try {
+      const updatedTutoria = {
+        status: 0,
+      };
+      await updateTutoria(tutoriaId, updatedTutoria);
+      setTutoria({ ...tutoria, ...updatedTutoria });
+      setShowCanceledModal(true)
+    } catch (error) {
+      console.error("Error al cancelar la tutoría:", error);
+    }
+  };
+
   useEffect(() => {
     fetchTutoriadetails();
   }, []);
@@ -265,11 +278,12 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
                 }}>
                 <Text style={styles.startButtonText}>Iniciar Asesoría</Text>
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity 
                 style={styles.cancelButton}
-                onPress={() => setShowCanceledModal(true)}>
+                onPress={(handleCancelarAsesoria)}
+              >
                 <Text style={styles.cancelButtonText}>Cancelar Asesoría</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </>
           )}
         </View>

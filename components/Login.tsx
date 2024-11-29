@@ -124,9 +124,9 @@ const Login: React.FC<LoginProps> = ({ navigation, onLogin }) => {
               <Text style={styles.registerButtonText}>Registrar Cuenta</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity>
+            {/* <TouchableOpacity>
               <Text style={styles.forgotPasswordText}>Olvidé mi contraseña</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

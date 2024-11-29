@@ -134,6 +134,7 @@ export const createStudents = async (usuario: Partial<Usuario>) => {
       apellidos: usuario.apellidos || '',
       correo: usuario.correo || '',
       password: usuario.password || '',
+      profilePicture: usuario.profilePicture || '',
     };
 
     const docRef = await addDoc(usuariosCollection, newUser);
@@ -164,6 +165,7 @@ export const createTutor = async (usuario: Partial<Usuario>) => {
       password: usuario.password || '',
       githubProfile: usuario.githubProfile || '',
       linkedinProfile: usuario.linkedinProfile || '',
+      profilePicture: usuario.profilePicture || '',
     };
 
     const docRef = await addDoc(usuariosCollection, newUser);

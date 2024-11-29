@@ -4,7 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  FlatList,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -13,7 +13,7 @@ import {
 import { TextInput } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import profileImage from "../assets/Profile/User.jpg";
+import profileImage from "../assets/Profile/User1.jpg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Usuario } from "../models/usuarios";
 import { getUsuario, updateUsuario } from "../controllers/usuariosController";
@@ -23,6 +23,7 @@ import { RootStackParamList } from "../types";
 import { EditProfileScreenProps } from "../types";
 import SuccessEditProfile from "./Modals/SuccessEditProfileModal";
 import ErrorEditProfileModal from "./Modals/ErrorEditProfileModal";
+
 
 export default function EditarPerfilScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -132,6 +133,11 @@ export default function EditarPerfilScreen() {
     navigation.goBack();
   };
 
+  const HandleBack = () => {
+    navigation.goBack();
+  };
+
+
   useEffect(() => {
     loadUserData();
   }, []);
@@ -139,6 +145,7 @@ export default function EditarPerfilScreen() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
+
       behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <FlatList
         data={[]}
@@ -147,7 +154,7 @@ export default function EditarPerfilScreen() {
         ListHeaderComponent={
           <View style={styles.container}>
             <View style={styles.header}>
-              <TouchableOpacity style={styles.backButton}>
+              <TouchableOpacity style={styles.backButton}  onPress={handleEditPhoto}>
                 <MaterialIcons name="arrow-back" size={30} color="white" />
               </TouchableOpacity>
               <Text style={styles.title}>Editar Perfil</Text>
@@ -167,56 +174,56 @@ export default function EditarPerfilScreen() {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.contentContainer}>
-              <TextInput
-                label="Nombre(s)"
-                style={styles.input}
-                value={nombre}
-                onChangeText={(text) => setNombre(text)}
-                mode="outlined"
-              />
+        <View style={styles.contentContainer}>
+          <TextInput
+            label="Nombre(s)"
+            style={styles.input}
+            value={nombre}
+            onChangeText={(text) => setNombre(text)}
+            mode="outlined"
+          />
 
-              <TextInput
-                label="Apellidos"
-                style={styles.input}
-                value={apellido}
-                onChangeText={(text) => setApellido(text)}
-                mode="outlined"
-              />
+          <TextInput
+            label="Apellidos"
+            style={styles.input}
+            value={apellido}
+            onChangeText={(text) => setApellido(text)}
+            mode="outlined"
+          />
 
-              <TextInput
-                label="Correo"
-                style={styles.input}
-                value={correo}
-                onChangeText={(text) => setCorreo(text)}
-                mode="outlined"
-              />
+          <TextInput
+            label="Correo"
+            style={styles.input}
+            value={correo}
+            onChangeText={(text) => setCorreo(text)}
+            mode="outlined"
+          />
 
-              <TextInput
-                label="Descripción"
-                style={[styles.input, styles.descriptionInput]}
-                value={descripcion}
-                onChangeText={(text) => setDescripcion(text)}
-                mode="outlined"
-                multiline
-              />
+          <TextInput
+            label="Descripción"
+            style={[styles.input, styles.descriptionInput]}
+            value={descripcion}
+            onChangeText={(text) => setDescripcion(text)}
+            mode="outlined"
+            multiline
+          />
 
-              <TextInput
-                label="Github"
-                style={styles.input}
-                value={github}
-                onChangeText={(text) => setGithub(text)}
-                mode="outlined"
-              />
+          <TextInput
+            label="Github"
+            style={styles.input}
+            value={github}
+            onChangeText={(text) => setGithub(text)}
+            mode="outlined"
+          />
 
-              <TextInput
-                label="LinkedIn"
-                style={styles.input}
-                value={linkedin}
-                onChangeText={(text) => setLinkedin(text)}
-                mode="outlined"
-              />
-            </View>
+          <TextInput
+            label="LinkedIn"
+            style={styles.input}
+            value={linkedin}
+            onChangeText={(text) => setLinkedin(text)}
+            mode="outlined"
+          />
+        </View>
 
             <View style={styles.buttonContainer}>
               <TouchableOpacity
@@ -242,14 +249,16 @@ export default function EditarPerfilScreen() {
         visible={showErrorModal}
         onClose={() => setShowErrorModal(false)}
       />
+
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "white",
+    flexGrow: 1,
+    backgroundColor: "#fff",
+    paddingBottom: 20,
   },
   header: {
     backgroundColor: "#0078FF",
@@ -305,6 +314,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   contentContainer: {
+    flex: 1,
     paddingHorizontal: 20,
     paddingTop: 20,
   },

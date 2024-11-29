@@ -68,16 +68,26 @@ export default function MessagesScreen() {
           const updatedChats = querySnapshot.docs.map((doc) => {
             const data = doc.data() as Chats;
             const existingChat = initialChats.find(chat => chat.id === doc.id);
-
-            return {
-              ...data,
-              id: doc.id,
-              avatar: existingChat?.tutorInfo?.profilePicture || existingChat?.estudianteInfo?.profilePicture || "", // Usamos el avatar que ya se obtuvo
-              displayName: existingChat?.tutorInfo?.nombres || existingChat?.estudianteInfo?.nombres || "", // Usamos el nombre que ya se obtuvo
-              isUnread: data.mensajesCount > 0, // Actualizar estado de no leído
-            };
+            console.log("Existing chat:", data);
+            if(usuarioRol === 2){
+              return {
+                ...data,
+                id: doc.id,
+                avatar: existingChat?.tutorInfo.profilePicture || "", // Usamos el avatar que ya se obtuvo
+                displayName: existingChat?.tutorInfo.nombres, // Usamos el nombre que ya se obtuvo
+                isUnread: data.mensajesCount > 0, // Actualizar estado de no leído
+              };
+            } else if(usuarioRol === 3){
+              return {
+                ...data,
+                id: doc.id,
+                avatar: existingChat?.estudianteInfo.profilePicture || "", // Usamos el avatar que ya se obtuvo
+                displayName: existingChat?.estudianteInfo.nombres, // Usamos el nombre que ya se obtuvo
+                isUnread: data.mensajesCount > 0, // Actualizar estado de no leído
+              };
+            }
           });
-          setChats(updatedChats);
+          setChats(updatedChats.filter(chat => chat !== undefined) as Chats[]);
         });
 
         // Si el componente se desmonta, cancelar la suscripción

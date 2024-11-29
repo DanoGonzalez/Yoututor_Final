@@ -170,7 +170,8 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
-    padding: 16,
+    paddingBottom: 30,
+    paddingHorizontal: 16,
   },
   inputContainer: {
     flexDirection: "row",
@@ -209,6 +210,7 @@ const styles = StyleSheet.create({
   },
   userMessage: {
     alignSelf: "flex-end",
+    padding: 10,
     backgroundColor: "#0078FF",
   },
   otherMessage: {
