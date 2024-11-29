@@ -6,4 +6,5 @@ export interface Mensaje {
     remitenteId: string;
     mensaje: string;
     timestamp: Timestamp;
+    leido: boolean;
 }   

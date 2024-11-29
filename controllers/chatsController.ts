@@ -15,6 +15,7 @@ export const newChat = async (estudianteId: string, tutorId: string, tutoriaId: 
       ultimoMensaje: "",
       timestamp: Timestamp.now(),
       mensajesCount: 0,
+      status:1
     };
 
     const chatRef = await addDoc(chatData, newChat);

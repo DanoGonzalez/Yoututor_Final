@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
-import profileImage from "../assets/Profile/User.jpg";
+import profileImage from "../assets/Profile/User1.jpg";
 import emailIcon from "../assets/Profile/outlook.png";
 import materialIcon from "../assets/Profile/book.png";
 import jsIcon from "../assets/Profile/js.png";
@@ -151,7 +151,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
                   source={
                     profileImage
                       ? { uri: profileImage }
-                      : require("../assets/Profile/User.jpg")
+                      : require("../assets/Profile/User1.jpg")
                   }
                   style={styles.profileImage}
                 />

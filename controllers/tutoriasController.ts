@@ -23,6 +23,7 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
         materiaId:constMateria.id || '',
         materiaNombre: constMateria.materia || '',
         fechaCreacion: Timestamp.now(),
+        status: 1,
       };
       const mensaje = `ha aceptado la solicitud para la materia ${constMateria.materia}`;
       await crearNotificacion(estudianteId, mensaje, 2, tutorId , materiaId);
@@ -47,7 +48,8 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
     try {
       const tutoriaQuery = query(
         collection(db, "tutorias"),
-        where("estudianteId", "==", estudianteId)
+        where("estudianteId", "==", estudianteId),
+        where("status", "==", 1) // Filtrar por `status` igual a `1`
       );
   
       // Listener en tiempo real
@@ -66,8 +68,7 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
     } catch (error) {
       throw new Error("No se pudieron obtener las tutorías en tiempo real");
     }
-
-  }
+  };
 
 
   export const getTutoriasbyid = async (id: string) => {
@@ -94,6 +95,7 @@ export const crearTutoria = async (tutorId: string, estudianteId: string, materi
           enlaceAsesoria: data?.enlaceAsesoria || '',
           tutorData: tutor,
           estudianteData: estudiante,
+          status: data?.status || 1,
         } as Tutoria;
      
         

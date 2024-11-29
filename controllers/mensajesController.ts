@@ -12,6 +12,7 @@ export const newMensaje = async (chatId: string, emisorId: string, mensaje: stri
         remitenteId: emisorId,
         mensaje,
         timestamp: Timestamp.fromDate(new Date()),
+         leido: false,
         };
     
         const mensajeRef = await addDoc(collection(db, "mensajes"), mensajeData);
