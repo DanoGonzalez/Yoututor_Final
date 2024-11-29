@@ -71,10 +71,12 @@ export default function MessagesScreen() {
   };
 
   if (loading) {
+    return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0078FF" />
         <Text style={styles.loadingText}>Cargando...</Text>
-    </View>
+      </View>
+    );
   }
 
   return (
@@ -84,28 +86,36 @@ export default function MessagesScreen() {
         <View style={styles.header}>
           <Text style={styles.headerText}>Chats</Text>
         </View>
-        <View style={styles.searchContainer}>
+        {/* <View style={styles.searchContainer}>
           <Ionicons name="search" size={24} color="#8E8E93" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar..."
             placeholderTextColor="#8E8E93"
           />
-        </View>
+        </View> */}
         <Text style={styles.subheader}>Mis chats</Text>
-        <ScrollView style={styles.chatList}>
-          {chats.map((chat, index) => (
-            <ChatListItem
-              key={chat.id || `chat-${index}`} // Usa un key provisional si chat.id es nulo o undefined
-              name={chat.displayName || "Desconocido"}
-              lastMessage={chat.ultimoMensaje || "No hay mensajes"}
-              time={chat.timestamp.toDate().toLocaleTimeString()}
-              avatar={chat.avatar}
-              onPress={() => chat.id && chat.displayName && handleChatPress(chat.id, chat.displayName)}
-            />
-          ))}
-        </ScrollView>
 
+        {chats.length === 0 ? (
+          // Si no hay chats, mostramos el mensaje de "No tienes chats por el momento"
+          <View style={styles.noChatsContainer}>
+            <Ionicons name="chatbubble-ellipses-outline" size={60} color="#8E8E93" />
+            <Text style={styles.noChatsText}>No tienes chats por el momento.</Text>
+          </View>
+        ) : (
+          <ScrollView style={styles.chatList}>
+            {chats.map((chat, index) => (
+              <ChatListItem
+                key={chat.id || `chat-${index}`} // Usa un key provisional si chat.id es nulo o undefined
+                name={chat.displayName || "Desconocido"}
+                lastMessage={chat.ultimoMensaje || "No hay mensajes"}
+                time={chat.timestamp.toDate().toLocaleTimeString()}
+                avatar={chat.avatar}
+                onPress={() => chat.id && chat.displayName && handleChatPress(chat.id, chat.displayName)}
+              />
+            ))}
+          </ScrollView>
+        )}
       </ThemedView>
     </>
   );
@@ -171,7 +181,19 @@ const styles = StyleSheet.create({
   loadingText: {
     textAlign: "center",
     fontSize: 18,
-    color: "#f1f1f1",
+    color: "#8E8E93",
     marginTop: 20,
+  },
+  noChatsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 50,
+  },
+  noChatsText: {
+    fontSize: 18,
+    color: "#8E8E93",
+    marginTop: 20,
+    textAlign: "center",
   },
 });

@@ -72,7 +72,7 @@ export default function TutorDetailsScreen() {
 
   // Función para navegar de regreso a la pantalla de tutores
   const handleBackPress = () => {
-    navigation.navigate("Tutores");
+    navigation.goBack();
   };
 
   // Función para obtener datos del tutor y verificar solicitud

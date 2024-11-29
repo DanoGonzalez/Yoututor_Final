@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const usuariosCollection = collection(db, 'usuarios');
 import { getMateria } from './materiasController';
 import { imageToBase64 } from '../utils/imageUtils';
+import { crearNotificacion } from './notificacionesController';
 
 
 /*Obtenemos todos los usaurios */
@@ -188,25 +189,58 @@ export const getUsuario = async (id: string) => {
   }
 }
 
-// Función para guardar la imagen del usuario
-export const saveUserImage = async (userId: string, imageUri: string) => {
-  try {
-    const base64Image = await imageToBase64(imageUri);
-    await AsyncStorage.setItem(`userImage_${userId}`, base64Image);
-    return base64Image;
-  } catch (error: any) {
-    console.error('Error al guardar la imagen:', error);
-    return null; // Retorna null si hay un error
-  }
-};
 
-// Función para obtener la imagen del usuario
-export const getUserImage = async (userId: string) => {
+
+/*Get para obtener tutores pendientes */
+
+export const getTutorPendientes = async () => {
   try {
-    const base64Image = await AsyncStorage.getItem(`userImage_${userId}`);
-    return base64Image;
+    const q = query(
+      usuariosCollection,
+      where('role', '==', 3),
+      where('status', '==', 0),
+      where('statusExam', '==', 0)
+    );
+
+    const querySnapshot = await getDocs(q);
+    const tutores: Usuario[] = [];
+
+    for (const doc of querySnapshot.docs) {
+      const tutor = { id: doc.id, ...doc.data() } as Usuario;
+      const materiasDominadas = await Promise.all(
+        tutor.materiasDominadas.map(async (materiaId) => {
+          const materia = await getMateria(materiaId);
+          return materia.materia;
+        })
+      );
+      tutores.push({ ...tutor, materiasDominadas });
+    }
+
+    return tutores;
   } catch (error: any) {
-    console.error('Error al obtener la imagen:', error);
-    return null;
+    throw new Error('Error al obtener los tutores pendientes: ' + error.message);
   }
-};
+}
+
+/*Aceptar tutor */
+
+export const acceptTutor = async (tutorId: string) => {
+  try {
+    const tutorDoc = doc(db, 'usuarios', tutorId);
+    await updateDoc(tutorDoc, { status: 1, statusExam: 1 });
+    await crearNotificacion(tutorId, '¡Felicidades! Tu solicitud ha sido aceptada.', 4, tutorId, '');
+  } catch (error: any) {
+    throw new Error('Error al aceptar al tutor: ' + error.message);
+  }
+}
+
+
+export const rejectTutor = async (tutorId: string) => {
+  try {
+    const tutorDoc = doc(db, 'usuarios', tutorId);
+    await updateDoc(tutorDoc, { status: 5})
+    await crearNotificacion(tutorId, 'Tu solicitud ha sido rechazada.', 5, tutorId, '');
+  } catch (error: any) {
+    throw new Error('Error al rechazar al tutor: ' + error.message);
+  }
+}

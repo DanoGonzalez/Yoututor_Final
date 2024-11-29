@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -8,32 +8,32 @@ import {
   KeyboardAvoidingView,
   Platform,
   Text,
+  Alert,
 } from "react-native";
 import { TextInput } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
-import MultiSelect from "react-native-multiple-select";
 import * as ImagePicker from "expo-image-picker";
-import profileImage from "../assets/Profile/user.jpg";
-
-const technologies = [
-  { id: "1", name: "JavaScript" },
-  { id: "2", name: "React" },
-  { id: "3", name: "Node.js" },
-  { id: "4", name: "Python" },
-  { id: "5", name: "Django" },
-  { id: "6", name: "Ruby" },
-  { id: "7", name: "PHP" },
-];
+import profileImage from "../assets/Profile/User.jpg";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Usuario } from "../models/usuarios";
+import { getUsuario, updateUsuario } from "../controllers/usuariosController";
+import { getMateria } from "../controllers/materiasController";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "../types";
+import { EditProfileScreenProps } from "../types";
 
 export default function EditarPerfilScreen() {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
-  const [nombre, setNombre] = useState("John");
-  const [apellido, setApellido] = useState("Smith");
-  const [correo, setCorreo] = useState("johnsmith@gmail.com");
-  const [descripcion, setDescripcion] = useState("Descripción del usuario");
-  const [github, setGithub] = useState("www.github.com");
-  const [linkedin, setLinkedin] = useState("www.linkedin.com");
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [github, setGithub] = useState("");
+  const [linkedin, setLinkedin] = useState("");
   const [profileUri, setProfileUri] = useState<string | null>(null); // Estado para la imagen de perfil seleccionada
+  const [usuario, setUsuario] = useState<Usuario | null>(null); // Estado para el usuario
+  const [loading, setLoading] = useState(true);
 
   const handleEditPhoto = async () => {
     // Solicitar permisos para acceder a la galería
@@ -57,6 +57,81 @@ export default function EditarPerfilScreen() {
     }
   };
 
+  const loadUserData = async () => {
+    console.log("Cargando datos del usuario...");
+    try {
+      const usuarioData = await AsyncStorage.getItem("usuario");
+      console.log("Usuario:", usuarioData);
+      if (usuarioData) {
+        console.log("Usuario encontrado en AsyncStorage.");
+        const usuario = JSON.parse(usuarioData);
+        const data = await getUsuario(usuario.id);
+        if (data.role !== 1) {
+          const materias = await Promise.all(
+            data.materiasDominadas.map(
+              async (materiaId: string) => await getMateria(materiaId)
+            )
+          );
+          data.materiasDominadas = materias.map((materia: any) => materia.materia);
+        }
+        setUsuario(data);
+        console.log("Datos del usuario cargados para editar:", data);
+
+        // Establecer los datos en los campos del formulario
+        setNombre(data.nombres);
+        setApellido(data.apellidos);
+        setCorreo(data.correo);
+        setDescripcion(data.descripcion || "");
+        setGithub(data.githubProfile || "");
+        setLinkedin(data.linkedinProfile || "");
+        setSelectedTechnologies(data.tecnologias || []);
+      } else {
+        console.log("No se encontró el usuario en AsyncStorage.");
+      }
+    } catch (error) {
+      console.error("Error al cargar los datos del usuario:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!usuario) return;
+
+    const updatedData: Partial<Usuario> = {
+      nombres: nombre,
+      apellidos: apellido,
+      correo: correo,
+      descripcion: descripcion,
+      githubProfile: github,
+      linkedinProfile: linkedin,
+      tecnologias: selectedTechnologies,
+    };
+
+    try {
+      if (usuario.id) {
+        await updateUsuario(usuario.id, updatedData);
+        Alert.alert("Éxito", "Los datos del usuario se han actualizado correctamente.");
+        console.log("Usuario actualizado:");
+        navigation.goBack();
+      } else {
+        console.error("Usuario ID is undefined");
+      }
+      // Aquí puedes actualizar el estado local si deseas reflejar los cambios inmediatamente
+    } catch (error) {
+      Alert.alert("Error", "Hubo un problema al actualizar el perfil. Inténtalo nuevamente.");
+      console.error("Error al actualizar el usuario:", error);
+    }
+  };
+  
+  const handleCancel = () => {
+    navigation.goBack();
+  }
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -79,9 +154,9 @@ export default function EditarPerfilScreen() {
               <View style={styles.profileImageContainer}>
                 <Image source={profileUri ? { uri: profileUri } : profileImage} style={styles.profileImage} />
               </View>
-                <TouchableOpacity style={styles.editButton} onPress={handleEditPhoto}>
-                  <MaterialIcons name="edit" size={24} color="white" />
-                </TouchableOpacity>
+              <TouchableOpacity style={styles.editButton} onPress={handleEditPhoto}>
+                <MaterialIcons name="edit" size={24} color="white" />
+              </TouchableOpacity>
             </View>
 
             <View style={styles.contentContainer}>
@@ -107,27 +182,6 @@ export default function EditarPerfilScreen() {
                 value={correo}
                 onChangeText={(text) => setCorreo(text)}
                 mode="outlined"
-              />
-              <Text style={styles.label}>Tecnologías</Text>
-              <MultiSelect
-                items={technologies}
-                uniqueKey="id"
-                onSelectedItemsChange={(selectedItems: string[]) =>
-                  setSelectedTechnologies(selectedItems)
-                }
-                selectedItems={selectedTechnologies}
-                selectText="Selecciona tecnologías"
-                searchInputPlaceholderText="Buscar..."
-                tagRemoveIconColor="#0078FF"
-                tagBorderColor="#0078FF"
-                tagTextColor="#0078FF"
-                selectedItemTextColor="#0078FF"
-                selectedItemIconColor="#0078FF"
-                itemTextColor="#000"
-                displayKey="name"
-                searchInputStyle={{ color: "#0078FF" }}
-                submitButtonColor="#0078FF"
-                submitButtonText="Seleccionar"
               />
 
               <TextInput
@@ -157,10 +211,10 @@ export default function EditarPerfilScreen() {
             </View>
 
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={[styles.button, styles.cancelButton]}>
+              <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
                 <Text style={styles.buttonText}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, styles.saveButton]}>
+              <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleUpdate}>
                 <Text style={styles.buttonText}>Guardar</Text>
               </TouchableOpacity>
             </View>
@@ -236,11 +290,6 @@ const styles = StyleSheet.create({
   input: {
     marginBottom: 10,
     backgroundColor: "white",
-  },
-  label: {
-    fontSize: 14,
-    color: "#545454",
-    marginBottom: 5,
   },
   descriptionInput: {
     marginTop: 10,

@@ -14,9 +14,12 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
 import { StudentRegistrationProps } from "../../types";
 import { createStudents } from "../../controllers/usuariosController";
+import SuccessRegisterModal from "../Modals/SuccessRegister";
+import ErrorRegisterModal from "../Modals/ErrorRegisterModal";
 
 const StudentRegistration: React.FC<StudentRegistrationProps> = ({
   navigation,
@@ -26,6 +29,10 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -35,19 +42,23 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
   const handleNext = async () => {
     console.log("Registrando estudiante...");
     if (!nombres || !apellidos || !email || !password || !confirmPassword) {
-      Alert.alert("Error", "Por favor, completa todos los campos.");
+      setErrorMessage("Por favor, completa todos los campos.");
+      setShowErrorModal(true);
       return;
     }
     if (!isValidEmail(email)) {
-      Alert.alert("Error", "Por favor, introduce un correo electrónico válido.");
+      setErrorMessage("Por favor, introduce un correo electrónico válido.");
+      setShowErrorModal(true);
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert("Error", "Las contraseñas no coinciden.");
+      setErrorMessage("Las contraseñas no coinciden.");
+      setShowErrorModal(true);
       return;
     }
 
     try {
+      setIsLoading(true);
       console.log("Creando estudiante...");
       const usuarioData = {
         nombres,
@@ -57,18 +68,18 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
       };
 
       await createStudents(usuarioData);
-      console.log("Estudiante creado exitosamente.");
-      Alert.alert("Éxito", "¡Usuario creado exitosamente!", [
-        {
-          text: "OK",
-          onPress: () => navigation.navigate("Login"),
-        },
-      ]);
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        navigation.navigate("Login");
+      }, 2000);
     } catch (error: any) {
-      Alert.alert(
-        "Error",
+      setErrorMessage(
         "Hubo un problema al registrar el usuario. Intenta de nuevo."
       );
+      setShowErrorModal(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -148,8 +159,15 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
                     onChangeText={setConfirmPassword}
                     secureTextEntry
                   />
-                  <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-                    <Text style={styles.nextButtonText}>Crear Cuenta</Text>
+                  <TouchableOpacity 
+                    style={[styles.nextButton, isLoading && styles.nextButtonDisabled]} 
+                    onPress={handleNext}
+                    disabled={isLoading}>
+                    {isLoading ? (
+                      <ActivityIndicator color="#FFFFFF" size="small" />
+                    ) : (
+                      <Text style={styles.nextButtonText}>Crear Cuenta</Text>
+                    )}
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.alternativeButton}
@@ -164,6 +182,15 @@ const StudentRegistration: React.FC<StudentRegistrationProps> = ({
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       </SafeAreaView>
+      <SuccessRegisterModal
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
+      <ErrorRegisterModal
+        visible={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        message={errorMessage}
+      />
     </View>
   );
 };
@@ -229,6 +256,9 @@ const styles = StyleSheet.create({
   nextButtonText: { color: "#FFFFFF", fontSize: 18, fontWeight: "bold" },
   alternativeButton: { marginTop: 16, padding: 12 },
   alternativeButtonText: { color: "#0078FF", fontSize: 16, textAlign: "center" },
+  nextButtonDisabled: {
+    backgroundColor: "#DDDDDD",
+  },
 });
 
 export default StudentRegistration;

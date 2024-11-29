@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,16 +8,22 @@ import {
   StatusBar,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { TutoresScreenProps } from "../../types";
 import { getTutores } from "../../controllers/usuariosController";
-import { Usuario } from '../../models/usuarios';
+import { Usuario } from "../../models/usuarios";
+import { Materia } from "../../models/materias";
+import { getmaterias } from "../../controllers/materiasController";
+
+const COLORS = ["#007AFF", "#34C759", "#FF9500"];
 
 const TutoresScreen: React.FC = () => {
   const navigation = useNavigation<TutoresScreenProps["navigation"]>();
   const [tutores, setTutores] = useState<Usuario[]>([]);
+  const [materias, setMaterias] = useState<Materia[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,29 +32,30 @@ const TutoresScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchTutores = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getTutores();
-        setTutores(data);
+        const [tutoresData, materiasData] = await Promise.all([
+          getTutores(),
+          getmaterias(),
+        ]);
+        setTutores(tutoresData);
+        setMaterias(materiasData);
       } catch (error) {
-        setError('Error al obtener los tutores');
+        setError("Error al obtener los datos");
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTutores();
+    fetchData();
   }, []);
 
-  const categories = [
-    "Programación",
-    "Backend",
-    "Diseño UI/UX",
-    "Frontend",
-    "Fullstack",
-  ];
+  const subjects = materias.map((materia, index) => ({
+    ...materia,
+    color: COLORS[index % COLORS.length],
+  }));
 
   return (
     <SafeAreaView style={styles.container}>
@@ -57,52 +64,63 @@ const TutoresScreen: React.FC = () => {
         <TouchableOpacity onPress={handleBackPress}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Busca tu próximo asesor</Text>
+        <Text style={styles.headerTitle}>Buscar Asesoria</Text>
       </View>
-      <View style={styles.categoriesContainer}>
-        {categories.map((category, index) => (
-          <TouchableOpacity key={index} style={styles.categoryButton}>
-            <Text style={styles.categoryTextFilter}>{category}</Text>
-          </TouchableOpacity>
-        ))}
+
+      <View style={styles.subjectsWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.subjectsContainer}>
+          {subjects.map((subject) => (
+            <View
+              key={subject.materia}
+              style={[styles.subjectCard, { backgroundColor: subject.color }]}>
+              <Text style={styles.subjectName}>{subject.materia}</Text>
+            </View>
+          ))}
+        </ScrollView>
       </View>
+
+      <Text style={styles.sectionTitle}>Tutores</Text>
+
       {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0078FF" />
-          <Text style={styles.loadingText}>Cargando...</Text>
-        </View>
+        <ActivityIndicator size="large" color="#0078FF" />
       ) : (
         <ScrollView style={styles.tutorsContainer}>
-          {tutores.map((tutor, index) => (
+          {tutores.map((tutor) => (
             <TouchableOpacity
               key={tutor.id}
-              style={[
-                styles.tutorCard,
-                { backgroundColor: index % 2 === 0 ? "#0078FF" : "#C4C4C4" },
-              ]}
-              onPress={() => tutor.id !== undefined && navigation.navigate('TutorDetailsScreen', { tutorId: tutor.id })}
-            >
-              <View style={styles.cardHeader}>
-                <Text style={styles.subjectText}>
-                  {tutor.materiasDominadas.length > 0 ? tutor.materiasDominadas[0] : "Materia principal"}
-                </Text>
-                <TouchableOpacity>
-                  <Ionicons name="ellipsis-horizontal" size={24} color="#FFF" />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.categoryText}>{tutor.tecnologias.join(", ")}</Text>
-              <View style={styles.cardFooter}>
-                <View style={styles.tutorInfo}>
-                  <Ionicons name="location-outline" size={16} color="#FFF" />
-                  <Text style={styles.platformText}>
-                    {tutor.tecnologias.length > 0 ? tutor.tecnologias[0] : "Plataforma"}
+              style={styles.tutorCard}
+              onPress={() =>
+                tutor.id !== undefined &&
+                navigation.navigate("TutorDetailsScreen", { tutorId: tutor.id })
+              }>
+              <View style={styles.tutorInfo}>
+                <Image
+                  source={require("../../assets/SearchAsesor/Profile.png")}
+                  style={styles.profileImage}
+                />
+                <View style={styles.tutorDetails}>
+                  <Text
+                    style={
+                      styles.tutorName
+                    }>{`${tutor.nombres} ${tutor.apellidos}`}</Text>
+                  <Text style={styles.tutorSubject}>
+                    {tutor.materiasDominadas.length > 0
+                      ? tutor.materiasDominadas[0]
+                      : "Sin materia"}
                   </Text>
                 </View>
-                <View style={styles.tutorInfo}>
-                  <Ionicons name="person-circle-outline" size={16} color="#FFF" />
-                  <Text style={styles.tutorText}>{`${tutor.nombres} ${tutor.apellidos}`}</Text>
-                </View>
               </View>
+              <Image
+                source={
+                  tutor.status === 1
+                    ? require("../../assets/SearchAsesor/active.png")
+                    : require("../../assets/SearchAsesor/inactive.png")
+                }
+                style={styles.statusIcon}
+              />
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -126,20 +144,50 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginLeft: 16,
   },
-  categoriesContainer: {
-    padding: 16,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 8,
+  subjectsWrapper: {
+    height: 100, // Altura fija para el contenedor de materias
   },
-  categoryButton: {
-    backgroundColor: "#F0F8FF",
+  subjectsContainer: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    gap: 12,
+  },
+  subjectCard: {
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 4,
+  },
+  subjectNumber: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  subjectName: {
+    color: "white",
+    fontSize: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 16,
+    marginTop: 8,
     marginBottom: 8,
-    height: 35,
+  },
+  tutorsContainer: {
+    paddingHorizontal: 16,
+    flex: 1,
+  },
+  tutorCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 12,
+    backgroundColor: "white",
+    borderRadius: 8,
+    marginBottom: 8,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -147,60 +195,31 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 3,
-    elevation: 3,
-  },
-  categoryText: {
-    color: "#FFF",
-    fontWeight: "500",
-  },
-  categoryTextFilter: {
-    color: "#0078FF",
-    fontWeight: "500",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: "#0078FF",
-    marginTop: 10,
-  },
-  tutorsContainer: {
-    padding: 16,
-  },
-  tutorCard: {
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  subjectText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
-  cardFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 8,
+    elevation: 2,
   },
   tutorInfo: {
     flexDirection: "row",
     alignItems: "center",
   },
-  platformText: {
-    color: "#FFFFFF",
-    marginLeft: 4,
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
-  tutorText: {
-    color: "#FFFFFF",
-    marginLeft: 4,
+  tutorDetails: {
+    marginLeft: 12,
+  },
+  tutorName: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  tutorSubject: {
+    fontSize: 14,
+    color: "#666",
+  },
+  statusIcon: {
+    width: 12,
+    height: 12,
   },
 });
 

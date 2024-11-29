@@ -17,7 +17,10 @@ export type RootStackParamList = {
   NotificacionesScreen: undefined;
   Home: undefined;
   TutoriaDetails: { tutoriaId: string };
-  Chat: { chatId: string, chatName: string };
+  Chat: { chatId: string; chatName: string };
+  Messages: undefined;
+  EditProfile: undefined;
+  Profile: undefined;
 };
 
 export type TabParamList = {
@@ -28,6 +31,7 @@ export type TabParamList = {
   TutorDetailsScreen: { tutorId: string };
   Notifications: undefined;
   TutoriaDetails: { tutoriaId: string };
+  EditProfile: undefined;
 };
 
 export type TutorStackParamList = {
@@ -35,6 +39,8 @@ export type TutorStackParamList = {
   ScheduleConsulting: undefined;
   NotificacionesScreen: undefined;
   TutoriaDetails: { tutoriaId: string };
+  Messages: undefined;
+  EditProfile: undefined;
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> =
@@ -100,6 +106,11 @@ export type NotificacionesScreenProps = NativeStackScreenProps<
 export type TutoriaDetailsScreenProps = NativeStackScreenProps<
   RootStackParamList,
   "TutoriaDetails"
+>;
+
+export type EditProfileScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  "EditProfile"
 >;
 
 export type TutoresScreenProps = TabScreenProps<"Tutores">;

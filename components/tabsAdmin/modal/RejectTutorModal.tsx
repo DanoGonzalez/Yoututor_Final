@@ -9,19 +9,19 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import { TabParamList } from "../../types";
+import { TabParamList } from "../../../types";
 
-type SuccessModalProps = {
+type RejectTutorModalProps = {
   visible: boolean;
   onClose: () => void;
 };
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose }) => {
-  const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
-
+const RejectTutorModal: React.FC<RejectTutorModalProps> = ({
+  visible,
+  onClose,
+}) => {
   const handleClose = () => {
     onClose();
-    navigation.navigate("Home");
   };
 
   return (
@@ -33,11 +33,11 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onClose }) => {
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Image
-            source={require("../assets/ModalImages/Cancel.png")}
+            source={require("../../../assets/AdminScreen/List/AsesorRechazado.png")}
             style={styles.image}
             resizeMode="contain"
           />
-          <Text style={styles.title}>Aseosria Cancelada</Text>
+          <Text style={styles.title}>Tutor Rechazado</Text>
           <TouchableOpacity style={styles.button} onPress={handleClose}>
             <Text style={styles.buttonText}>Cerrar</Text>
           </TouchableOpacity>
@@ -94,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SuccessModal;
+export default RejectTutorModal;

@@ -14,6 +14,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getTutoriasbyid, updateTutoria } from "../controllers/tutoriasController";
+import SuccessAsesoriaModal from "./Modals/SuccessAsesoriaModal";
+import CanceledAsesoriaModal from "./Modals/CanceledAsesoriaModal";
 
 const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation, route }) => {
   const { tutoriaId } = route.params || {};
@@ -28,6 +30,8 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
     descripcion: "",
     enlaceAsesoria: "",
   });
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showCanceledModal, setShowCanceledModal] = useState(false);
 
   const fetchTutoriadetails = async () => {
     try {
@@ -218,6 +222,7 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
                 style={styles.startButton}
                 onPress={() => {
                   if (tutoria.enlaceAsesoria) {
+                    setShowSuccessModal(true);
                     Linking.openURL(tutoria.enlaceAsesoria).catch(err =>
                       console.error("Failed to open URL:", err)
                     );
@@ -228,13 +233,25 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({ navigation,
               >
                 <Text style={styles.startButtonText}>Iniciar Asesoría</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.cancelButton}>
+              <TouchableOpacity 
+                style={styles.cancelButton}
+                onPress={() => setShowCanceledModal(true)}
+              >
                 <Text style={styles.cancelButtonText}>Cancelar Asesoría</Text>
               </TouchableOpacity>
             </>
           )}
         </View>
       </ScrollView>
+
+      <SuccessAsesoriaModal 
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
+      <CanceledAsesoriaModal 
+        visible={showCanceledModal}
+        onClose={() => setShowCanceledModal(false)}
+      />
     </SafeAreaView>
   );
 };

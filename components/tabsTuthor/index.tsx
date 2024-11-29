@@ -31,7 +31,8 @@ const HomeScreenTutor = () => {
   const navigation = useNavigation<StackNavigationProp<TutorStackParamList>>();
   const [tutorName, setTutorName] = useState<string>("");
   const [materiasDominadas, setMateriasDominadas] = useState<string[]>([]);
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState<boolean>(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] =
+    useState<boolean>(false);
   const [students, setStudents] = useState<TutorItem[]>([]);
 
   const handleNotificationsPress = () => {
@@ -42,6 +43,11 @@ const HomeScreenTutor = () => {
   const handleCardPress = (id: string) => {
     navigation.navigate("TutoriaDetails", { tutoriaId: id });
   };
+  
+  const handleChat = () => {
+    console.log("Chatting...");
+    navigation.navigate("Messages");
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -50,7 +56,11 @@ const HomeScreenTutor = () => {
 
       if (usuario) {
         const data = await getUsuario(usuario.id);
-        const materias = await Promise.all(data.materiasDominadas.map(async (materiaId: string) => await getMateria(materiaId)));
+        const materias = await Promise.all(
+          data.materiasDominadas.map(
+            async (materiaId: string) => await getMateria(materiaId)
+          )
+        );
         data.materiasDominadas = materias.map((materia: any) => materia.materia);
         setTutorName(data.nombres);
         setMateriasDominadas(data.materiasDominadas);
@@ -74,10 +84,13 @@ const HomeScreenTutor = () => {
           collection(db, "notificaciones"),
           where("receptorId", "==", usuario.id)
         );
-        const unsubscribeNotificaciones = onSnapshot(notificacionesQuery, (querySnapshot) => {
-          const hasUnread = querySnapshot.docs.some((doc) => !doc.data().leido);
-          setHasUnreadNotifications(hasUnread);
-        });
+        const unsubscribeNotificaciones = onSnapshot(
+          notificacionesQuery,
+          (querySnapshot) => {
+            const hasUnread = querySnapshot.docs.some((doc) => !doc.data().leido);
+            setHasUnreadNotifications(hasUnread);
+          }
+        );
 
         return () => {
           unsubscribeStudents();
@@ -95,7 +108,10 @@ const HomeScreenTutor = () => {
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.welcomeHeader}>
-            <Image source={require("../../assets/icons/Ellipse 1.png")} style={styles.profilePicture} />
+            <Image
+              source={require("../../assets/icons/Ellipse 1.png")}
+              style={styles.profilePicture}
+            />
             <View style={styles.welcomeTextContainer}>
               <Text style={styles.studentName}>Bienvenido, Tutor</Text>
               <Text style={styles.studentName}>{tutorName}</Text>
@@ -105,7 +121,12 @@ const HomeScreenTutor = () => {
                 <Ionicons name="search-outline" size={24} color="#000" />
               </TouchableOpacity>
               <TouchableOpacity onPress={handleNotificationsPress}>
-                <Ionicons name="notifications-outline" size={24} color="#000" style={styles.iconSpacing} />
+                <Ionicons
+                  name="notifications-outline"
+                  size={24}
+                  color="#000"
+                  style={styles.iconSpacing}
+                />
                 {hasUnreadNotifications && <View style={styles.notificationDot} />}
               </TouchableOpacity>
             </View>
@@ -117,9 +138,11 @@ const HomeScreenTutor = () => {
                 <Ionicons name="book-outline" size={16} color="#34A853" />
                 <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
               </View>
-              <Text style={styles.advisorySubject}>{materiasDominadas.join(", ")}</Text>
+              <Text style={styles.advisorySubject}>
+                {materiasDominadas.join(", ")}
+              </Text>
               <View style={styles.advisoryButtonsContainer}>
-                <TouchableOpacity style={styles.chatButton}>
+                <TouchableOpacity style={styles.chatButton} onPress={handleChat}>
                   <Text style={styles.chatButtonText}>Ir al chat</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.scheduleButton}>
@@ -127,14 +150,23 @@ const HomeScreenTutor = () => {
                 </TouchableOpacity>
               </View>
             </View>
-            <Image source={require("../../assets/icons/pana.png")} style={styles.advisoryImageLarge} />
+            <Image
+              source={require("../../assets/icons/pana.png")}
+              style={styles.advisoryImageLarge}
+            />
           </View>
 
           <View style={styles.content}>
             <Text style={styles.subtitle}>Mis Estudiantes</Text>
             {students.map((item) => (
-              <TouchableOpacity key={item.id} onPress={() => handleCardPress(item.id)} style={styles.advisoryCard}>
-                <Image source={require("../../assets/icons/tutorias.remotas.png")} style={styles.advisoryImageBackground} />
+              <TouchableOpacity
+                key={item.id}
+                onPress={() => handleCardPress(item.id)}
+                style={styles.advisoryCard}>
+                <Image
+                  source={require("../../assets/icons/tutoriasRemotas.png")}
+                  style={styles.advisoryImageBackground}
+                />
                 <View style={styles.advisoryContent}>
                   <Text style={styles.tutorName}>{item.tutor}</Text>
                   <View style={styles.detailsContainer}>
