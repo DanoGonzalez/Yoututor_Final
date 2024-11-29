@@ -10,6 +10,7 @@ import {
   TextInput,
   Linking,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -100,6 +101,39 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
     }
   };
 
+  const handleStartAsesoria = () => {
+    if (tutoria.enlaceAsesoria) {
+      let url = tutoria.enlaceAsesoria.trim();
+      
+      // Asegurarse de que el enlace tiene un esquema válido (http o https)
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        url = `https://${url}`;
+      }
+  
+      Linking.canOpenURL(url)
+        .then((supported) => {
+          if (supported) {
+            return Linking.openURL(url);
+          } else {
+            throw new Error("El enlace proporcionado no es válido");
+          }
+        })
+        .then(() => {
+          setShowSuccessModal(true);
+        })
+        .catch((err) => {
+          console.error("Failed to open URL:", err);
+          Alert.alert(
+            "Error",
+            "No se pudo abrir el enlace de la asesoría. Asegúrate de que el enlace es válido."
+          );
+        });
+    } else {
+      setShowNoLinkModal(true);
+    }
+  };
+  
+
   useEffect(() => {
     fetchTutoriadetails();
   }, []);
@@ -171,22 +205,6 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
                 <View>
                   <TextInput
                     style={styles.input}
-                    value={editableData.horario}
-                    onChangeText={(text) =>
-                      setEditableData({ ...editableData, horario: text })
-                    }
-                    placeholder="Horario"
-                  />
-                  <TextInput
-                    style={styles.input}
-                    value={editableData.modalidad}
-                    onChangeText={(text) =>
-                      setEditableData({ ...editableData, modalidad: text })
-                    }
-                    placeholder="Modalidad"
-                  />
-                  <TextInput
-                    style={styles.input}
                     value={editableData.plataforma}
                     onChangeText={(text) =>
                       setEditableData({ ...editableData, plataforma: text })
@@ -196,12 +214,6 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
                 </View>
               ) : (
                 <View>
-                  <View style={styles.detailItemContainerSmaller}>
-                    <Text style={styles.detailLabelSmaller}>Horario:</Text>
-                    <Text style={styles.detailValueSmaller}>
-                      {tutoria.horario}
-                    </Text>
-                  </View>
                   <View style={styles.detailItemContainerSmaller}>
                     <Text style={styles.detailLabelSmaller}>Modalidad:</Text>
                     <Text style={styles.detailValueSmaller}>Virtual</Text>
@@ -267,16 +279,7 @@ const TutoriaDetails: React.FC<{ navigation: any; route: any }> = ({
           ) : (
             <TouchableOpacity
               style={styles.startButton}
-              onPress={() => {
-                if (tutoria.enlaceAsesoria) {
-                  setShowSuccessModal(true);
-                  Linking.openURL(tutoria.enlaceAsesoria).catch((err) =>
-                    console.error("Failed to open URL:", err)
-                  );
-                } else {
-                  setShowNoLinkModal(true);
-                }
-              }}
+              onPress={handleStartAsesoria}
             >
               <Text style={styles.startButtonText}>Iniciar Asesoría</Text>
             </TouchableOpacity>

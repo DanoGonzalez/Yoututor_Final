@@ -149,9 +149,6 @@ const HomeScreenTutor = () => {
                 <TouchableOpacity style={styles.chatButton} onPress={handleChat}>
                   <Text style={styles.chatButtonText}>Ir al chat</Text>
                 </TouchableOpacity>
-                {/* <TouchableOpacity style={styles.scheduleButton}>
-                  <Text style={styles.scheduleButtonText}>Ver horarios</Text>
-                </TouchableOpacity> */}
               </View>
             </View>
             <Image
@@ -162,24 +159,31 @@ const HomeScreenTutor = () => {
 
           <View style={styles.content}>
             <Text style={styles.subtitle}>Mis Estudiantes</Text>
-            {students.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                onPress={() => handleCardPress(item.id)}
-                style={styles.advisoryCard}>
-                <Image
-                  source={require("../../assets/icons/POO.jpg")}
-                  style={styles.advisoryImageBackground}
-                />
-                <View style={styles.advisoryContent}>
-                  <Text style={styles.tutorName}>{item.tutor}</Text>
-                  <View style={styles.detailsContainer}>
-                    <Text style={styles.modeText}>Virtual</Text>
+            {students.length === 0 ? (
+              <Text style={styles.noStudentsText}>
+                Por el momento no tienes tutorías asignadas.
+              </Text>
+            ) : (
+              students.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => handleCardPress(item.id)}
+                  style={styles.advisoryCard}
+                >
+                  <Image
+                    source={require("../../assets/icons/POO.jpg")}
+                    style={styles.advisoryImageBackground}
+                  />
+                  <View style={styles.advisoryContent}>
+                    <Text style={styles.tutorName}>{item.tutor}</Text>
+                    <View style={styles.detailsContainer}>
+                      <Text style={styles.modeText}>Virtual</Text>
+                    </View>
+                    <Text style={styles.activeStatus}>Activo</Text>
                   </View>
-                  <Text style={styles.activeStatus}>Activo</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              ))
+            )}
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -274,18 +278,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 12,
   },
-  scheduleButton: {
-    borderColor: "#0078D4",
-    borderWidth: 1,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    alignItems: "center",
-  },
-  scheduleButtonText: {
-    color: "#0078D4",
-    fontSize: 12,
-  },
   advisoryImageLarge: {
     width: 180,
     height: 180,
@@ -300,6 +292,12 @@ const styles = StyleSheet.create({
     color: "#666161",
     marginBottom: 20,
     fontWeight: "bold",
+  },
+  noStudentsText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 20,
   },
   advisoryCard: {
     backgroundColor: "#FFFFFF",

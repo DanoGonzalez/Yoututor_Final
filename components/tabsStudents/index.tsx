@@ -147,47 +147,55 @@ const HomeScreen = () => {
                 color="#000"
                 style={styles.iconSpacing}
               />
-              {hasUnreadNotifications && <View style={styles.notificationDot} />}
+              {hasUnreadNotifications && (
+                <View style={styles.notificationDot} />
+              )}
             </TouchableOpacity>
           </View>
         </View>
 
-        <FlatList
-          data={tutorias}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          ListHeaderComponent={() => (
-            <>
-              <View style={styles.mainAdvisoryContainer}>
-                <View style={styles.advisoryContent}>
-                  <View style={styles.advisoryTitleContainer}>
-                    <Ionicons name="book-outline" size={16} color="#34A853" />
-                    <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
+        {tutorias.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Por el momento no tienes tutorías asignadas.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={tutorias}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.list}
+            ListHeaderComponent={() => (
+              <>
+                <View style={styles.mainAdvisoryContainer}>
+                  <View style={styles.advisoryContent}>
+                    <View style={styles.advisoryTitleContainer}>
+                      <Ionicons name="book-outline" size={16} color="#34A853" />
+                      <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
+                    </View>
+                    <Text style={styles.advisorySubject}>
+                      Diseño y Arquitectura del Software
+                    </Text>
+                    <View style={styles.advisoryButtonsContainer}>
+                      <TouchableOpacity
+                        onPress={handleChatPress}
+                        style={styles.chatButton}>
+                        <Text style={styles.chatButtonText}>Ir al chat</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                  <Text style={styles.advisorySubject}>
-                    Diseño y Arquitectura del Software
-                  </Text>
-                  <View style={styles.advisoryButtonsContainer}>
-                    <TouchableOpacity
-                      onPress={handleChatPress}
-                      style={styles.chatButton}>
-                      <Text style={styles.chatButtonText}>Ir al chat</Text>
-                    </TouchableOpacity>
-                  </View>
+                  <Image
+                    source={require("../../assets/icons/pana1.png")}
+                    style={styles.advisoryImage}
+                  />
                 </View>
-                <Image
-                  source={require("../../assets/icons/pana1.png")}
-                  style={styles.advisoryImage}
-                />
-              </View>
 
-              <View style={styles.content}>
-                <Text style={styles.subtitle}>Mis asesorias</Text>
-              </View>
-            </>
-          )}
-        />
+                <View style={styles.content}>
+                  <Text style={styles.subtitle}>Mis asesorias</Text>
+                </View>
+              </>
+            )}
+          />
+        )}
       </SafeAreaView>
     </>
   );
@@ -335,6 +343,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#000",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: 50,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: "#777",
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
 });
 

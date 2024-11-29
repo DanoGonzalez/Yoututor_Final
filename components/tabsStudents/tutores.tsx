@@ -11,7 +11,7 @@ import {
   Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { TutoresScreenProps } from "../../types";
 import { getTutores } from "../../controllers/usuariosController";
 import { Usuario } from "../../models/usuarios";
@@ -35,26 +35,32 @@ const TutoresScreen: React.FC = () => {
     navigation.navigate("Home");
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [tutoresData, materiasData] = await Promise.all([
-          getTutores(),
-          getmaterias(),
-        ]);
-        setTutores(tutoresData);
-        setMaterias(materiasData);
-      } catch (error) {
-        setError("Error al obtener los datos");
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [tutoresData, materiasData] = await Promise.all([
+        getTutores(),
+        getmaterias(),
+      ]);
+      setTutores(tutoresData);
+      setMaterias(materiasData);
+    } catch (error) {
+      setError("Error al obtener los datos");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   useEffect(() => {
     if (selectedMateria) {
