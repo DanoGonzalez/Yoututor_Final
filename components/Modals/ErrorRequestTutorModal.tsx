@@ -36,7 +36,7 @@ const ErrorRequestTutorModal: React.FC<SuccessModalProps> = ({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Image
-            source={require("../assets/ModalImages/SolicitudRechazada.png")}
+            source={require("../../assets/ModalImages/SolicitudRechazada.png")}
             style={styles.image}
             resizeMode="contain"
           />

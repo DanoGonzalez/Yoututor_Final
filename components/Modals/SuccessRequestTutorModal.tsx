@@ -36,7 +36,7 @@ const SuccessRequestTutorModal: React.FC<SuccessModalProps> = ({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Image
-            source={require("../assets/ModalImages/Success.png")}
+            source={require("../../assets/ModalImages/Success.png")}
             style={styles.image}
             resizeMode="contain"
           />
