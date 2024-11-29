@@ -64,11 +64,42 @@ const AdminDashboard = () => {
   const loadMaterias = async () => {
     try {
       const materiasData = await getmaterias();
-      const formattedSubjects = materiasData.map((materia) => ({
-        name: materia.materia,
-        tutors: 0,
-        image: require("../../assets/AdminScreen/Subjects/Subject1.png"),
-      }));
+  
+      const formattedSubjects = materiasData.map((materia) => {
+        let imagePath;
+  
+        // Verifica si el id existe, si no, asigna un valor predeterminado (ej. "0")
+        const materiaId = materia.id ? parseInt(materia.id, 10) : 0;
+  
+        // Switch para seleccionar la imagen según el id
+        switch (materiaId) {
+          case 1:
+            imagePath = require("../../assets/AdminScreen/Subjects/Subject1.png");
+            break;
+          case 2:
+            imagePath = require("../../assets/AdminScreen/Subjects/SQL.jpg");
+            break;
+          case 3:
+            imagePath = require("../../assets/AdminScreen/Subjects/Subject3.png");
+            break;
+          case 4:
+            imagePath = require("../../assets/AdminScreen/Subjects/devOps.png");
+            break;
+          case 5:
+            imagePath = require("../../assets/AdminScreen/Subjects/ingles.jpg");
+            break;
+          default:
+            imagePath = require("../../assets/AdminScreen/Subjects/Subject2.png"); // Imagen por defecto
+            break;
+        }
+  
+        return {
+          name: materia.materia || "Sin Nombre", // Nombre predeterminado si falta
+          tutors: 0,
+          image: imagePath,
+        };
+      });
+  
       console.log("Materias cargadas:", materiasData);
       setSubjects(formattedSubjects);
     } catch (error) {
@@ -77,6 +108,7 @@ const AdminDashboard = () => {
       setIsLoading(false);
     }
   };
+  
 
   useEffect(() => {
     loadMaterias();
