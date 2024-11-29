@@ -8,12 +8,12 @@ import {
   Image,
 } from "react-native";
 
-interface SuccessModalProps {
+interface ErrorModalProps {
   visible: boolean;
   onClose: () => void;
 }
 
-const SuccessRegisterModal = ({ visible, onClose }: SuccessModalProps) => {
+const ModalTutoriaDetails = ({ visible, onClose }: ErrorModalProps) => {
   return (
     <Modal
       animationType="fade"
@@ -23,10 +23,13 @@ const SuccessRegisterModal = ({ visible, onClose }: SuccessModalProps) => {
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
           <Image
-            source={require("../../assets/AdminScreen/modalImages/ModalIcon.png")}
+            source={require("../../assets/ModalImages/CancelGeneral.png")}
             style={styles.icon}
           />
-          <Text style={styles.title}>Cuenta creada con éxito</Text>
+          <Text style={styles.title}>
+            No hay un enlace disponible para esta tutoría. Espere a que el profesor
+            comparta el enlace.
+          </Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.buttonText}>Cerrar</Text>
           </TouchableOpacity>
@@ -49,11 +52,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     width: "80%",
+    paddingVertical: 30,
   },
   icon: {
     width: 80,
     height: 85,
     marginBottom: 20,
+    resizeMode: "contain",
   },
   title: {
     fontSize: 18,
@@ -75,4 +80,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SuccessRegisterModal;
+export default ModalTutoriaDetails;

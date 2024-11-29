@@ -13,7 +13,7 @@ interface SuccessModalProps {
   onClose: () => void;
 }
 
-const SuccessRegisterModal = ({ visible, onClose }: SuccessModalProps) => {
+const SuccessEditProfile = ({ visible, onClose }: SuccessModalProps) => {
   return (
     <Modal
       animationType="fade"
@@ -26,7 +26,9 @@ const SuccessRegisterModal = ({ visible, onClose }: SuccessModalProps) => {
             source={require("../../assets/AdminScreen/modalImages/ModalIcon.png")}
             style={styles.icon}
           />
-          <Text style={styles.title}>Cuenta creada con éxito</Text>
+          <Text style={styles.title}>
+            Los datos del usuario se han actualizado correctamente.
+          </Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.buttonText}>Cerrar</Text>
           </TouchableOpacity>
@@ -75,4 +77,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SuccessRegisterModal;
+export default SuccessEditProfile;

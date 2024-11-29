@@ -245,20 +245,40 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#DDDDDD",
   },
+  // nextButton: {
+  //   backgroundColor: "#0078FF",
+  //   borderRadius: 8,
+  //   padding: 16,
+  //   alignItems: "center",
+  //   marginTop: 32,
+  //   width: "100%",
+  // },
+  // nextButtonText: { color: "#FFFFFF", fontSize: 18, fontWeight: "bold" },
+  // alternativeButton: { marginTop: 16, padding: 12 },
+  // alternativeButtonText: { color: "#0078FF", fontSize: 16, textAlign: "center" },
+  // nextButtonDisabled: {
+  //   backgroundColor: "#DDDDDD",
+  // },
   nextButton: {
     backgroundColor: "#0078FF",
+    paddingVertical: 14,
     borderRadius: 8,
-    padding: 16,
     alignItems: "center",
-    marginTop: 32,
+    justifyContent: "center",
     width: "100%",
   },
-  nextButtonText: { color: "#FFFFFF", fontSize: 18, fontWeight: "bold" },
-  alternativeButton: { marginTop: 16, padding: 12 },
-  alternativeButtonText: { color: "#0078FF", fontSize: 16, textAlign: "center" },
+  nextButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   nextButtonDisabled: {
+    opacity: 0.7,
     backgroundColor: "#DDDDDD",
   },
+  alternativeButton: { marginTop: 0, alignItems: "center", paddingBottom: 30 },
+  alternativeButtonText: { fontSize: 14, color: "#0078FF" },
+
 });
 
 export default StudentRegistration;

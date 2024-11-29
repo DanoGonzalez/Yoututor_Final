@@ -13,7 +13,7 @@ interface SuccessModalProps {
   onClose: () => void;
 }
 
-const SuccessRegisterModal = ({ visible, onClose }: SuccessModalProps) => {
+const ErrorEditProfileModal = ({ visible, onClose }: SuccessModalProps) => {
   return (
     <Modal
       animationType="fade"
@@ -23,10 +23,12 @@ const SuccessRegisterModal = ({ visible, onClose }: SuccessModalProps) => {
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
           <Image
-            source={require("../../assets/AdminScreen/modalImages/ModalIcon.png")}
+            source={require("../../assets/ModalImages/CancelGeneral.png")}
             style={styles.icon}
           />
-          <Text style={styles.title}>Cuenta creada con éxito</Text>
+          <Text style={styles.title}>
+            Hubo un problema al actualizar el perfil. Inténtalo nuevamente.
+          </Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.buttonText}>Cerrar</Text>
           </TouchableOpacity>
@@ -75,4 +77,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SuccessRegisterModal;
+export default ErrorEditProfileModal;

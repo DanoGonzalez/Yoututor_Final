@@ -11,12 +11,12 @@ import {
   Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { TutoresScreenProps } from "../../types";
 import { getTutores } from "../../controllers/usuariosController";
 import { Usuario } from "../../models/usuarios";
 import { Materia } from "../../models/materias";
-import { getmaterias } from "../../controllers/materiasController";
+import { getmaterias, getMateria } from "../../controllers/materiasController";
 import { query, where, getDocs, collection } from "firebase/firestore";
 import { db } from "../../utils/Firebase";
 
@@ -35,26 +35,32 @@ const TutoresScreen: React.FC = () => {
     navigation.navigate("Home");
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [tutoresData, materiasData] = await Promise.all([
-          getTutores(),
-          getmaterias(),
-        ]);
-        setTutores(tutoresData);
-        setMaterias(materiasData);
-      } catch (error) {
-        setError("Error al obtener los datos");
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [tutoresData, materiasData] = await Promise.all([
+        getTutores(),
+        getmaterias(),
+      ]);
+      setTutores(tutoresData);
+      setMaterias(materiasData);
+    } catch (error) {
+      setError("Error al obtener los datos");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   useEffect(() => {
     if (selectedMateria) {
@@ -81,13 +87,28 @@ const TutoresScreen: React.FC = () => {
       querySnapshot.forEach((doc) => {
         filteredTutores.push({ id: doc.id, ...doc.data() } as Usuario);
       });
-      setTutores(filteredTutores);
+      await enrichTutoresWithMaterias(filteredTutores);
     } catch (error) {
       console.error("Error al obtener tutores por materia:", error);
       setError("Error al obtener tutores por materia");
     } finally {
       setLoading(false);
     }
+  };
+
+  const enrichTutoresWithMaterias = async (tutores: Usuario[]) => {
+    const enrichedTutores = await Promise.all(
+      tutores.map(async (tutor) => {
+        const materiasDominadas = await Promise.all(
+          tutor.materiasDominadas.map(async (materiaId) => {
+            const materia = await getMateria(materiaId);
+            return materia.materia;
+          })
+        );
+        return { ...tutor, materiasDominadas };
+      })
+    );
+    setTutores(enrichedTutores);
   };
 
   const fetchAllTutores = async () => {

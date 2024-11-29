@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { onSnapshot, query, where, collection } from "firebase/firestore";
 import { db } from "../../utils/Firebase";
@@ -30,7 +30,8 @@ const HomeScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [tutorias, setTutorias] = useState<TutorItem[]>([]);
   const [studentName, setStudentName] = useState<string>("");
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState<boolean>(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] =
+    useState<boolean>(false);
 
   const handleTutoresPress = () => {
     navigation.navigate("Tutores");
@@ -49,53 +50,68 @@ const HomeScreen = () => {
     navigation.navigate("NotificacionesScreen");
   };
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const usuarioData = await AsyncStorage.getItem("usuario");
-      const usuario = usuarioData ? JSON.parse(usuarioData) : null;
-      
-      if (usuario) {
-        const data = await getUsuario(usuario.id);
-        setStudentName(data.nombres);
+  const fetchUserData = async () => {
+    const usuarioData = await AsyncStorage.getItem("usuario");
+    const usuario = usuarioData ? JSON.parse(usuarioData) : null;
 
-        const tutoriasQuery = query(
-          collection(db, "tutorias"),
-          where("estudianteId", "==", usuario.id),
-          where("status", "==", 1)
-        );
-        const unsubscribeTutorias = onSnapshot(tutoriasQuery, (querySnapshot) => {
-          const tutoriasData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            subject: doc.data().materiaNombre,
-            category: doc.data().estudianteNombre,
-            tutor: doc.data().tutorNombre,
-            color: "#0078D4",
-          }));
-          setTutorias(tutoriasData);
-        });
+    if (usuario) {
+      const data = await getUsuario(usuario.id);
+      setStudentName(data.nombres);
 
-        const notificacionesQuery = query(
-          collection(db, "notificaciones"),
-          where("receptorId", "==", usuario.id),
-        );
-        const unsubscribeNotificaciones = onSnapshot(notificacionesQuery, (querySnapshot) => {
+      const tutoriasQuery = query(
+        collection(db, "tutorias"),
+        where("estudianteId", "==", usuario.id),
+        where("status", "==", 1)
+      );
+      const unsubscribeTutorias = onSnapshot(tutoriasQuery, (querySnapshot) => {
+        const tutoriasData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          subject: doc.data().materiaNombre,
+          category: doc.data().estudianteNombre,
+          tutor: doc.data().tutorNombre,
+          color: "#0078D4",
+        }));
+        setTutorias(tutoriasData);
+      });
+
+      const notificacionesQuery = query(
+        collection(db, "notificaciones"),
+        where("receptorId", "==", usuario.id)
+      );
+      const unsubscribeNotificaciones = onSnapshot(
+        notificacionesQuery,
+        (querySnapshot) => {
           const hasUnread = querySnapshot.docs.some((doc) => !doc.data().leido);
           setHasUnreadNotifications(hasUnread);
-        });
+        }
+      );
 
-        return () => {
-          unsubscribeTutorias();
-          unsubscribeNotificaciones();
-        };
-      }
-    };
+      return () => {
+        unsubscribeTutorias();
+        unsubscribeNotificaciones();
+      };
+    }
+  };
 
+  useEffect(() => {
     fetchUserData();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserData();
+    }, [])
+  );
+
   const renderItem = ({ item }: { item: TutorItem }) => (
-    <TouchableOpacity key={item.id} onPress={() => handleCardPress(item.id)} style={styles.advisoryCard}>
-      <Image source={require("../../assets/icons/POO.jpg")} style={styles.advisoryImageBackground} />
+    <TouchableOpacity
+      key={item.id}
+      onPress={() => handleCardPress(item.id)}
+      style={styles.advisoryCard}>
+      <Image
+        source={require("../../assets/icons/POO.jpg")}
+        style={styles.advisoryImageBackground}
+      />
       <View style={styles.advisoryContent}>
         <Text style={styles.subject}>{item.subject}</Text>
         <Text style={styles.tutorName}>{item.tutor}</Text>
@@ -112,7 +128,10 @@ const HomeScreen = () => {
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
       <SafeAreaView style={styles.container}>
         <View style={styles.welcomeHeader}>
-          <Image source={require("../../assets/icons/profile-picture.png")} style={styles.profilePicture} />
+          <Image
+            source={require("../../assets/icons/profile-picture.png")}
+            style={styles.profilePicture}
+          />
           <View style={styles.welcomeTextContainer}>
             <Text style={styles.studentName}>Bienvenido, Estudiante</Text>
             <Text style={styles.studentName}>{studentName}</Text>
@@ -122,49 +141,61 @@ const HomeScreen = () => {
               <Ionicons name="search-outline" size={24} color="#000" />
             </TouchableOpacity>
             <TouchableOpacity onPress={handleNotificationsPress}>
-              <Ionicons name="notifications-outline" size={24} color="#000" style={styles.iconSpacing} />
-              {hasUnreadNotifications && <View style={styles.notificationDot} />}
+              <Ionicons
+                name="notifications-outline"
+                size={24}
+                color="#000"
+                style={styles.iconSpacing}
+              />
+              {hasUnreadNotifications && (
+                <View style={styles.notificationDot} />
+              )}
             </TouchableOpacity>
           </View>
         </View>
 
-        <FlatList
-          data={tutorias}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          ListHeaderComponent={() => (
-            <>
-              <View style={styles.mainAdvisoryContainer}>
-                <View style={styles.advisoryContent}>
-                  <View style={styles.advisoryTitleContainer}>
-                    <Ionicons name="book-outline" size={16} color="#34A853" />
-                    <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
+        {tutorias.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>Por el momento no tienes tutorías asignadas.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={tutorias}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.list}
+            ListHeaderComponent={() => (
+              <>
+                <View style={styles.mainAdvisoryContainer}>
+                  <View style={styles.advisoryContent}>
+                    <View style={styles.advisoryTitleContainer}>
+                      <Ionicons name="book-outline" size={16} color="#34A853" />
+                      <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
+                    </View>
+                    <Text style={styles.advisorySubject}>
+                      Diseño y Arquitectura del Software
+                    </Text>
+                    <View style={styles.advisoryButtonsContainer}>
+                      <TouchableOpacity
+                        onPress={handleChatPress}
+                        style={styles.chatButton}>
+                        <Text style={styles.chatButtonText}>Ir al chat</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                  <Text style={styles.advisorySubject}>Diseño y Arquitectura del Software</Text>
-                  <View style={styles.advisoryButtonsContainer}>
-                    <TouchableOpacity 
-                      onPress={handleChatPress}
-                      style={styles.chatButton}>
-                      <Text style={styles.chatButtonText}>Ir al chat</Text>
-                    </TouchableOpacity>
-                    {/* <TouchableOpacity style={styles.scheduleButton}>
-                      <Text style={styles.scheduleButtonText}>Ver horarios</Text>
-                    </TouchableOpacity> */}
-                  </View>
+                  <Image
+                    source={require("../../assets/icons/pana1.png")}
+                    style={styles.advisoryImage}
+                  />
                 </View>
-                <Image
-                  source={require("../../assets/icons/pana1.png")}
-                  style={styles.advisoryImage}
-                />
-              </View>
 
-              <View style={styles.content}>
-                <Text style={styles.subtitle}>Mis asesorias</Text>
-              </View>
-            </>
-          )}
-        />
+                <View style={styles.content}>
+                  <Text style={styles.subtitle}>Mis asesorias</Text>
+                </View>
+              </>
+            )}
+          />
+        )}
       </SafeAreaView>
     </>
   );
@@ -254,18 +285,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 12,
   },
-  scheduleButton: {
-    borderColor: "#0078D4",
-    borderWidth: 1,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    alignItems: "center",
-  },
-  scheduleButtonText: {
-    color: "#0078D4",
-    fontSize: 12,
-  },
   advisoryImage: {
     width: 170,
     height: 140,
@@ -284,14 +303,14 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   list: {
-    paddingBottom: 100, 
+    paddingBottom: 100,
     paddingHorizontal: 20,
   },
   advisoryCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     overflow: "hidden",
-    marginBottom: 24, // Aumentar margen inferior para más separación entre las tarjetas
+    marginBottom: 24,
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -324,6 +343,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#000",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: 50,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: "#777",
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
 });
 

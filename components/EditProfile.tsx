@@ -20,6 +20,8 @@ import { getUsuario, updateUsuario } from "../controllers/usuariosController";
 import { getMateria } from "../controllers/materiasController";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../types";
+import SuccessEditProfile from "./Modals/SuccessEditProfileModal";
+import ErrorEditProfileModal from "./Modals/ErrorEditProfileModal";
 
 export default function EditarPerfilScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -33,10 +35,13 @@ export default function EditarPerfilScreen() {
   const [profileUri, setProfileUri] = useState<string | null>(null); // Estado para la imagen de perfil seleccionada
   const [usuario, setUsuario] = useState<Usuario | null>(null); // Estado para el usuario
   const [loading, setLoading] = useState(true);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   const handleEditPhoto = async () => {
     // Solicitar permisos para acceder a la galería
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
       alert("Permiso para acceder a la galería es necesario.");
       return;
@@ -110,18 +115,25 @@ export default function EditarPerfilScreen() {
     try {
       if (usuario.id) {
         await updateUsuario(usuario.id, updatedData);
-        Alert.alert("Éxito", "Los datos del usuario se han actualizado correctamente.");
-        console.log("Usuario actualizado:");
-        navigation.goBack();
+        setShowSuccessModal(true);
       } else {
         console.error("Usuario ID is undefined");
       }
     } catch (error) {
-      Alert.alert("Error", "Hubo un problema al actualizar el perfil. Inténtalo nuevamente.");
+      setShowErrorModal(true);
       console.error("Error al actualizar el usuario:", error);
     }
   };
-  
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
+    navigation.goBack();
+  };
+
+  const handleCloseErrorModal = () => {
+    setShowErrorModal(false);
+  };
+
   const handleCancel = () => {
     navigation.goBack();
   };
@@ -137,8 +149,7 @@ export default function EditarPerfilScreen() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+      behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={HandleBack}>
@@ -149,7 +160,10 @@ export default function EditarPerfilScreen() {
 
         <View style={styles.profileContainer}>
           <View style={styles.profileImageContainer}>
-            <Image source={profileUri ? { uri: profileUri } : profileImage} style={styles.profileImage} />
+            <Image
+              source={profileUri ? { uri: profileUri } : profileImage}
+              style={styles.profileImage}
+            />
           </View>
           <TouchableOpacity style={styles.editButton} onPress={handleEditPhoto}>
             <MaterialIcons name="edit" size={24} color="white" />
@@ -208,14 +222,24 @@ export default function EditarPerfilScreen() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            onPress={handleCancel}>
             <Text style={styles.buttonText}>Cancelar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleUpdate}>
+          <TouchableOpacity
+            style={[styles.button, styles.saveButton]}
+            onPress={handleUpdate}>
             <Text style={styles.buttonText}>Guardar</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <SuccessEditProfile visible={showSuccessModal} onClose={handleCloseModal} />
+      <ErrorEditProfileModal
+        visible={showErrorModal}
+        onClose={handleCloseErrorModal}
+      />
     </KeyboardAvoidingView>
   );
 }
