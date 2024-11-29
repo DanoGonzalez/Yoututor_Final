@@ -13,7 +13,7 @@ import {
 import { TextInput } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import profileImage from "../assets/Profile/user.jpg";
+import profileImage from "../assets/Profile/User.jpg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Usuario } from "../models/usuarios";
 import { getUsuario, updateUsuario } from "../controllers/usuariosController";
@@ -123,6 +123,10 @@ export default function EditarPerfilScreen() {
       console.error("Error al actualizar el usuario:", error);
     }
   };
+  
+  const handleCancel = () => {
+    navigation.goBack();
+  }
 
   useEffect(() => {
     loadUserData();
@@ -207,7 +211,7 @@ export default function EditarPerfilScreen() {
             </View>
 
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={[styles.button, styles.cancelButton]}>
+              <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleCancel}>
                 <Text style={styles.buttonText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleUpdate}>
