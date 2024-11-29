@@ -30,7 +30,8 @@ const HomeScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [tutorias, setTutorias] = useState<TutorItem[]>([]);
   const [studentName, setStudentName] = useState<string>("");
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState<boolean>(false);
+  const [hasUnreadNotifications, setHasUnreadNotifications] =
+    useState<boolean>(false);
 
   const handleTutoresPress = () => {
     navigation.navigate("Tutores");
@@ -53,7 +54,7 @@ const HomeScreen = () => {
     const fetchUserData = async () => {
       const usuarioData = await AsyncStorage.getItem("usuario");
       const usuario = usuarioData ? JSON.parse(usuarioData) : null;
-      
+
       if (usuario) {
         const data = await getUsuario(usuario.id);
         setStudentName(data.nombres);
@@ -76,12 +77,15 @@ const HomeScreen = () => {
 
         const notificacionesQuery = query(
           collection(db, "notificaciones"),
-          where("receptorId", "==", usuario.id),
+          where("receptorId", "==", usuario.id)
         );
-        const unsubscribeNotificaciones = onSnapshot(notificacionesQuery, (querySnapshot) => {
-          const hasUnread = querySnapshot.docs.some((doc) => !doc.data().leido);
-          setHasUnreadNotifications(hasUnread);
-        });
+        const unsubscribeNotificaciones = onSnapshot(
+          notificacionesQuery,
+          (querySnapshot) => {
+            const hasUnread = querySnapshot.docs.some((doc) => !doc.data().leido);
+            setHasUnreadNotifications(hasUnread);
+          }
+        );
 
         return () => {
           unsubscribeTutorias();
@@ -94,8 +98,14 @@ const HomeScreen = () => {
   }, []);
 
   const renderItem = ({ item }: { item: TutorItem }) => (
-    <TouchableOpacity key={item.id} onPress={() => handleCardPress(item.id)} style={styles.advisoryCard}>
-      <Image source={require("../../assets/icons/POO.jpg")} style={styles.advisoryImageBackground} />
+    <TouchableOpacity
+      key={item.id}
+      onPress={() => handleCardPress(item.id)}
+      style={styles.advisoryCard}>
+      <Image
+        source={require("../../assets/icons/POO.jpg")}
+        style={styles.advisoryImageBackground}
+      />
       <View style={styles.advisoryContent}>
         <Text style={styles.subject}>{item.subject}</Text>
         <Text style={styles.tutorName}>{item.tutor}</Text>
@@ -112,7 +122,10 @@ const HomeScreen = () => {
       <StatusBar backgroundColor="#0078FF" barStyle="light-content" />
       <SafeAreaView style={styles.container}>
         <View style={styles.welcomeHeader}>
-          <Image source={require("../../assets/icons/profile-picture.png")} style={styles.profilePicture} />
+          <Image
+            source={require("../../assets/icons/profile-picture.png")}
+            style={styles.profilePicture}
+          />
           <View style={styles.welcomeTextContainer}>
             <Text style={styles.studentName}>Bienvenido, Estudiante</Text>
             <Text style={styles.studentName}>{studentName}</Text>
@@ -122,7 +135,12 @@ const HomeScreen = () => {
               <Ionicons name="search-outline" size={24} color="#000" />
             </TouchableOpacity>
             <TouchableOpacity onPress={handleNotificationsPress}>
-              <Ionicons name="notifications-outline" size={24} color="#000" style={styles.iconSpacing} />
+              <Ionicons
+                name="notifications-outline"
+                size={24}
+                color="#000"
+                style={styles.iconSpacing}
+              />
               {hasUnreadNotifications && <View style={styles.notificationDot} />}
             </TouchableOpacity>
           </View>
@@ -141,9 +159,11 @@ const HomeScreen = () => {
                     <Ionicons name="book-outline" size={16} color="#34A853" />
                     <Text style={styles.advisoryTitle}> Asesoría Principal</Text>
                   </View>
-                  <Text style={styles.advisorySubject}>Diseño y Arquitectura del Software</Text>
+                  <Text style={styles.advisorySubject}>
+                    Diseño y Arquitectura del Software
+                  </Text>
                   <View style={styles.advisoryButtonsContainer}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       onPress={handleChatPress}
                       style={styles.chatButton}>
                       <Text style={styles.chatButtonText}>Ir al chat</Text>
@@ -288,6 +308,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   advisoryCard: {
+    marginHorizontal: 10,
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     overflow: "hidden",
